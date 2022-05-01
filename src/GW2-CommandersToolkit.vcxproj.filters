@@ -65,5 +65,36 @@
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="GW2-CommandersToolkit.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icons\Alacrity.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\Fury.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\Heal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\Quickness.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\Vulnerability.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\Might.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
