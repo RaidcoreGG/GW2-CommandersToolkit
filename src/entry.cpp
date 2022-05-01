@@ -45,6 +45,7 @@ void* arclog;
 
 bool show_squadmanager = false;
 std::vector<Player> SquadMembers;
+bool working = false;
 
 void log(char* str) /* log to arcdps.log and log window*/
 {
@@ -254,6 +255,11 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 		/* notify tracking change */
 		if (!src->elite)
 		{
+			while (working) {
+				Sleep(5);
+			}
+			working = true;
+
 			/* add */
 			if (src->prof)
 			{
@@ -306,6 +312,8 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 					}
 				}
 			}
+
+			working = false;
 		}
 	}
 	return 0;

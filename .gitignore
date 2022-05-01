@@ -6,5 +6,6 @@
 /CppCheckResults.xml
 /*.cscope_file_list
 /x64
+/src/x64
 /.vs
 *.aps
