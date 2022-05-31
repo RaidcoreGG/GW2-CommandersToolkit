@@ -112,7 +112,13 @@ uintptr_t UISquadManager()
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
 
-	if (ImGui::BeginTable("table_sqmgr", 10))
+	if (ImGui::SmallButton("Remove all untracked"))
+	{
+		SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
+			[](Player p) { return !p.IsTracked; }), SquadMembers.end());
+	}
+
+	if (ImGui::BeginTable("table_sqmgr", 10, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX))
 	{
 		ImGui::TableSetupColumn("Name");
 		ImGui::TableSetupColumn("Sub");
@@ -143,15 +149,7 @@ uintptr_t UISquadManager()
 				if (SquadMembers[i].Utilities.Vulnerability) { subTotal.Vulnerability = true; }
 				if (SquadMembers[i].Utilities.Heal) { subTotal.Heal = true; }
 
-				// prepare checkbox unique ids
-				std::string idS = "##Sub" + std::to_string(SquadMembers[i].ID);
-				std::string idM = "##Might" + std::to_string(SquadMembers[i].ID);
-				std::string idA = "##Alac" + std::to_string(SquadMembers[i].ID);
-				std::string idQ = "##Quic" + std::to_string(SquadMembers[i].ID);
-				std::string idF = "##Fury" + std::to_string(SquadMembers[i].ID);
-				std::string idV = "##Vuln" + std::to_string(SquadMembers[i].ID);
-				std::string idH = "##Heal" + std::to_string(SquadMembers[i].ID);
-				std::string idN = "##Notes" + std::to_string(SquadMembers[i].ID);
+				std::string id = std::to_string(SquadMembers[i].ID); // helper for unique chkbxIds
 
 				// red font if not tracked
 				if (!SquadMembers[i].IsTracked) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
@@ -165,54 +163,56 @@ uintptr_t UISquadManager()
 					ImGui::Text("%s", SquadMembers[i].AccountName);
 					ImGui::EndTooltip();
 				}
-				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64); ImGui::InputInt(idS.c_str(), &SquadMembers[i].Subgroup);
+				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64);
+				ImGui::InputInt(("##Sub" + id).c_str(), &SquadMembers[i].Subgroup);
 				if (SquadMembers[i].Subgroup < 1) { SquadMembers[i].Subgroup = 1; } // sub min is 1
 				if (SquadMembers[i].Subgroup > 15) { SquadMembers[i].Subgroup = 15; } // sub max is 15
-				ImGui::TableSetColumnIndex(2); ImGui::Checkbox(idM.c_str(), &SquadMembers[i].Utilities.Might);
-				ImGui::TableSetColumnIndex(3); ImGui::Checkbox(idA.c_str(), &SquadMembers[i].Utilities.Alacrity);
-				ImGui::TableSetColumnIndex(4); ImGui::Checkbox(idQ.c_str(), &SquadMembers[i].Utilities.Quickness);
-				ImGui::TableSetColumnIndex(5); ImGui::Checkbox(idF.c_str(), &SquadMembers[i].Utilities.Fury);
-				ImGui::TableSetColumnIndex(6); ImGui::Checkbox(idV.c_str(), &SquadMembers[i].Utilities.Vulnerability);
-				ImGui::TableSetColumnIndex(7); ImGui::Checkbox(idH.c_str(), &SquadMembers[i].Utilities.Heal);
-				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128); ImGui::InputText(idN.c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
+				ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Might" + id).c_str(), &SquadMembers[i].Utilities.Might);
+				ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Alac" + id).c_str(), &SquadMembers[i].Utilities.Alacrity);
+				ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Quic" + id).c_str(), &SquadMembers[i].Utilities.Quickness);
+				ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
+				ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
+				ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
+				ImGui::Checkbox(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
+				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128);
+				ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
 				
 				if (!SquadMembers[i].IsTracked)
 				{
 					// remove button if not tracked
 					ImGui::TableSetColumnIndex(9); if (ImGui::SmallButton("Remove")) { SquadMembers.erase(SquadMembers.begin() + i); }
-
-					// reset red font
-					ImGui::PopStyleColor();
+					ImGui::PopStyleColor(); // reset red font
 				}
 			}
 			
 			if (!subPlayerCount) { continue; }
 
 			// subgroup totals
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0); ImGui::Separator();
-
-			// if all utilities are covered -> green text
 			bool fullCoverage = false;
 			if (subTotal.Might && subTotal.Alacrity && subTotal.Quickness && subTotal.Fury && subTotal.Vulnerability && subTotal.Heal)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(89, 172, 98, 255));
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(89, 172, 98, 255)); // if all utilities are covered -> green text
 				fullCoverage = true;
 			}
+
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0); ImGui::Text("Subgroup");
 			ImGui::TableSetColumnIndex(1); ImGui::Text("%u", sub);
-			ImGui::TableSetColumnIndex(2); ImGui::Text(subTotal.Might ? "X" : "");
-			ImGui::TableSetColumnIndex(3); ImGui::Text(subTotal.Alacrity ? "X" : "");
-			ImGui::TableSetColumnIndex(4); ImGui::Text(subTotal.Quickness ? "X" : "");
-			ImGui::TableSetColumnIndex(5); ImGui::Text(subTotal.Fury ? "X" : "");
-			ImGui::TableSetColumnIndex(6); ImGui::Text(subTotal.Vulnerability ? "X" : "");
-			ImGui::TableSetColumnIndex(7); ImGui::Text(subTotal.Heal ? "X" : "");
-			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::Text("Warning: more than 5 players!"); }
-			if(fullCoverage) { ImGui::PopStyleColor(); } // reset green text
+			if (subTotal.Might)			{ ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Alacrity)		{ ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Quickness)		{ ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Fury)			{ ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Vulnerability) { ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Heal)			{ ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			
+			if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
-			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Separator();
-			ImGui::TableNextRow(); ImGui::TableSetColumnIndex(0); ImGui::Separator();
+			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::Text("Warning: more than 5 players!"); }
 		}
 
 		ImGui::EndTable();
@@ -316,5 +316,8 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 			working = false;
 		}
 	}
+
+	// add cbtstart subgroup update
+
 	return 0;
 }
