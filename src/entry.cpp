@@ -117,6 +117,13 @@ uintptr_t UISquadManager()
 		SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
 			[](Player p) { return !p.IsTracked; }), SquadMembers.end());
 	}
+	ImGui::SameLine(); ImGui::TextDisabled("(?)");
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
+		ImGui::EndTooltip();
+	}
 
 	if (ImGui::BeginTable("table_sqmgr", 10, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX))
 	{
