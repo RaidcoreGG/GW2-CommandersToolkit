@@ -239,26 +239,22 @@ uintptr_t UISquadManager()
 				}
 				if (ImGui::BeginPopupContextItem(("##PlayerCtx" + std::to_string(SquadMembers[i].ID)).c_str()))
 				{
-					if (ImGui::BeginMenu("Apply from template"))
+					ImGui::Text("Apply from template:");
+					ImGui::Separator();
+					std::vector<Template> templates = get_templates(SquadMembers[i].Profession);
+					for (size_t t = 0; t < templates.size(); t++)
 					{
-						//ImGui::Text(std::to_string(SquadMembers[i].Profession).c_str());
-
-						std::vector<Template> templates = get_templates(SquadMembers[i].Profession);
-						for (size_t t = 0; t < templates.size(); t++)
+						if (ImGui::MenuItem(templates[t].BuildName))
 						{
-							if (ImGui::MenuItem(templates[t].BuildName))
-							{
-								SquadMembers[i].Utilities = templates[t].Utilities;
-							}
+							SquadMembers[i].Utilities = templates[t].Utilities;
 						}
-						ImGui::Separator();
-						if (ImGui::MenuItem("Reset"))
-						{
-							SquadMembers[i].Utilities = Utility();
-						}
-
-						ImGui::EndMenu();
 					}
+					ImGui::Separator();
+					if (ImGui::MenuItem("Reset"))
+					{
+						SquadMembers[i].Utilities = Utility();
+					}
+
 					ImGui::EndPopup();
 				}
 				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64);
@@ -431,8 +427,6 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 			}
 		}
 	}
-
-	// add cbtstart subgroup update
 
 	return 0;
 }
