@@ -106,6 +106,73 @@ uintptr_t mod_release()
 	return 0;
 }
 
+std::vector<Template> get_templates(int profession)
+{
+	/* ideally you don't want to hardcode builds in an ever changing game, but I cba right now */
+	std::vector<Template> templates;
+
+	//templates.push_back(Template("NAME", Utility(m, a, q, f, v, h)));
+
+	switch (profession)
+	{
+		case 1: // Guardian
+			templates.push_back(Template("Condition Quickness Firebrand", Utility(true, false, true, true, false, false)));
+			templates.push_back(Template("Heal Quickness Firebrand", Utility(true, false, true, true, false, true)));
+			break;
+
+		case 2: // Warrior
+			templates.push_back(Template("Condition Quickness Berserker", Utility(false, false, true, true, false, false)));
+			templates.push_back(Template("Power Quickness Bladesworn", Utility(true, false, true, true, false, false)));
+			break;
+
+		case 3: // Engineer
+			templates.push_back(Template("Power Scrapper", Utility(false, false, false, false, true, false)));
+			templates.push_back(Template("Power Quickness Scrapper", Utility(false, false, true, false, true, false)));
+			templates.push_back(Template("Heal Quickness Scrapper", Utility(true, false, true, true, false, true)));
+			templates.push_back(Template("Power Holosmith", Utility(false, false, false, false, true, false)));
+			templates.push_back(Template("Hand Kite Mechanist", Utility(true, true, false, false, false, false)));
+			templates.push_back(Template("Power Alacrity Mechanist", Utility(true, true, false, true, false, false)));
+			templates.push_back(Template("Heal Alacrity Mechanist", Utility(true, true, false, true, false, true)));
+			break;
+
+		case 4: // Ranger
+			templates.push_back(Template("Heal Alacrity Druid", Utility(true, true, false, true, false, true)));
+			templates.push_back(Template("Condition Alacrity Untamed", Utility(false, true, false, false, false, false)));
+			break;
+
+		case 5: // Thief
+			templates.push_back(Template("Condition Boon Daredevil", Utility(true, false, true, true, false, false)));
+			templates.push_back(Template("Condition Alacrity Specter", Utility(false, true, false, false, false, false)));
+			break;
+
+		case 6: // Elementalist
+			templates.push_back(Template("Heal Alacrity Tempest", Utility(true, true, false, true, false, true)));
+			templates.push_back(Template("Power Catalyst", Utility(true, false, false, false, false, false)));
+			break;
+
+		case 7: // Mesmer
+			templates.push_back(Template("Power Quickness Chronomancer", Utility(false, false, true, false, false, false)));
+			templates.push_back(Template("Condition Quickness Chronomancer", Utility(false, false, true, false, false, false)));
+			templates.push_back(Template("Condition Alacrity Mirage", Utility(true, true, false, false, false, false)));
+			templates.push_back(Template("Power Virtuoso", Utility(false, false, false, true, true, false)));
+			break;
+
+		case 8: // Necromancer
+			templates.push_back(Template("Condition Harbinger", Utility(false, false, false, false, true, false)));
+			templates.push_back(Template("Condition Quickness Harbinger", Utility(true, false, true, true, true, false)));
+			templates.push_back(Template("Power Quickness Harbinger", Utility(false, false, true, true, false, false)));
+			break;
+
+		case 9: // Revenant
+			templates.push_back(Template("Power Herald", Utility(true, false, false, true, false, false)));
+			templates.push_back(Template("Power Quickness Herald", Utility(true, false, true, true, false, false)));
+			templates.push_back(Template("Condition Renegade", Utility(false, true, false, false, true, false)));
+			break;
+	}
+
+	return templates;
+}
+
 uintptr_t UISquadManager()
 {
 	ImGui::Begin("Squad Manager", &show_squadmanager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
@@ -169,6 +236,30 @@ uintptr_t UISquadManager()
 					ImGui::BeginTooltip();
 					ImGui::Text("%s", SquadMembers[i].AccountName);
 					ImGui::EndTooltip();
+				}
+				if (ImGui::BeginPopupContextItem(("##PlayerCtx" + std::to_string(SquadMembers[i].ID)).c_str()))
+				{
+					if (ImGui::BeginMenu("Apply from template"))
+					{
+						//ImGui::Text(std::to_string(SquadMembers[i].Profession).c_str());
+
+						std::vector<Template> templates = get_templates(SquadMembers[i].Profession);
+						for (size_t t = 0; t < templates.size(); t++)
+						{
+							if (ImGui::MenuItem(templates[t].BuildName))
+							{
+								SquadMembers[i].Utilities = templates[t].Utilities;
+							}
+						}
+						ImGui::Separator();
+						if (ImGui::MenuItem("Reset"))
+						{
+							SquadMembers[i].Utilities = Utility();
+						}
+
+						ImGui::EndMenu();
+					}
+					ImGui::EndPopup();
 				}
 				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64);
 				ImGui::InputInt(("##Sub" + id).c_str(), &SquadMembers[i].Subgroup);
@@ -285,6 +376,7 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 						{
 							agUpdate = true;
 							strcpy_s(SquadMembers[i].CharacterName, src->name);
+							SquadMembers[i].Profession = dst->prof;
 							SquadMembers[i].Subgroup = dst->team;
 							SquadMembers[i].IsTracked = true;
 							break;
@@ -297,6 +389,7 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 						p.ID = src->id;
 						strcpy_s(p.AccountName, dst->name);
 						strcpy_s(p.CharacterName, src->name);
+						p.Profession = dst->prof;
 						p.Subgroup = dst->team;
 						p.IsTracked = true;
 
@@ -321,6 +414,21 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 			}
 
 			working = false;
+		}
+	}
+	else // combat enter
+	{
+		if (ev->is_statechange == CBTS_ENTERCOMBAT)
+		{
+			for (size_t i = 0; i < SquadMembers.size(); i++)
+			{
+				if (SquadMembers[i].ID != src->id) { continue; }
+				else
+				{
+					SquadMembers[i].Subgroup = ev->dst_agent;
+					break;
+				}
+			}
 		}
 	}
 
