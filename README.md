@@ -14,6 +14,7 @@ When a user goes out of scope (leaves instance or squad), they will be shown in 
 
 ## Templates
 ![alt text](https://i.imgur.com/HFnTWg5.png)
+
 For ease of usability you can also apply the coverage of someone based on their build. If a Heal Alacrity Mechanist for example joins, you can select that from the context menu and it will be filled out from there.
 
 ## Limitations
