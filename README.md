@@ -18,4 +18,4 @@ When a user goes out of scope (leaves instance or squad), they will be shown in 
 For ease of usability you can also apply the coverage of someone based on their build. If a Heal Alacrity Mechanist for example joins, you can select that from the context menu and it will be filled out from there.
 
 ## Limitations
-Subgroups have to be manually set for each user, as they are only exposed by arc when entering a combat or when changing the instance.
+Subgroups have to be manually set for each user, as they are only exposed by arc when entering combat or when changing the instance.
