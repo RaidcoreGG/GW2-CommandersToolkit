@@ -9,6 +9,7 @@
 #include "nlohmann/json.hpp"
 #include "Player.h"
 #include <d3d11.h>
+#include <mutex>
 
 using json = nlohmann::json;
 
@@ -45,6 +46,7 @@ void* arclog;
 
 bool show_squadmanager = false;
 std::vector<Player> SquadMembers;
+std::mutex squadMembersMutex;
 bool working = false;
 
 void log(char* str) /* log to arcdps.log and log window*/
@@ -175,6 +177,7 @@ std::vector<Template> get_templates(int profession)
 
 uintptr_t UISquadManager()
 {
+	std::lock_guard<std::mutex> lock(squadMembersMutex);
 	ImGui::Begin("Squad Manager", &show_squadmanager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
@@ -349,11 +352,6 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 		/* notify tracking change */
 		if (!src->elite)
 		{
-			while (working) {
-				Sleep(5);
-			}
-			working = true;
-
 			/* add */
 			if (src->prof)
 			{
@@ -363,6 +361,7 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 				// some if not null cancer (useless?)
 				if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
 				{
+					std::lock_guard<std::mutex> lock(squadMembersMutex);
 					bool agUpdate = false;
 
 					for (size_t i = 0; i < SquadMembers.size(); i++)
@@ -398,6 +397,7 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
 				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
 
+				std::lock_guard<std::mutex> lock(squadMembersMutex);
 				for (size_t i = 0; i < SquadMembers.size(); i++)
 				{
 					if (SquadMembers[i].ID != src->id) { continue; }
@@ -408,14 +408,13 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 					}
 				}
 			}
-
-			working = false;
 		}
 	}
 	else // combat enter
 	{
 		if (ev->is_statechange == CBTS_ENTERCOMBAT)
 		{
+			std::lock_guard<std::mutex> lock(squadMembersMutex);
 			for (size_t i = 0; i < SquadMembers.size(); i++)
 			{
 				if (SquadMembers[i].ID != src->id) { continue; }
