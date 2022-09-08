@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <string>
-#include "arcdps_structs.h"
+#include "arcdps.h"
 #include "imgui\imgui.h"
 #include "nlohmann/json.hpp"
 #include "Player.h"
@@ -13,102 +13,84 @@
 
 using json = nlohmann::json;
 
+/* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
-    switch (ul_reason_for_call)
-    {
-		case DLL_PROCESS_ATTACH: break;
-		case DLL_PROCESS_DETACH: break;
-		case DLL_THREAD_ATTACH: break;
-		case DLL_THREAD_DETACH: break;
-    }
-    return TRUE;
+	switch (ul_reason_for_call)
+	{
+	case DLL_PROCESS_ATTACH: break;
+	case DLL_PROCESS_DETACH: break;
+	case DLL_THREAD_ATTACH: break;
+	case DLL_THREAD_DETACH: break;
+	}
+	return TRUE;
 }
-
-/* proto */
-extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext* imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion);
+extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion);
 extern "C" __declspec(dllexport) void* get_release_addr();
 
-arcdps_exports* mod_init();
-uintptr_t mod_release();
-uintptr_t mod_imgui(uint32_t not_charsel_or_loading);
-uintptr_t mod_options_windows(const char* windowname); // Windows check boxes in main menu
-uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t id, uint64_t revision);
-
-void log(char* str);
-void log_file(char* str);
-void log_arc(char* str);
+/* proto */
+ArcDPS::PluginExports* Initialize();
+uintptr_t Release();
+uintptr_t ImGuiRender(uint32_t not_charsel_or_loading);
+uintptr_t Windows(const char* category); // Windows check boxes in main menu
+uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision);
 
 /* globals */
-arcdps_exports arc_exports;
-void* filelog;
-void* arclog;
+ArcDPS::PluginExports PluginExports;
+ArcDPS::UISettings UISettings;
+ArcDPS::Modifiers Modifiers;
 
 bool show_squadmanager = false;
+bool show_teamcompbuilder = false;
 std::vector<Player> SquadMembers;
-std::mutex squadMembersMutex;
-bool working = false;
-
-void log(char* str) /* log to arcdps.log and log window*/
-{
-	log_file(str);
-	log_arc(str);
-	return;
-}
-void log_file(char* str) /* log to arcdps.log, thread/async safe */
-{
-	size_t(*log)(char*) = (size_t(*)(char*))filelog;
-	if (log) (*log)(str);
-	return;
-}
-void log_arc(char* str) /* log to extensions tab in arcdps log window, thread/async safe */
-{
-	size_t(*log)(char*) = (size_t(*)(char*))arclog;
-	if (log) (*log)(str);
-	return;
-}
+std::mutex SquadMembersMutex;
 
 /* export -- arcdps looks for this exported function and calls the address it returns on client load */
-extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext* imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
+extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
 {
 	ImGui::SetCurrentContext((ImGuiContext*)imguictx);
-	ImGui::SetAllocatorFunctions((void *(*)(size_t, void*))mallocfn, (void(*)(void*, void*))freefn); // on imgui 1.80+
+	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))mallocfn, (void(*)(void*, void*))freefn); // on imgui 1.80+
 
-	filelog = (void*)GetProcAddress((HMODULE)arcdll, "e3");
-	arclog = (void*)GetProcAddress((HMODULE)arcdll, "e8");
+	ArcDPS::LogFile = (void*)GetProcAddress((HMODULE)arcdll, "e3");
+	ArcDPS::LogArc = (void*)GetProcAddress((HMODULE)arcdll, "e8");
+	ArcDPS::GetUISettings = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e6");
+	ArcDPS::GetModifiers = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e7");
 
-	return mod_init;
+	// initialize arc settings at startup
+	UISettings = ArcDPS::UISettings(ArcDPS::GetUISettings());
+	Modifiers = ArcDPS::Modifiers(ArcDPS::GetModifiers());
+
+	return Initialize;
 }
 /* export -- arcdps looks for this exported function and calls the address it returns on client exit */
 extern "C" __declspec(dllexport) void* get_release_addr()
 {
-	return mod_release;
+	return Release;
 }
 
 /* initialize mod -- return table that arcdps will use for callbacks. exports struct and strings are copied to arcdps memory only once at init */
-arcdps_exports* mod_init()
+ArcDPS::PluginExports* Initialize()
 {
 	/* for arcdps */
-	memset(&arc_exports, 0, sizeof(arc_exports));
-	arc_exports.sig = 0x4A584326;
-	arc_exports.imguivers = IMGUI_VERSION_NUM;
-	arc_exports.size = sizeof(arc_exports);
-	arc_exports.out_name = "Commander's Toolkit";
-	arc_exports.out_build = __DATE__ " " __TIME__;
-	arc_exports.imgui = mod_imgui;
-	arc_exports.options_windows = mod_options_windows;
-	arc_exports.combat = mod_combat;
+	memset(&PluginExports, 0, sizeof(PluginExports));
+	PluginExports.Signature = 0x4A584326;
+	PluginExports.ImGuiVersion = IMGUI_VERSION_NUM;
+	PluginExports.Size = sizeof(PluginExports);
+	PluginExports.Name = "Commander's Toolkit";
+	PluginExports.Build = __DATE__ " " __TIME__;
+	PluginExports.ImGuiRenderCallback = ImGuiRender;
+	PluginExports.UIWindows = Windows;
+	PluginExports.CombatCallback = Combat;
 
-	return &arc_exports;
+	return &PluginExports;
 }
 /* release mod -- return ignored */
-uintptr_t mod_release()
+uintptr_t Release()
 {
-	FreeConsole();
 	return 0;
 }
 
-std::vector<Template> get_templates(int profession)
+std::vector<Template> GetTemplates(int profession)
 {
 	/* ideally you don't want to hardcode builds in an ever changing game, but I cba right now */
 	std::vector<Template> templates;
@@ -117,59 +99,59 @@ std::vector<Template> get_templates(int profession)
 
 	switch (profession)
 	{
-		case 1: // Guardian
-			templates.push_back(Template("Condition Quickness Firebrand", Utility(true, false, true, true, false, false)));
-			templates.push_back(Template("Heal Quickness Firebrand", Utility(true, false, true, true, false, true)));
-			break;
+	case 1: // Guardian
+		templates.push_back(Template("Condition Quickness Firebrand", Utility(true, false, true, true, false, false)));
+		templates.push_back(Template("Heal Quickness Firebrand", Utility(true, false, true, true, false, true)));
+		break;
 
-		case 2: // Warrior
-			templates.push_back(Template("Condition Quickness Berserker", Utility(false, false, true, true, false, false)));
-			templates.push_back(Template("Power Quickness Bladesworn", Utility(true, false, true, true, false, false)));
-			break;
+	case 2: // Warrior
+		templates.push_back(Template("Condition Quickness Berserker", Utility(false, false, true, true, false, false)));
+		templates.push_back(Template("Power Quickness Bladesworn", Utility(true, false, true, true, false, false)));
+		break;
 
-		case 3: // Engineer
-			templates.push_back(Template("Power Scrapper", Utility(false, false, false, false, true, false)));
-			templates.push_back(Template("Power Quickness Scrapper", Utility(false, false, true, false, true, false)));
-			templates.push_back(Template("Heal Quickness Scrapper", Utility(true, false, true, true, false, true)));
-			templates.push_back(Template("Power Holosmith", Utility(false, false, false, false, true, false)));
-			templates.push_back(Template("Hand Kite Mechanist", Utility(true, true, false, false, false, false)));
-			templates.push_back(Template("Power Alacrity Mechanist", Utility(true, true, false, true, false, false)));
-			templates.push_back(Template("Heal Alacrity Mechanist", Utility(true, true, false, true, false, true)));
-			break;
+	case 3: // Engineer
+		templates.push_back(Template("Power Scrapper", Utility(false, false, false, false, true, false)));
+		templates.push_back(Template("Power Quickness Scrapper", Utility(false, false, true, false, true, false)));
+		templates.push_back(Template("Heal Quickness Scrapper", Utility(true, false, true, true, false, true)));
+		templates.push_back(Template("Power Holosmith", Utility(false, false, false, false, true, false)));
+		templates.push_back(Template("Hand Kite Mechanist", Utility(true, true, false, false, false, false)));
+		templates.push_back(Template("Power Alacrity Mechanist", Utility(true, true, false, true, false, false)));
+		templates.push_back(Template("Heal Alacrity Mechanist", Utility(true, true, false, true, false, true)));
+		break;
 
-		case 4: // Ranger
-			templates.push_back(Template("Heal Alacrity Druid", Utility(true, true, false, true, false, true)));
-			templates.push_back(Template("Condition Alacrity Untamed", Utility(false, true, false, false, false, false)));
-			break;
+	case 4: // Ranger
+		templates.push_back(Template("Heal Alacrity Druid", Utility(true, true, false, true, false, true)));
+		templates.push_back(Template("Condition Alacrity Untamed", Utility(false, true, false, false, false, false)));
+		break;
 
-		case 5: // Thief
-			templates.push_back(Template("Condition Boon Daredevil", Utility(true, false, true, true, false, false)));
-			templates.push_back(Template("Condition Alacrity Specter", Utility(false, true, false, false, false, false)));
-			break;
+	case 5: // Thief
+		templates.push_back(Template("Condition Boon Daredevil", Utility(true, false, true, true, false, false)));
+		templates.push_back(Template("Condition Alacrity Specter", Utility(false, true, false, false, false, false)));
+		break;
 
-		case 6: // Elementalist
-			templates.push_back(Template("Heal Alacrity Tempest", Utility(true, true, false, true, false, true)));
-			templates.push_back(Template("Power Catalyst", Utility(true, false, false, false, false, false)));
-			break;
+	case 6: // Elementalist
+		templates.push_back(Template("Heal Alacrity Tempest", Utility(true, true, false, true, false, true)));
+		templates.push_back(Template("Power Catalyst", Utility(true, false, false, false, false, false)));
+		break;
 
-		case 7: // Mesmer
-			templates.push_back(Template("Power Quickness Chronomancer", Utility(false, false, true, false, false, false)));
-			templates.push_back(Template("Condition Quickness Chronomancer", Utility(false, false, true, false, false, false)));
-			templates.push_back(Template("Condition Alacrity Mirage", Utility(true, true, false, false, false, false)));
-			templates.push_back(Template("Power Virtuoso", Utility(false, false, false, true, true, false)));
-			break;
+	case 7: // Mesmer
+		templates.push_back(Template("Power Quickness Chronomancer", Utility(false, false, true, false, false, false)));
+		templates.push_back(Template("Condition Quickness Chronomancer", Utility(false, false, true, false, false, false)));
+		templates.push_back(Template("Condition Alacrity Mirage", Utility(true, true, false, false, false, false)));
+		templates.push_back(Template("Power Virtuoso", Utility(false, false, false, true, true, false)));
+		break;
 
-		case 8: // Necromancer
-			templates.push_back(Template("Condition Harbinger", Utility(false, false, false, false, true, false)));
-			templates.push_back(Template("Condition Quickness Harbinger", Utility(true, false, true, true, true, false)));
-			templates.push_back(Template("Power Quickness Harbinger", Utility(false, false, true, true, false, false)));
-			break;
+	case 8: // Necromancer
+		templates.push_back(Template("Condition Harbinger", Utility(false, false, false, false, true, false)));
+		templates.push_back(Template("Condition Quickness Harbinger", Utility(true, false, true, true, true, false)));
+		templates.push_back(Template("Power Quickness Harbinger", Utility(false, false, true, true, false, false)));
+		break;
 
-		case 9: // Revenant
-			templates.push_back(Template("Power Herald", Utility(true, false, false, true, false, false)));
-			templates.push_back(Template("Power Quickness Herald", Utility(true, false, true, true, false, false)));
-			templates.push_back(Template("Condition Renegade", Utility(false, true, false, false, true, false)));
-			break;
+	case 9: // Revenant
+		templates.push_back(Template("Power Herald", Utility(true, false, false, true, false, false)));
+		templates.push_back(Template("Power Quickness Herald", Utility(true, false, true, true, false, false)));
+		templates.push_back(Template("Condition Renegade", Utility(false, true, false, false, true, false)));
+		break;
 	}
 
 	return templates;
@@ -177,7 +159,7 @@ std::vector<Template> get_templates(int profession)
 
 uintptr_t UISquadManager()
 {
-	std::lock_guard<std::mutex> lock(squadMembersMutex);
+	std::lock_guard<std::mutex> lock(SquadMembersMutex);
 	ImGui::Begin("Squad Manager", &show_squadmanager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
@@ -244,7 +226,7 @@ uintptr_t UISquadManager()
 				{
 					ImGui::Text("Apply from template:");
 					ImGui::Separator();
-					std::vector<Template> templates = get_templates(SquadMembers[i].Profession);
+					std::vector<Template> templates = GetTemplates(SquadMembers[i].Profession);
 					for (size_t t = 0; t < templates.size(); t++)
 					{
 						if (ImGui::MenuItem(templates[t].BuildName))
@@ -278,7 +260,7 @@ uintptr_t UISquadManager()
 				ImGui::Checkbox(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
 				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128);
 				ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
-				
+
 				if (!SquadMembers[i].IsTracked)
 				{
 					// remove button if not tracked
@@ -286,7 +268,7 @@ uintptr_t UISquadManager()
 					ImGui::PopStyleColor(); // reset red font
 				}
 			}
-			
+
 			if (!subPlayerCount) { continue; }
 
 			// subgroup totals
@@ -300,13 +282,13 @@ uintptr_t UISquadManager()
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0); ImGui::Text("Subgroup");
 			ImGui::TableSetColumnIndex(1); ImGui::Text("%u", sub);
-			if (subTotal.Might)			{ ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Alacrity)		{ ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Quickness)		{ ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Fury)			{ ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Might) { ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Fury) { ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
 			if (subTotal.Vulnerability) { ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Heal)			{ ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			
+			if (subTotal.Heal) { ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+
 			if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
 			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::Text("Warning: more than 5 players!"); }
@@ -322,18 +304,23 @@ uintptr_t UISquadManager()
 	return 0;
 }
 
-uintptr_t mod_imgui(uint32_t not_charsel_or_loading)
+uintptr_t UITeamCompBuilder()
+{
+	/* amogus */
+}
+
+uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 {
 	if (show_squadmanager) { UISquadManager(); }
 
 	return 0;
 }
 
-uintptr_t mod_options_windows(const char* windowname)
+uintptr_t Windows(const char* category)
 {
-	if (windowname)
+	if (category)
 	{
-		if (strcmp(windowname, "squad") == 0)
+		if (strcmp(category, "squad") == 0)
 		{
 			ImGui::Checkbox("Squad Manager", &show_squadmanager);
 		}
@@ -344,7 +331,7 @@ uintptr_t mod_options_windows(const char* windowname)
 
 /* combat callback -- may be called asynchronously, use id param to keep track of order, first event id will be 2. return ignored */
 /* at least one participant will be party/squad or minion of, or a buff applied by squad in the case of buff remove. not all statechanges present, see evtc statechange enum */
-uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t id, uint64_t revision)
+uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision)
 {
 	/* ev is null. dst will only be valid on tracking add. skillname will also be null */
 	if (!ev)
@@ -358,10 +345,9 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
 				//p += _snprintf_s(p, 400, _TRUNCATE, "agent added: %s:%s (%0llx), instid: %u, prof: %u, elite: %u, self: %u, team: %u, subgroup: %u\n", src->name, dst->name, src->id, dst->id, dst->prof, dst->elite, dst->self, src->team, dst->team);
 
-				// some if not null cancer (useless?)
 				if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
 				{
-					std::lock_guard<std::mutex> lock(squadMembersMutex);
+					std::lock_guard<std::mutex> lock(SquadMembersMutex);
 					bool agUpdate = false;
 
 					for (size_t i = 0; i < SquadMembers.size(); i++)
@@ -397,7 +383,7 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
 				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
 
-				std::lock_guard<std::mutex> lock(squadMembersMutex);
+				std::lock_guard<std::mutex> lock(SquadMembersMutex);
 				for (size_t i = 0; i < SquadMembers.size(); i++)
 				{
 					if (SquadMembers[i].ID != src->id) { continue; }
@@ -412,9 +398,9 @@ uintptr_t mod_combat(cbtevent* ev, ag* src, ag* dst, char* skillname, uint64_t i
 	}
 	else // combat enter
 	{
-		if (ev->is_statechange == CBTS_ENTERCOMBAT)
+		if (ev->is_statechange == ArcDPS::CBTS_ENTERCOMBAT)
 		{
-			std::lock_guard<std::mutex> lock(squadMembersMutex);
+			std::lock_guard<std::mutex> lock(SquadMembersMutex);
 			for (size_t i = 0; i < SquadMembers.size(); i++)
 			{
 				if (SquadMembers[i].ID != src->id) { continue; }

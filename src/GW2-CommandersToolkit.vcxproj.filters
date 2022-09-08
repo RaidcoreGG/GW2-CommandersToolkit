@@ -19,6 +19,12 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{5afccfa3-840c-4efe-88fb-c73c246fa945}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\arcdps">
+      <UniqueIdentifier>{111d6abd-7adc-4b41-bbf8-98c67630125d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nlohmann">
+      <UniqueIdentifier>{f47a43cc-16f8-40c3-83e9-c7a32ab44128}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry.cpp">
@@ -41,12 +47,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arcdps_structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="nlohmann\json.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imgui.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
@@ -68,8 +68,14 @@
     <ClInclude Include="Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="arcdps.h">
+      <Filter>Header Files\arcdps</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json.hpp">
+      <Filter>Header Files\nlohmann</Filter>
+    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

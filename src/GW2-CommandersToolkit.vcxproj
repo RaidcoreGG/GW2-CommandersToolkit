@@ -163,7 +163,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="arcdps_structs.h" />
+    <ClInclude Include="arcdps.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
