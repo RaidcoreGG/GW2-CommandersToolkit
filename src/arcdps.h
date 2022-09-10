@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <Windows.h>
 
 namespace ArcDPS
 {
@@ -118,6 +119,12 @@ namespace ArcDPS
 
 	typedef struct UISettings
 	{
+		bool IsHidden;
+		bool IsAlwaysDrawn;
+		bool IsModMoveLocked;
+		bool IsModClickLocked;
+		bool IsClosingWithEscape;
+
 		UISettings() {};
 		UISettings(uint64_t mask)
 		{
@@ -127,16 +134,14 @@ namespace ArcDPS
 			IsModClickLocked = (mask & 0x08);
 			IsClosingWithEscape = (mask & 0x10);
 		};
-
-		bool IsHidden;
-		bool IsAlwaysDrawn;
-		bool IsModMoveLocked;
-		bool IsModClickLocked;
-		bool IsClosingWithEscape;
 	};
 
 	typedef struct Modifiers
 	{
+		WORD Mod1;
+		WORD Mod2;
+		WORD ModMulti;
+
 		Modifiers() {};
 		Modifiers(uint64_t modifiers)
 		{
@@ -146,10 +151,6 @@ namespace ArcDPS
 			Mod2 = mods[1];
 			ModMulti = mods[2];
 		}
-
-		WORD Mod1;
-		WORD Mod2;
-		WORD ModMulti;
 	};
 
 	/* exports */

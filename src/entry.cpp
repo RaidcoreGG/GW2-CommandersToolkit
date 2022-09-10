@@ -1,17 +1,8 @@
-// dllmain.cpp : Defines the entry point for the DLL application.
-#pragma comment(lib, "winmm.lib")
-#include <stdint.h>
-#include <stdio.h>
+#pragma once
 #include <Windows.h>
-#include <string>
 #include "arcdps.h"
-#include "imgui\imgui.h"
-#include "nlohmann/json.hpp"
-#include "Player.h"
-#include <d3d11.h>
-#include <mutex>
-
-using json = nlohmann::json;
+#include "imgui/imgui.h"
+#include "SquadManager.h"
 
 /* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -34,16 +25,13 @@ uintptr_t Release();
 uintptr_t ImGuiRender(uint32_t not_charsel_or_loading);
 uintptr_t Windows(const char* category); // Windows check boxes in main menu
 uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision);
+uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 /* globals */
 ArcDPS::PluginExports PluginExports;
 ArcDPS::UISettings UISettings;
 ArcDPS::Modifiers Modifiers;
-
-bool show_squadmanager = false;
-bool show_teamcompbuilder = false;
-std::vector<Player> SquadMembers;
-std::mutex SquadMembersMutex;
 
 /* export -- arcdps looks for this exported function and calls the address it returns on client load */
 extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
@@ -81,6 +69,8 @@ ArcDPS::PluginExports* Initialize()
 	PluginExports.ImGuiRenderCallback = ImGuiRender;
 	PluginExports.UIWindows = Windows;
 	PluginExports.CombatCallback = Combat;
+	PluginExports.WndProc = WndProc;
+	PluginExports.WndProcFiltered = WndProcFiltered;
 
 	return &PluginExports;
 }
@@ -90,228 +80,9 @@ uintptr_t Release()
 	return 0;
 }
 
-std::vector<Template> GetTemplates(int profession)
-{
-	/* ideally you don't want to hardcode builds in an ever changing game, but I cba right now */
-	std::vector<Template> templates;
-
-	//templates.push_back(Template("NAME", Utility(m, a, q, f, v, h)));
-
-	switch (profession)
-	{
-	case 1: // Guardian
-		templates.push_back(Template("Condition Quickness Firebrand", Utility(true, false, true, true, false, false)));
-		templates.push_back(Template("Heal Quickness Firebrand", Utility(true, false, true, true, false, true)));
-		break;
-
-	case 2: // Warrior
-		templates.push_back(Template("Condition Quickness Berserker", Utility(false, false, true, true, false, false)));
-		templates.push_back(Template("Power Quickness Bladesworn", Utility(true, false, true, true, false, false)));
-		break;
-
-	case 3: // Engineer
-		templates.push_back(Template("Power Scrapper", Utility(false, false, false, false, true, false)));
-		templates.push_back(Template("Power Quickness Scrapper", Utility(false, false, true, false, true, false)));
-		templates.push_back(Template("Heal Quickness Scrapper", Utility(true, false, true, true, false, true)));
-		templates.push_back(Template("Power Holosmith", Utility(false, false, false, false, true, false)));
-		templates.push_back(Template("Hand Kite Mechanist", Utility(true, true, false, false, false, false)));
-		templates.push_back(Template("Power Alacrity Mechanist", Utility(true, true, false, true, false, false)));
-		templates.push_back(Template("Heal Alacrity Mechanist", Utility(true, true, false, true, false, true)));
-		break;
-
-	case 4: // Ranger
-		templates.push_back(Template("Heal Alacrity Druid", Utility(true, true, false, true, false, true)));
-		templates.push_back(Template("Condition Alacrity Untamed", Utility(false, true, false, false, false, false)));
-		break;
-
-	case 5: // Thief
-		templates.push_back(Template("Condition Boon Daredevil", Utility(true, false, true, true, false, false)));
-		templates.push_back(Template("Condition Alacrity Specter", Utility(false, true, false, false, false, false)));
-		break;
-
-	case 6: // Elementalist
-		templates.push_back(Template("Heal Alacrity Tempest", Utility(true, true, false, true, false, true)));
-		templates.push_back(Template("Power Catalyst", Utility(true, false, false, false, false, false)));
-		break;
-
-	case 7: // Mesmer
-		templates.push_back(Template("Power Quickness Chronomancer", Utility(false, false, true, false, false, false)));
-		templates.push_back(Template("Condition Quickness Chronomancer", Utility(false, false, true, false, false, false)));
-		templates.push_back(Template("Condition Alacrity Mirage", Utility(true, true, false, false, false, false)));
-		templates.push_back(Template("Power Virtuoso", Utility(false, false, false, true, true, false)));
-		break;
-
-	case 8: // Necromancer
-		templates.push_back(Template("Condition Harbinger", Utility(false, false, false, false, true, false)));
-		templates.push_back(Template("Condition Quickness Harbinger", Utility(true, false, true, true, true, false)));
-		templates.push_back(Template("Power Quickness Harbinger", Utility(false, false, true, true, false, false)));
-		break;
-
-	case 9: // Revenant
-		templates.push_back(Template("Power Herald", Utility(true, false, false, true, false, false)));
-		templates.push_back(Template("Power Quickness Herald", Utility(true, false, true, true, false, false)));
-		templates.push_back(Template("Condition Renegade", Utility(false, true, false, false, true, false)));
-		break;
-	}
-
-	return templates;
-}
-
-uintptr_t UISquadManager()
-{
-	std::lock_guard<std::mutex> lock(SquadMembersMutex);
-	ImGui::Begin("Squad Manager", &show_squadmanager, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
-
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
-
-	if (ImGui::SmallButton("Remove all untracked"))
-	{
-		SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
-			[](Player p) { return !p.IsTracked; }), SquadMembers.end());
-	}
-	ImGui::SameLine(); ImGui::TextDisabled("(?)");
-	if (ImGui::IsItemHovered())
-	{
-		ImGui::BeginTooltip();
-		ImGui::Text("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
-		ImGui::EndTooltip();
-	}
-
-	if (ImGui::BeginTable("table_sqmgr", 10, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX))
-	{
-		ImGui::TableSetupColumn("Name");
-		ImGui::TableSetupColumn("Sub");
-		ImGui::TableSetupColumn("Might");
-		ImGui::TableSetupColumn("Alac");
-		ImGui::TableSetupColumn("Quic");
-		ImGui::TableSetupColumn("Fury");
-		ImGui::TableSetupColumn("Vuln");
-		ImGui::TableSetupColumn("Heal");
-		ImGui::TableSetupColumn("Notes");
-		ImGui::TableHeadersRow();
-
-		for (size_t sub = 1; sub <= 15; sub++)
-		{
-			int subPlayerCount = 0;
-			Utility subTotal;
-
-			for (size_t i = 0; i < SquadMembers.size(); i++)
-			{
-				if (SquadMembers[i].Subgroup != sub) { continue; }
-				subPlayerCount++;
-
-				// set subgroup coverage
-				if (SquadMembers[i].Utilities.Might) { subTotal.Might = true; }
-				if (SquadMembers[i].Utilities.Alacrity) { subTotal.Alacrity = true; }
-				if (SquadMembers[i].Utilities.Quickness) { subTotal.Quickness = true; }
-				if (SquadMembers[i].Utilities.Fury) { subTotal.Fury = true; }
-				if (SquadMembers[i].Utilities.Vulnerability) { subTotal.Vulnerability = true; }
-				if (SquadMembers[i].Utilities.Heal) { subTotal.Heal = true; }
-
-				std::string id = std::to_string(SquadMembers[i].ID); // helper for unique chkbxIds
-
-				// red font if not tracked
-				if (!SquadMembers[i].IsTracked) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
-
-				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0); ImGui::Text("%s", SquadMembers[i].IsTracked ? SquadMembers[i].CharacterName : SquadMembers[i].AccountName);
-				// acc name tooltip on charname hover
-				if (ImGui::IsItemHovered() && SquadMembers[i].IsTracked)
-				{
-					ImGui::BeginTooltip();
-					ImGui::Text("%s", SquadMembers[i].AccountName);
-					ImGui::EndTooltip();
-				}
-				if (ImGui::BeginPopupContextItem(("##PlayerCtx" + std::to_string(SquadMembers[i].ID)).c_str()))
-				{
-					ImGui::Text("Apply from template:");
-					ImGui::Separator();
-					std::vector<Template> templates = GetTemplates(SquadMembers[i].Profession);
-					for (size_t t = 0; t < templates.size(); t++)
-					{
-						if (ImGui::MenuItem(templates[t].BuildName))
-						{
-							SquadMembers[i].Utilities = templates[t].Utilities;
-						}
-					}
-					ImGui::Separator();
-					if (ImGui::MenuItem("Reset"))
-					{
-						SquadMembers[i].Utilities = Utility();
-					}
-
-					ImGui::EndPopup();
-				}
-				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64);
-				ImGui::InputInt(("##Sub" + id).c_str(), &SquadMembers[i].Subgroup);
-				if (SquadMembers[i].Subgroup < 1) { SquadMembers[i].Subgroup = 1; } // sub min is 1
-				if (SquadMembers[i].Subgroup > 15) { SquadMembers[i].Subgroup = 15; } // sub max is 15
-				ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Might" + id).c_str(), &SquadMembers[i].Utilities.Might);
-				ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Alac" + id).c_str(), &SquadMembers[i].Utilities.Alacrity);
-				ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Quic" + id).c_str(), &SquadMembers[i].Utilities.Quickness);
-				ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
-				ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
-				ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
-				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128);
-				ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
-
-				if (!SquadMembers[i].IsTracked)
-				{
-					// remove button if not tracked
-					ImGui::TableSetColumnIndex(9); if (ImGui::SmallButton("Remove")) { SquadMembers.erase(SquadMembers.begin() + i); }
-					ImGui::PopStyleColor(); // reset red font
-				}
-			}
-
-			if (!subPlayerCount) { continue; }
-
-			// subgroup totals
-			bool fullCoverage = false;
-			if (subTotal.Might && subTotal.Alacrity && subTotal.Quickness && subTotal.Fury && subTotal.Vulnerability && subTotal.Heal)
-			{
-				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(89, 172, 98, 255)); // if all utilities are covered -> green text
-				fullCoverage = true;
-			}
-
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0); ImGui::Text("Subgroup");
-			ImGui::TableSetColumnIndex(1); ImGui::Text("%u", sub);
-			if (subTotal.Might) { ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Fury) { ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Vulnerability) { ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Heal) { ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-
-			if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
-
-			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::Text("Warning: more than 5 players!"); }
-		}
-
-		ImGui::EndTable();
-	}
-
-	ImGui::PopStyleVar();
-
-	ImGui::End();
-
-	return 0;
-}
-
-uintptr_t UITeamCompBuilder()
-{
-	/* amogus */
-}
-
 uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 {
-	if (show_squadmanager) { UISquadManager(); }
+	if (SquadManager::SquadManager::Visible) { SquadManager::DrawWindow(); }
 
 	return 0;
 }
@@ -322,11 +93,43 @@ uintptr_t Windows(const char* category)
 	{
 		if (strcmp(category, "squad") == 0)
 		{
-			ImGui::Checkbox("Squad Manager", &show_squadmanager);
+			ImGui::Checkbox("Squad Manager", &SquadManager::Visible);
 		}
 	}
 
 	return 0;
+}
+
+uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto const io = &ImGui::GetIO();
+
+	/* unfiltered */
+	if (io->KeysDown[VK_ESCAPE])
+	{
+		if (UISettings.IsClosingWithEscape)
+		{
+			if (SquadManager::Visible) { SquadManager::Visible = false; return 0; }
+		}
+	}
+
+	return uMsg;
+}
+uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto const io = &ImGui::GetIO();
+
+	/* mod filtered*/
+	if (io->KeysDown[Modifiers.Mod1] && io->KeysDown[Modifiers.Mod2])
+	{
+		if (io->KeysDown[0x51]) // Q
+		{
+			SquadManager::Visible = !SquadManager::Visible;
+			return 0;
+		}
+	}
+
+	return uMsg;
 }
 
 /* combat callback -- may be called asynchronously, use id param to keep track of order, first event id will be 2. return ignored */
@@ -347,19 +150,20 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 
 				if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
 				{
-					std::lock_guard<std::mutex> lock(SquadMembersMutex);
+					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
 					bool agUpdate = false;
 
-					for (size_t i = 0; i < SquadMembers.size(); i++)
+					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
 					{
-						if (SquadMembers[i].ID != src->id) { continue; }
+						if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
 						else
 						{
 							agUpdate = true;
-							strcpy_s(SquadMembers[i].CharacterName, src->name);
-							SquadMembers[i].Profession = dst->prof;
-							SquadMembers[i].Subgroup = dst->team;
-							SquadMembers[i].IsTracked = true;
+							strcpy_s(SquadManager::SquadMembers[i].CharacterName, src->name);
+							SquadManager::SquadMembers[i].Profession = dst->prof;
+							SquadManager::SquadMembers[i].Subgroup = dst->team;
+							SquadManager::SquadMembers[i].IsTracked = true;
+							SquadManager::SquadMembers[i].LastSeen = time(0);
 							break;
 						}
 					}
@@ -373,8 +177,9 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 						p.Profession = dst->prof;
 						p.Subgroup = dst->team;
 						p.IsTracked = true;
+						p.LastSeen = time(0);
 
-						SquadMembers.push_back(p);
+						SquadManager::SquadMembers.push_back(p);
 					}
 				}
 			}
@@ -383,13 +188,14 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
 				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
 
-				std::lock_guard<std::mutex> lock(SquadMembersMutex);
-				for (size_t i = 0; i < SquadMembers.size(); i++)
+				std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+				for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
 				{
-					if (SquadMembers[i].ID != src->id) { continue; }
+					if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
 					else
 					{
-						SquadMembers[i].IsTracked = false;
+						SquadManager::SquadMembers[i].IsTracked = false;
+						SquadManager::SquadMembers[i].LastSeen = time(0);
 						break;
 					}
 				}
@@ -400,13 +206,13 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 	{
 		if (ev->is_statechange == ArcDPS::CBTS_ENTERCOMBAT)
 		{
-			std::lock_guard<std::mutex> lock(SquadMembersMutex);
-			for (size_t i = 0; i < SquadMembers.size(); i++)
+			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
 			{
-				if (SquadMembers[i].ID != src->id) { continue; }
+				if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
 				else
 				{
-					SquadMembers[i].Subgroup = ev->dst_agent;
+					SquadManager::SquadMembers[i].Subgroup = ev->dst_agent;
 					break;
 				}
 			}

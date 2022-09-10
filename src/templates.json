@@ -728,7 +728,7 @@
         "Vulnerability": true,
         "Healing": false,
         "Power": true,
-        "Condition": power,
+        "Condition": false,
         "Protection": false,
         "Cleanses": false,
         "Strips": false
