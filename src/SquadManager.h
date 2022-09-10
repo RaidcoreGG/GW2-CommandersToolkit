@@ -16,7 +16,7 @@ public:
 	static std::mutex SquadMembersMutex;
 
 	/* funcs */
-	static uintptr_t DrawWindow(bool moveLocked, bool clickLocked);
+	static uintptr_t DrawWindow(bool movable, bool clickable);
 	static uintptr_t PurgeSquadMembers();
 
 	~SquadManager() = default;

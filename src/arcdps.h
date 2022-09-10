@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <Windows.h>
+#include "imgui/imgui.h"
 
 namespace ArcDPS
 {
@@ -183,5 +184,20 @@ namespace ArcDPS
 		LogToFile(str);
 		LogToArc(str);
 		return;
+	}
+
+	static bool IsWindowMovable()
+	{
+		auto io = &ImGui::GetIO();
+		
+		if (ArcUISettings.IsModMoveLocked) { return io->KeysDown[ArcModifiers.Mod1] && io->KeysDown[ArcModifiers.Mod2]; }
+		else { return true; }
+	}
+	static bool IsWindowClickable()
+	{
+		auto io = &ImGui::GetIO();
+		
+		if (ArcUISettings.IsModClickLocked) { return io->KeysDown[ArcModifiers.Mod1] && io->KeysDown[ArcModifiers.Mod2]; }
+		else { return true; }
 	}
 }
