@@ -156,25 +156,29 @@ namespace ArcDPS
 	/* exports */
 	typedef uint64_t(*Export_GetU64)();
 
-	Export_GetU64 GetUISettings;
-	Export_GetU64 GetModifiers;
+	static Export_GetU64 GetUISettings;
+	static Export_GetU64 GetModifiers;
 
-	void* LogFile;
-	void* LogArc;
+	static void* LogFile;
+	static void* LogArc;
 
-	void LogToFile(char* str) /* log to arcdps.log, thread/async safe */
+	static PluginExports ArcPluginExports;
+	static UISettings ArcUISettings;
+	static Modifiers ArcModifiers;
+
+	static void LogToFile(char* str) /* log to arcdps.log, thread/async safe */
 	{
 		size_t(*log)(char*) = (size_t(*)(char*))LogFile;
 		if (log) (*log)(str);
 		return;
 	}
-	void LogToArc(char* str) /* log to extensions tab in arcdps log window, thread/async safe */
+	static void LogToArc(char* str) /* log to extensions tab in arcdps log window, thread/async safe */
 	{
 		size_t(*log)(char*) = (size_t(*)(char*))LogArc;
 		if (log) (*log)(str);
 		return;
 	}
-	void Log(char* str) /* log to arcdps.log and log window*/
+	static void Log(char* str) /* log to arcdps.log and log window*/
 	{
 		LogToFile(str);
 		LogToArc(str);

@@ -28,11 +28,6 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-/* globals */
-ArcDPS::PluginExports PluginExports;
-ArcDPS::UISettings UISettings;
-ArcDPS::Modifiers Modifiers;
-
 /* export -- arcdps looks for this exported function and calls the address it returns on client load */
 extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
 {
@@ -45,8 +40,8 @@ extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiCont
 	ArcDPS::GetModifiers = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e7");
 
 	// initialize arc settings at startup
-	UISettings = ArcDPS::UISettings(ArcDPS::GetUISettings());
-	Modifiers = ArcDPS::Modifiers(ArcDPS::GetModifiers());
+	ArcDPS::ArcUISettings = ArcDPS::UISettings(ArcDPS::GetUISettings());
+	ArcDPS::ArcModifiers = ArcDPS::Modifiers(ArcDPS::GetModifiers());
 
 	return Initialize;
 }
@@ -60,19 +55,19 @@ extern "C" __declspec(dllexport) void* get_release_addr()
 ArcDPS::PluginExports* Initialize()
 {
 	/* for arcdps */
-	memset(&PluginExports, 0, sizeof(PluginExports));
-	PluginExports.Signature = 0x4A584326;
-	PluginExports.ImGuiVersion = IMGUI_VERSION_NUM;
-	PluginExports.Size = sizeof(PluginExports);
-	PluginExports.Name = "Commander's Toolkit";
-	PluginExports.Build = __DATE__ " " __TIME__;
-	PluginExports.ImGuiRenderCallback = ImGuiRender;
-	PluginExports.UIWindows = Windows;
-	PluginExports.CombatCallback = Combat;
-	PluginExports.WndProc = WndProc;
-	PluginExports.WndProcFiltered = WndProcFiltered;
+	memset(&ArcDPS::ArcPluginExports, 0, sizeof(ArcDPS::PluginExports));
+	ArcDPS::ArcPluginExports.Signature = 0x4A584326;
+	ArcDPS::ArcPluginExports.ImGuiVersion = IMGUI_VERSION_NUM;
+	ArcDPS::ArcPluginExports.Size = sizeof(ArcDPS::PluginExports);
+	ArcDPS::ArcPluginExports.Name = "Commander's Toolkit";
+	ArcDPS::ArcPluginExports.Build = __DATE__ " " __TIME__;
+	ArcDPS::ArcPluginExports.ImGuiRenderCallback = ImGuiRender;
+	ArcDPS::ArcPluginExports.UIWindows = Windows;
+	ArcDPS::ArcPluginExports.CombatCallback = Combat;
+	ArcDPS::ArcPluginExports.WndProc = WndProc;
+	ArcDPS::ArcPluginExports.WndProcFiltered = WndProcFiltered;
 
-	return &PluginExports;
+	return &ArcDPS::ArcPluginExports;
 }
 /* release mod -- return ignored */
 uintptr_t Release()
@@ -107,12 +102,11 @@ uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	/* unfiltered */
 	if (io->KeysDown[VK_ESCAPE])
 	{
-		if (UISettings.IsClosingWithEscape)
+		if (ArcDPS::ArcUISettings.IsClosingWithEscape)
 		{
 			if (SquadManager::Visible) { SquadManager::Visible = false; return 0; }
 		}
 	}
-
 	return uMsg;
 }
 uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -120,7 +114,7 @@ uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	auto const io = &ImGui::GetIO();
 
 	/* mod filtered*/
-	if (io->KeysDown[Modifiers.Mod1] && io->KeysDown[Modifiers.Mod2])
+	if (io->KeysDown[ArcDPS::ArcModifiers.Mod1] && io->KeysDown[ArcDPS::ArcModifiers.Mod2])
 	{
 		if (io->KeysDown[0x51]) // Q
 		{

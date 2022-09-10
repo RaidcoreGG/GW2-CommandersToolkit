@@ -16,6 +16,7 @@ std::mutex SquadManager::SquadMembersMutex;
 uintptr_t SquadManager::DrawWindow()
 {
 	std::lock_guard<std::mutex> lock(SquadMembersMutex);
+
 	ImGui::Begin("Squad Manager", &Visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 	Focused = ImGui::IsWindowFocused();
