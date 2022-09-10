@@ -13,11 +13,11 @@ std::vector<Player> SquadManager::SquadMembers;
 std::mutex SquadManager::SquadMembersMutex;
 
 /* funcs */
-uintptr_t SquadManager::DrawWindow()
+uintptr_t SquadManager::DrawWindow(bool moveLocked = false, bool clickLocked = false)
 {
 	std::lock_guard<std::mutex> lock(SquadMembersMutex);
 
-	ImGui::Begin("Squad Manager", &Visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("Squad Manager", &Visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | (moveLocked ? ImGuiWindowFlags_NoMove : 0) | (clickLocked ? ImGuiWindowFlags_NoMouseInputs : 0));
 
 	Focused = ImGui::IsWindowFocused();
 

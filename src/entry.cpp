@@ -77,7 +77,22 @@ uintptr_t Release()
 
 uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 {
-	if (SquadManager::SquadManager::Visible) { SquadManager::DrawWindow(); }
+	auto io = &ImGui::GetIO();
+	bool moveLocked = false;
+	bool clickLocked = false;
+	bool mods = false;
+	if (io->KeysDown[ArcDPS::ArcModifiers.Mod1] && io->KeysDown[ArcDPS::ArcModifiers.Mod2]) // modifiers pressed
+	{
+		mods = true;
+	}
+
+	if(ArcDPS::ArcUISettings.IsModMoveLocked) { moveLocked = !mods; }
+	else { moveLocked = false; }
+
+	if (ArcDPS::ArcUISettings.IsModClickLocked) { clickLocked = !mods; }
+	else { clickLocked = false; }
+
+	if (SquadManager::SquadManager::Visible) { SquadManager::DrawWindow(moveLocked, clickLocked); }
 
 	return 0;
 }
