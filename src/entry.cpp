@@ -164,6 +164,7 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 							SquadManager::SquadMembers[i].Subgroup = dst->team;
 							SquadManager::SquadMembers[i].IsTracked = true;
 							SquadManager::SquadMembers[i].LastSeen = time(0);
+							SquadManager::PurgeSquadMembers();
 							break;
 						}
 					}
@@ -180,6 +181,7 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 						p.LastSeen = time(0);
 
 						SquadManager::SquadMembers.push_back(p);
+						SquadManager::PurgeSquadMembers();
 					}
 				}
 			}
@@ -199,6 +201,7 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 						break;
 					}
 				}
+				SquadManager::PurgeSquadMembers();
 			}
 		}
 	}

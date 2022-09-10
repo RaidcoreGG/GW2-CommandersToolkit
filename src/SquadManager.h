@@ -17,6 +17,7 @@ public:
 
 	/* funcs */
 	static uintptr_t DrawWindow();
+	static uintptr_t PurgeSquadMembers();
 
 	~SquadManager() = default;
 private:

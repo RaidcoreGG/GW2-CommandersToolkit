@@ -20,9 +20,6 @@ uintptr_t SquadManager::DrawWindow()
 
 	Focused = ImGui::IsWindowFocused();
 
-	ImGui::Text("Focused: %s", Focused ? "true" : "false");
-	ImGui::Text("Visible: %s", Visible ? "true" : "false");
-
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
 
 	if (ImGui::SmallButton("Remove all untracked"))
@@ -75,13 +72,25 @@ uintptr_t SquadManager::DrawWindow()
 				if (!SquadMembers[i].IsTracked) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
 
 				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0); ImGui::Text("%s", SquadMembers[i].IsTracked ? SquadMembers[i].CharacterName : SquadMembers[i].AccountName);
+				ImGui::TableSetColumnIndex(0); ImGui::Text(SquadMembers[i].CharacterName);
 				// acc name tooltip on charname hover
-				if (ImGui::IsItemHovered() && SquadMembers[i].IsTracked)
+				if (ImGui::IsItemHovered())
 				{
 					ImGui::BeginTooltip();
 					ImGui::Text("%s", SquadMembers[i].AccountName);
-					ImGui::Text("%u", SquadMembers[i].LastSeen);
+					if (!SquadMembers[i].IsTracked)
+					{
+						int secondsSince = time(0) - SquadMembers[i].LastSeen;
+
+						if (secondsSince < 60)
+						{
+							ImGui::Text("Last seen %u seconds ago", secondsSince);
+						}
+						else
+						{
+							ImGui::Text("Last seen %u minutes ago", secondsSince / 60);
+						}
+					}
 					ImGui::EndTooltip();
 				}
 				if (ImGui::BeginPopupContextItem(("##PlayerCtx" + std::to_string(SquadMembers[i].ID)).c_str()))
@@ -91,7 +100,7 @@ uintptr_t SquadManager::DrawWindow()
 					std::vector<Template> templates = GetTemplates(SquadMembers[i].Profession);
 					for (size_t t = 0; t < templates.size(); t++)
 					{
-						ImGui::Text("- "); ImGui::SameLine();
+						ImGui::Bullet(); ImGui::SameLine();
 						if (ImGui::MenuItem(templates[t].BuildName))
 						{
 							SquadMembers[i].Utilities = templates[t].Utilities;
@@ -163,6 +172,14 @@ uintptr_t SquadManager::DrawWindow()
 	ImGui::PopStyleVar();
 
 	ImGui::End();
+
+	return 0;
+}
+
+uintptr_t SquadManager::PurgeSquadMembers()
+{
+	SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
+		[](Player p) { return (time(0) - p.LastSeen) >= 60 * 30; }), SquadMembers.end());
 
 	return 0;
 }
