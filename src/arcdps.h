@@ -157,15 +157,20 @@ namespace ArcDPS
 	/* exports */
 	typedef uint64_t(*Export_GetU64)();
 
-	static Export_GetU64 GetUISettings;
-	static Export_GetU64 GetModifiers;
-
 	static void* LogFile;
 	static void* LogArc;
 
 	static PluginExports ArcPluginExports;
 	static UISettings ArcUISettings;
 	static Modifiers ArcModifiers;
+
+	static Export_GetU64 GetUISettings;
+	static Export_GetU64 GetModifiers;
+	static void UpdateExports()
+	{
+		if (GetUISettings) { ArcUISettings = UISettings(GetUISettings()); }
+		if (GetModifiers) { ArcModifiers = Modifiers(GetModifiers()); }
+	}
 
 	static void LogToFile(char* str) /* log to arcdps.log, thread/async safe */
 	{

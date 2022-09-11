@@ -39,10 +39,6 @@ extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiCont
 	ArcDPS::GetUISettings = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e6");
 	ArcDPS::GetModifiers = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e7");
 
-	// initialize arc settings at startup
-	ArcDPS::ArcUISettings = ArcDPS::UISettings(ArcDPS::GetUISettings());
-	ArcDPS::ArcModifiers = ArcDPS::Modifiers(ArcDPS::GetModifiers());
-
 	return Initialize;
 }
 /* export -- arcdps looks for this exported function and calls the address it returns on client exit */
@@ -77,6 +73,8 @@ uintptr_t Release()
 
 uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 {
+	ArcDPS::UpdateExports();
+
 	bool movable = ArcDPS::IsWindowMovable();
 	bool clickable = ArcDPS::IsWindowClickable();
 
