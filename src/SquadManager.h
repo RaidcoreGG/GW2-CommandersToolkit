@@ -8,7 +8,6 @@ class SquadManager
 {
 public:
 	/* UI */
-	static bool Focused;
 	static bool Visible;
 
 	/* globals */

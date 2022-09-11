@@ -1,11 +1,11 @@
 #pragma once
 #include "imgui/imgui.h"
+#include "imgui_extensions.h"
 #include <string>
 #include "Templates.h"
 #include "SquadManager.h"
 
 /* UI */
-bool SquadManager::Focused = false;
 bool SquadManager::Visible = false;
 
 /* globals */
@@ -19,8 +19,6 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 	ImGui::Begin("Squad Manager", &Visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | (movable ? 0 : ImGuiWindowFlags_NoMove) | (clickable ? 0 : ImGuiWindowFlags_NoMouseInputs));
 
-	Focused = ImGui::IsWindowFocused();
-
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
 
 	if (ImGui::SmallButton("Remove all untracked"))
@@ -29,9 +27,8 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 			[](Player p) { return !p.IsTracked; }), SquadMembers.end());
 	}
 	ImGui::SameLine(); ImGui::TextDisabled("(?)");
-	if (ImGui::IsItemHovered())
+	if (ImGui::Tooltip())
 	{
-		ImGui::BeginTooltip();
 		ImGui::Text("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
 		ImGui::EndTooltip();
 	}
@@ -52,6 +49,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 		for (size_t sub = 1; sub <= 15; sub++)
 		{
 			int subPlayerCount = 0;
+			bool subTotalUntracked;
 			Utility subTotal;
 
 			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
@@ -74,26 +72,9 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0); ImGui::Text(SquadMembers[i].CharacterName);
-				// acc name tooltip on charname hover
-				if (ImGui::IsItemHovered())
-				{
-					ImGui::BeginTooltip();
-					ImGui::Text("%s", SquadMembers[i].AccountName);
-					if (!SquadMembers[i].IsTracked)
-					{
-						int secondsSince = time(0) - SquadMembers[i].LastSeen;
+				
+				SquadMembers[i].Tooltip();
 
-						if (secondsSince < 60)
-						{
-							ImGui::Text("Last seen %u seconds ago", secondsSince);
-						}
-						else
-						{
-							ImGui::Text("Last seen %u minutes ago", secondsSince / 60);
-						}
-					}
-					ImGui::EndTooltip();
-				}
 				if (ImGui::BeginPopupContextItem(("##PlayerCtx" + std::to_string(SquadMembers[i].ID)).c_str()))
 				{
 					ImGui::Text("Apply from template:");
@@ -140,11 +121,10 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 						}
 						ImGui::EndMenu();
 					}
+
 					ImGui::Separator();
-					if (ImGui::MenuItem("Reset"))
-					{
-						SquadMembers[i].Utilities = Utility();
-					}
+
+					if (ImGui::MenuItem("Reset")) { SquadMembers[i].Utilities = Utility(); }
 
 					ImGui::EndPopup();
 				}
@@ -152,25 +132,18 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				ImGui::InputInt(("##Sub" + id).c_str(), &SquadMembers[i].Subgroup);
 				if (SquadMembers[i].Subgroup < 1) { SquadMembers[i].Subgroup = 1; } // sub min is 1
 				if (SquadMembers[i].Subgroup > 15) { SquadMembers[i].Subgroup = 15; } // sub max is 15
-				ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Might" + id).c_str(), &SquadMembers[i].Utilities.Might);
-				ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Alac" + id).c_str(), &SquadMembers[i].Utilities.Alacrity);
-				ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Quic" + id).c_str(), &SquadMembers[i].Utilities.Quickness);
-				ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
-				ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
-				ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::GetFontSize()) / 2);
-				ImGui::Checkbox(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
-				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128);
-				ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
+				ImGui::TableSetColumnIndex(2); ImGui::CheckboxCenteredColumn(("##Might" + id).c_str(), &SquadMembers[i].Utilities.Might);
+				ImGui::TableSetColumnIndex(3); ImGui::CheckboxCenteredColumn(("##Alac" + id).c_str(), &SquadMembers[i].Utilities.Alacrity);
+				ImGui::TableSetColumnIndex(4); ImGui::CheckboxCenteredColumn(("##Quic" + id).c_str(), &SquadMembers[i].Utilities.Quickness);
+				ImGui::TableSetColumnIndex(5); ImGui::CheckboxCenteredColumn(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
+				ImGui::TableSetColumnIndex(6); ImGui::CheckboxCenteredColumn(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
+				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
+				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128); ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
 
 				if (!SquadMembers[i].IsTracked)
 				{
 					// remove button if not tracked
-					ImGui::TableSetColumnIndex(9); if (ImGui::SmallButton("Remove")) { SquadMembers.erase(SquadMembers.begin() + i); }
+					ImGui::TableSetColumnIndex(9); if (ImGui::SmallButton(("Remove##" + id).c_str())) { SquadMembers.erase(SquadMembers.begin() + i); }
 					ImGui::PopStyleColor(); // reset red font
 				}
 			}
@@ -188,16 +161,16 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 			ImGui::TableNextRow();
 			ImGui::TableSetColumnIndex(0); ImGui::Text("Subgroup");
 			ImGui::TableSetColumnIndex(1); ImGui::Text("%u", sub);
-			if (subTotal.Might) { ImGui::TableSetColumnIndex(2); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Fury) { ImGui::TableSetColumnIndex(5); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Vulnerability) { ImGui::TableSetColumnIndex(6); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
-			if (subTotal.Heal) { ImGui::TableSetColumnIndex(7); ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetColumnWidth() - ImGui::CalcTextSize("X").x) / 2); ImGui::Text("X"); }
+			if (subTotal.Might) { ImGui::TableSetColumnIndex(2); ImGui::TextCenteredColumn("X"); }
+			if (subTotal.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::TextCenteredColumn("X"); }
+			if (subTotal.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::TextCenteredColumn("X"); }
+			if (subTotal.Fury) { ImGui::TableSetColumnIndex(5); ImGui::TextCenteredColumn("X"); }
+			if (subTotal.Vulnerability) { ImGui::TableSetColumnIndex(6); ImGui::TextCenteredColumn("X"); }
+			if (subTotal.Heal) { ImGui::TableSetColumnIndex(7); ImGui::TextCenteredColumn("X"); }
 
 			if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
-			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::Text("Warning: more than 5 players!"); }
+			if (subPlayerCount > 5) { ImGui::TableSetColumnIndex(8); ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), "Warning: more than 5 players!"); }
 		}
 
 		ImGui::EndTable();

@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include "Utility.h"
 
 class Player
@@ -13,4 +14,6 @@ class Player
 		char Notes[64] = "";
 		bool IsTracked;
 		time_t LastSeen;
+
+		void Tooltip();
 };
