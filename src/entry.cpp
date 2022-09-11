@@ -159,6 +159,7 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 							strcpy_s(SquadManager::SquadMembers[i].CharacterName, src->name);
 							SquadManager::SquadMembers[i].Profession = dst->prof;
 							SquadManager::SquadMembers[i].Subgroup = dst->team;
+							SquadManager::SquadMembers[i].IsSelf = dst->self;
 							SquadManager::SquadMembers[i].IsTracked = true;
 							SquadManager::SquadMembers[i].LastSeen = time(0);
 							SquadManager::PurgeSquadMembers();
@@ -174,6 +175,7 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 						strcpy_s(p.CharacterName, src->name);
 						p.Profession = dst->prof;
 						p.Subgroup = dst->team;
+						p.IsSelf = dst->self;
 						p.IsTracked = true;
 						p.LastSeen = time(0);
 

@@ -24,14 +24,10 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 	if (ImGui::SmallButton("Remove all untracked"))
 	{
 		SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
-			[](Player p) { return !p.IsTracked; }), SquadMembers.end());
+			[](Player p) { return !p.IsTracked && !p.IsSelf; }), SquadMembers.end());
 	}
 	ImGui::SameLine(); ImGui::TextDisabled("(?)");
-	if (ImGui::Tooltip())
-	{
-		ImGui::Text("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
-		ImGui::EndTooltip();
-	}
+	ImGui::TooltipGeneric("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
 
 	if (ImGui::BeginTable("table_sqmgr", 10, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX))
 	{
@@ -68,7 +64,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				std::string id = std::to_string(SquadMembers[i].ID); // helper for unique chkbxIds
 
 				// red font if not tracked
-				if (!SquadMembers[i].IsTracked) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
+				if (!SquadMembers[i].IsTracked && !SquadMembers[i].IsSelf) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
 
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0); ImGui::Text(SquadMembers[i].CharacterName);
@@ -140,7 +136,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
 				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128); ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
 
-				if (!SquadMembers[i].IsTracked)
+				if (!SquadMembers[i].IsTracked && !SquadMembers[i].IsSelf)
 				{
 					// remove button if not tracked
 					ImGui::TableSetColumnIndex(9); if (ImGui::SmallButton(("Remove##" + id).c_str())) { SquadMembers.erase(SquadMembers.begin() + i); }

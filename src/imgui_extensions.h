@@ -38,4 +38,13 @@ namespace ImGui
         }
         return hovered;
     }
+
+    static void TooltipGeneric(const char *fmt, ...)
+    {
+        if (ImGui::Tooltip())
+        {
+            ImGui::Text(fmt);
+            ImGui::EndTooltip();
+        }
+    }
 }

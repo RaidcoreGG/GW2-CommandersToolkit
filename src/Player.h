@@ -12,6 +12,7 @@ class Player
 		int Subgroup;
 		Utility Utilities;
 		char Notes[64] = "";
+		bool IsSelf;
 		bool IsTracked;
 		time_t LastSeen;
 
