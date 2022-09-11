@@ -107,6 +107,39 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 							SquadMembers[i].Utilities = templates[t].Utilities;
 						}
 					}
+					if (ImGui::BeginMenu("Other professions"))
+					{
+						for (int p = 1; p <= 9; p++)
+						{
+							if (SquadMembers[i].Profession == p) { continue; }
+							std::string profession;
+							switch (p)
+							{
+							case 1: profession = "Guardian"; break;
+							case 2: profession = "Warrior"; break;
+							case 3: profession = "Engineer"; break;
+							case 4: profession = "Ranger"; break;
+							case 5: profession = "Thief"; break;
+							case 6: profession = "Elementalist"; break;
+							case 7: profession = "Mesmer"; break;
+							case 8: profession = "Necromancer"; break;
+							case 9: profession = "Revenant"; break;
+							}
+							if (ImGui::BeginMenu(profession.c_str()))
+							{
+								std::vector<Template> otherTemplates = GetTemplates(p);
+								for (size_t t = 0; t < otherTemplates.size(); t++)
+								{
+									if (ImGui::MenuItem(otherTemplates[t].BuildName))
+									{
+										SquadMembers[i].Utilities = otherTemplates[t].Utilities;
+									}
+								}
+								ImGui::EndMenu();
+							}
+						}
+						ImGui::EndMenu();
+					}
 					ImGui::Separator();
 					if (ImGui::MenuItem("Reset"))
 					{
