@@ -3,6 +3,7 @@
 #include <vector>
 #include <mutex>
 #include "Player.h"
+#include "Subgroup.h"
 
 class SquadManager
 {
@@ -12,6 +13,7 @@ public:
 
 	/* globals */
 	static std::vector<Player> SquadMembers;
+	static Subgroup Subgroups[15];
 	static std::mutex SquadMembersMutex;
 
 	/* funcs */

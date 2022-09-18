@@ -161,7 +161,6 @@
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Player.cpp" />
     <ClCompile Include="SquadManager.cpp" />
     <ClCompile Include="Templates.cpp" />
   </ItemGroup>
@@ -179,6 +178,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="SquadManager.h" />
+    <ClInclude Include="Subgroup.h" />
     <ClInclude Include="Templates.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
