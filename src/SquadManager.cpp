@@ -17,6 +17,8 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 {
 	std::lock_guard<std::mutex> lock(SquadMembersMutex);
 
+	ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 20), ImVec2(-1, 320));
+
 	ImGui::Begin("Squad Manager", &Visible, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | (movable ? 0 : ImGuiWindowFlags_NoMove) | (clickable ? 0 : ImGuiWindowFlags_NoMouseInputs));
 
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, { 0.f, 0.f });
@@ -134,7 +136,8 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				ImGui::TableSetColumnIndex(5); ImGui::CheckboxCenteredColumn(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
 				ImGui::TableSetColumnIndex(6); ImGui::CheckboxCenteredColumn(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
 				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
-				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(128); ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
+				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(ImGui::CalcTextSize("Warning: more than 5 players!").x); // utilise warning message to calculate width
+				ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
 
 				if (!SquadMembers[i].IsTracked && !SquadMembers[i].IsSelf)
 				{
