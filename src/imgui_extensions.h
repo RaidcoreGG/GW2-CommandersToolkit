@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
@@ -29,22 +30,19 @@ namespace ImGui
         return ImGui::Checkbox(label, v);
     }
 
-    static bool Tooltip()
+    static void Tooltip(const std::function<void()>& action)
     {
         bool hovered = ImGui::IsItemHovered();
         if (hovered)
         {
             ImGui::BeginTooltip();
+            if (action != nullptr) { action(); }
+            ImGui::EndTooltip();
         }
-        return hovered;
     }
 
     static void TooltipGeneric(const char *fmt, ...)
     {
-        if (ImGui::Tooltip())
-        {
-            ImGui::Text(fmt);
-            ImGui::EndTooltip();
-        }
+        ImGui::Tooltip([fmt] {ImGui::Text(fmt); });
     }
 }

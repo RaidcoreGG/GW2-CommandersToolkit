@@ -5,7 +5,7 @@
 
 void Player::Tooltip()
 {
-	if (ImGui::Tooltip())
+	ImGui::Tooltip([this]
 	{
 		ImGui::Text("%s", Player::AccountName);
 		if (!Player::IsTracked)
@@ -16,6 +16,5 @@ void Player::Tooltip()
 				secondsSince < 60 ? secondsSince : secondsSince / 60,
 				secondsSince < 60 ? "seconds" : "minutes");
 		}
-		ImGui::EndTooltip();
-	}
+	});
 }
