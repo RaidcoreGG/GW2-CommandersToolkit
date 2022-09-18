@@ -3,6 +3,11 @@
 #include "arcdps.h"
 #include "imgui/imgui.h"
 #include "SquadManager.h"
+#include "Mumble.h"
+#include "nlohmann/json.hpp"
+#include <math.h>
+
+using json = nlohmann::json;
 
 /* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -27,6 +32,8 @@ uintptr_t Windows(const char* category); // Windows check boxes in main menu
 uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision);
 uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+HWND Game;
 
 /* export -- arcdps looks for this exported function and calls the address it returns on client load */
 extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
@@ -63,16 +70,21 @@ ArcDPS::PluginExports* Initialize()
 	ArcDPS::ArcPluginExports.WndProc = WndProc;
 	ArcDPS::ArcPluginExports.WndProcFiltered = WndProcFiltered;
 
+	Mumble::Create();
+
 	return &ArcDPS::ArcPluginExports;
 }
 /* release mod -- return ignored */
 uintptr_t Release()
 {
+	Mumble::Destroy();
+
 	return 0;
 }
 
 uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 {
+	ArcDPS::IsCharacterSelectOrLoading = !not_charsel_or_loading;
 	ArcDPS::UpdateExports();
 
 	bool movable = ArcDPS::IsWindowMovable();
@@ -81,6 +93,147 @@ uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 	if (SquadManager::Visible) { SquadManager::DrawWindow(movable, clickable); }
 
 	return 0;
+}
+
+struct KeyLParam
+{
+	uint32_t RepeatCount : 16;
+	uint32_t ScanCode : 8;
+	uint32_t ExtendedFlag : 1;
+	uint32_t Reserved : 4;
+	uint32_t ContextCode : 1;
+	uint32_t PreviousKeyState : 1;
+	uint32_t TransitionState : 1;
+
+	KeyLParam(uint32_t key)
+	{
+		RepeatCount = 1;
+		ScanCode = MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
+		ExtendedFlag = 0;
+		Reserved = 0;
+		ContextCode = 0;
+		PreviousKeyState = 0;
+		TransitionState = 0;
+	}
+
+	static KeyLParam& Get(LPARAM& lp)
+	{
+		return *(KeyLParam*)&lp;
+	}
+};
+
+float VectorDistance(float x1, float y1, float x2, float y2)
+{
+	return sqrt(powf(x2 - x1, 2) + powf(y2 - y1, 2));
+}
+
+void SetCursorCompass(float x, float y)
+{
+	if (VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24 > 4000) { return; } // out of placable range
+
+	ArcDPS::LogToArc((char*)"Distance:");
+	ArcDPS::LogToArc((char*)std::to_string(VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24).c_str());
+	ArcDPS::LogToArc((char*)"");
+
+	int margin = 0; // margin in pixels 0 if top, 37 if bottom (normal UI)
+	if (!Mumble::Data->Context.IsCompassTopRight) { margin = 37; }
+
+	/* determine UI scaling */
+	float scaling = 1.00f;
+	json j = json::parse(Mumble::Data->Identity);
+	switch (j["uisz"].get<unsigned>())
+	{
+	case 0: scaling = 0.90f; break;
+	case 1: scaling = 1.00f; break;
+	case 2: scaling = 1.11f; break;
+	case 3: scaling = 1.22f; break;
+	}
+
+	// map center in screen pixels relative to bottom/top right
+	// half of compass size + margin
+	int mapCenterX = (Mumble::Data->Context.Compass.Width / 2) * scaling;
+	int mapCenterY = ((Mumble::Data->Context.Compass.Height / 2) + margin) * scaling;
+
+	/* replace desktop with gw2 window, there are people that don't play full screen, wtf */
+	RECT bounds;
+	const HWND hDesktop = GetDesktopWindow();
+	GetWindowRect(hDesktop, &bounds);
+
+	int screenWidth = bounds.right;
+	int screenHeight = bounds.bottom;
+
+	// distance from map center in units
+	float dX = (x - Mumble::Data->Context.MapCenter.X) * 24;
+	float dY = (y - Mumble::Data->Context.MapCenter.Y) * 24;
+
+	// 85px = 2000u
+	float pixelsPerUnit = (85.0f / (2000.0f * Mumble::Data->Context.MapScale)) * scaling;
+
+	// TODO: ADJUST FOR ROTATION
+	/*float yaw = atan2f(Mumble->cam_front.x, Mumble->cam_front.z) * 180 / 3.14159265f; // gets the rotation in degrees; north = 0, clock-wise to 360
+	if (yaw < 0) { yaw += 360; }*/
+
+	SetCursorPos(screenWidth - mapCenterX + (dX * pixelsPerUnit), screenHeight - mapCenterY + (dY * pixelsPerUnit));
+}
+
+LPARAM GetLPARAM(uint32_t key, bool down, bool sys)
+{
+	uint64_t lp;
+	lp = down ? 0 : 1; // transition state
+	lp = lp << 1;
+	lp += down ? 0 : 1; // previous key state
+	lp = lp << 1;
+	lp += 0; // context code
+	lp = lp << 1;
+	lp = lp << 4;
+	lp = lp << 1;
+	lp = lp << 8;
+	lp += MapVirtualKeyA(key, MAPVK_VK_TO_VSC);
+	lp = lp << 16;
+	lp += 1;
+
+	ArcDPS::LogToArc((char*)std::to_string(lp).c_str());
+
+	return lp;
+}
+
+void SetSquadMarker(int marker, float x, float y)
+{
+	/* store cursor pos*/
+	POINT point;
+	GetCursorPos(&point);
+
+	/* Set cursor to compass location */
+	SetCursorCompass(x, y);
+
+	int key = 0;
+
+	switch (marker)
+	{
+	case 1: key = 0x31; break;
+	case 2: key = 0x32; break;
+	case 3: key = 0x33; break;
+	case 4: key = 0x34; break;
+	case 5: key = 0x35; break;
+	case 6: key = 0x36; break;
+	case 7: key = 0x37; break;
+	case 8: key = 0x38; break;
+	}
+
+	Sleep(15);
+
+	PostMessage(Game, WM_SYSKEYDOWN, VK_MENU, GetLPARAM(VK_MENU, true, true));//0x20380001); // alt
+	Sleep(5);
+	PostMessage(Game, WM_KEYDOWN, key, GetLPARAM(key, true, false));//0x20001);
+	Sleep(15);
+	PostMessage(Game, WM_KEYUP, key, GetLPARAM(key, false, false));//0xC0020001);
+	Sleep(5);
+	PostMessage(Game, WM_SYSKEYUP, VK_MENU, GetLPARAM(VK_MENU, false, true));//0xC0380001); // alt
+	
+	Sleep(5);
+
+	/* reset cursor pos */
+	SetCursorPos(point.x, point.y);
 }
 
 uintptr_t Windows(const char* category)
@@ -92,6 +245,26 @@ uintptr_t Windows(const char* category)
 			ImGui::Checkbox("Squad Manager", &SquadManager::Visible);
 		}
 	}
+	else
+	{
+		if (ImGui::Button("MapCenter")) { SetSquadMarker(1, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); }
+		if (ImGui::Button("Point1")) { SetSquadMarker(2, 49926.6914, 31138.3125); }
+		if (ImGui::Button("Point2")) { SetSquadMarker(3, 49749.7539, 30961.2734); }
+		if (ImGui::Button("Aerodrome"))
+		{
+			std::thread([]()
+				{ 
+					SetSquadMarker(1, 49327.2227, 32106.1094); Sleep(50);
+					SetSquadMarker(2, 49354.0898, 32115.9766); Sleep(50);
+					SetSquadMarker(3, 49381.1523, 32133.8906); Sleep(50);
+					SetSquadMarker(4, 49380.6602, 32163.3594); Sleep(50);
+					SetSquadMarker(5, 49357.6680, 32186.7578); Sleep(50);
+					SetSquadMarker(6, 49321.9805, 32208.8438); Sleep(50);
+					SetSquadMarker(7, 49288.4688, 32193.8359); Sleep(50);
+					SetSquadMarker(8, 49287.7188, 32155.2344);
+				}).detach();
+		}
+	}
 
 	return 0;
 }
@@ -99,6 +272,8 @@ uintptr_t Windows(const char* category)
 uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto const io = &ImGui::GetIO();
+
+	if (!Game) { Game = hWnd; }
 
 	/* unfiltered */
 	if (io->KeysDown[VK_ESCAPE])
@@ -108,6 +283,7 @@ uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (SquadManager::Visible) { SquadManager::Visible = false; return 0; }
 		}
 	}
+
 	return uMsg;
 }
 uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

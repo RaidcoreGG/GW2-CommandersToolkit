@@ -163,6 +163,7 @@ namespace ArcDPS
 	static PluginExports ArcPluginExports;
 	static UISettings ArcUISettings;
 	static Modifiers ArcModifiers;
+	static bool IsCharacterSelectOrLoading;
 
 	static Export_GetU64 GetUISettings;
 	static Export_GetU64 GetModifiers;
