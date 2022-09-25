@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "arcdps.h"
 #include "imgui/imgui.h"
+#include "unofficial_extras/Definitions.h"
 #include "SquadManager.h"
 
 /* entry */

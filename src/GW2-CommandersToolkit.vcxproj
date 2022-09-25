@@ -180,6 +180,7 @@
     <ClInclude Include="SquadManager.h" />
     <ClInclude Include="Subgroup.h" />
     <ClInclude Include="Templates.h" />
+    <ClInclude Include="unofficial_extras\Definitions.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
   <ItemGroup>
