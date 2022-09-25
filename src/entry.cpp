@@ -138,68 +138,61 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 		/* notify tracking change */
 		if (!src->elite)
 		{
-			/* add */
-			if (src->prof)
+			// only run when names are set and not null
+			if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
 			{
-				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
-				//p += _snprintf_s(p, 400, _TRUNCATE, "agent added: %s:%s (%0llx), instid: %u, prof: %u, elite: %u, self: %u, team: %u, subgroup: %u\n", src->name, dst->name, src->id, dst->id, dst->prof, dst->elite, dst->self, src->team, dst->team);
+				std::string accountName(dst->name);
 
-				if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
+				// remove ':' at the beginning of the name.
+				if (accountName.at(0) == ':') {
+					accountName.erase(0, 1);
+				}
+
+				/* add */
+				if (src->prof)
 				{
 					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-					bool agUpdate = false;
 
-					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+					auto squadMember = SquadManager::FindPlayerByAccountName(accountName);
+					if (squadMember != nullptr)
 					{
-						if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-						else
-						{
-							agUpdate = true;
-							strcpy_s(SquadManager::SquadMembers[i].CharacterName, src->name);
-							SquadManager::SquadMembers[i].Profession = dst->prof;
-							SquadManager::SquadMembers[i].Subgroup = dst->team;
-							SquadManager::SquadMembers[i].IsSelf = dst->self;
-							SquadManager::SquadMembers[i].IsTracked = true;
-							SquadManager::SquadMembers[i].LastSeen = time(0);
-							SquadManager::PurgeSquadMembers();
-							break;
-						}
+						squadMember->CharacterName = src->name;
+						squadMember->Profession = dst->prof;
+						squadMember->Subgroup = dst->team;
+						squadMember->IsSelf = dst->self;
+						squadMember->IsTrackedByArcdps = true; 
+						squadMember->LastSeen = time(0);
+						SquadManager::PurgeSquadMembers();
 					}
-
-					if (!agUpdate) // if not agUpdate -> add new ag
+					else
 					{
 						Player p;
 						p.ID = src->id;
-						strcpy_s(p.AccountName, dst->name);
-						strcpy_s(p.CharacterName, src->name);
+						p.AccountName = accountName;
+						p.CharacterName = src->name;
 						p.Profession = dst->prof;
 						p.Subgroup = dst->team;
 						p.IsSelf = dst->self;
-						p.IsTracked = true;
+						p.IsTrackedByArcdps = true;
 						p.LastSeen = time(0);
+						p.AddedBy = AddedBy::Arcdps;
 
-						SquadManager::SquadMembers.push_back(p);
+						SquadManager::SquadMembers[accountName] = p;
 						SquadManager::PurgeSquadMembers();
 					}
 				}
-			}
-			else /* remove */
-			{
-				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
-				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
-
-				std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-				for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+				else /* remove */
 				{
-					if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-					else
+					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+					auto squadMember = SquadManager::FindPlayerByAccountName(accountName);
+					if (squadMember != nullptr)
 					{
-						SquadManager::SquadMembers[i].IsTracked = false;
-						SquadManager::SquadMembers[i].LastSeen = time(0);
-						break;
+						squadMember->IsTrackedByArcdps = false;
+						squadMember->LastSeen = time(0);
 					}
+
+					SquadManager::PurgeSquadMembers();
 				}
-				SquadManager::PurgeSquadMembers();
 			}
 		}
 	}
@@ -208,17 +201,91 @@ uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst
 		if (ev->is_statechange == ArcDPS::CBTS_ENTERCOMBAT)
 		{
 			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+			auto squadMember = SquadManager::FindPlayerByID(src->id);
+			if (squadMember != nullptr)
 			{
-				if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-				else
-				{
-					SquadManager::SquadMembers[i].Subgroup = ev->dst_agent;
-					break;
-				}
+				squadMember->Subgroup = ev->dst_agent;
 			}
 		}
 	}
 
 	return 0;
+}
+
+void SquadUpdate(const UserInfo* pUpdatedUsers, uint64_t pUpdatedUsersCount)
+{
+	std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+	for (size_t i = 0; i < pUpdatedUsersCount; i++)
+	{
+		const auto user = pUpdatedUsers[i];
+		auto accountName = std::string(user.AccountName);
+		// remove ':' at the beginning of the name.
+		if (accountName.at(0) == ':') {
+			accountName.erase(0, 1);
+		}
+
+		if (user.Role != UserRole::None)
+		{
+			// User was added/updated in some way
+			auto squadMember = SquadManager::FindPlayerByAccountName(accountName);
+			if (squadMember != nullptr)
+			{
+				squadMember->IsTrackedByExtras = true;
+				// Extras always takes priority
+				squadMember->AddedBy = AddedBy::Extras;
+				squadMember->LastSeen = time(0);
+				squadMember->Subgroup = user.Subgroup + 1;
+			}
+			else
+			{
+				Player p;
+				p.AccountName = accountName;
+				p.IsSelf = accountName == SquadManager::SelfAccountName;
+				p.IsTrackedByExtras = true;
+				p.LastSeen = time(0);
+				p.Subgroup = user.Subgroup + 1;
+				p.AddedBy = AddedBy::Extras;
+
+				SquadManager::SquadMembers[accountName] = p;
+			}
+		}
+		else
+		{
+			// User was removed from squad
+			auto squadMember = SquadManager::FindPlayerByAccountName(accountName);
+			if (squadMember != nullptr)
+			{
+				squadMember->IsTrackedByExtras = false;
+				squadMember->LastSeen = time(0);
+			}
+			// Self left the squad, everyone should be marked untracked
+			if (accountName == SquadManager::SelfAccountName)
+			{
+				SquadManager::MarkAllUntrackedButSelf();
+			}
+		}
+	}
+}
+
+void ChatMessage(const ChatMessageInfo* pChatMessage)
+{
+	// Empty function for future use
+}
+
+extern "C" __declspec(dllexport) void arcdps_unofficial_extras_subscriber_init(const ExtrasAddonInfo* pExtrasInfo, void* pSubscriberInfo) {
+	// MaxInfoVersion has to be higher to have enough space to hold this object
+	if (pExtrasInfo->ApiVersion == 2 && pExtrasInfo->MaxInfoVersion >= 2) {
+		auto selfAccountName = std::string(pExtrasInfo->SelfAccountName);
+		if (selfAccountName.at(0) == ':')
+		{
+			selfAccountName.erase(0, 1);
+		}
+		SquadManager::SelfAccountName = selfAccountName;
+
+		const auto subscriber_info = static_cast<ExtrasSubscriberInfoV2*>(pSubscriberInfo);
+		subscriber_info->InfoVersion = 2;
+		subscriber_info->SubscriberName = "Commander's Toolkit";
+		subscriber_info->SquadUpdateCallback = SquadUpdate;
+		subscriber_info->ChatMessageCallback = ChatMessage;
+  }
 }

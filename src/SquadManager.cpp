@@ -10,9 +10,10 @@ bool SquadManager::Visible = false;
 bool ShortWarnings = false;
 
 /* globals */
-std::vector<Player> SquadManager::SquadMembers;
+std::map<std::string, Player> SquadManager::SquadMembers;
 Subgroup SquadManager::Subgroups[15];
 std::mutex SquadManager::SquadMembersMutex;
+std::string SquadManager::SelfAccountName;
 
 /* funcs */
 uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
@@ -29,8 +30,13 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 	if (ImGui::SmallButton("Remove all untracked"))
 	{
-		SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
-			[](Player p) { return !p.IsTracked && !p.IsSelf; }), SquadMembers.end());
+		for (auto it = SquadMembers.begin(); it != SquadMembers.end(); ++it)
+		{
+			if (!it->second.IsTrackedByArcdps && !it->second.IsTrackedByExtras && !it->second.IsSelf)
+			{
+				SquadMembers.erase(it);
+			}
+		}
 	}
 	ImGui::SameLine(); ImGui::TextDisabled("(?)");
 	ImGui::TooltipGeneric("Subgroup numbers update automatically on:\n- Combat entry\n- Instance/Map join");
@@ -54,50 +60,52 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 			current.AmountPlayers = 0;
 			current.Utilities = Utility();
 
-			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+			for (auto it = SquadMembers.begin(); it != SquadMembers.end();)
 			{
-				if (SquadMembers[i].Subgroup != sub) { continue; }
+				auto curIt = it++;
+				auto& squadMember = curIt->second;
+				if (squadMember.Subgroup != sub) { continue; }
 				current.AmountPlayers++;
 
 				// set subgroup coverage
-				if (SquadMembers[i].Utilities.Might)			{ current.Utilities.Might = true; }
-				if (SquadMembers[i].Utilities.Alacrity)			{ current.Utilities.Alacrity = true; }
-				if (SquadMembers[i].Utilities.Quickness)		{ current.Utilities.Quickness = true; }
-				if (SquadMembers[i].Utilities.Fury)				{ current.Utilities.Fury = true; }
-				if (SquadMembers[i].Utilities.Vulnerability)	{ current.Utilities.Vulnerability = true; }
-				if (SquadMembers[i].Utilities.Heal)				{ current.Utilities.Heal = true; }
+				if (squadMember.Utilities.Might)			{ current.Utilities.Might = true; }
+				if (squadMember.Utilities.Alacrity)			{ current.Utilities.Alacrity = true; }
+				if (squadMember.Utilities.Quickness)		{ current.Utilities.Quickness = true; }
+				if (squadMember.Utilities.Fury)				{ current.Utilities.Fury = true; }
+				if (squadMember.Utilities.Vulnerability)	{ current.Utilities.Vulnerability = true; }
+				if (squadMember.Utilities.Heal)				{ current.Utilities.Heal = true; }
 
-				std::string id = std::to_string(SquadMembers[i].ID); // helper for unique chkbxIds
+				std::string id = squadMember.AccountName; // helper for unique chkbxIds
 
-				bool untracked = SquadMembers[i].Untracked(); // red font if not tracked
+				bool untracked = squadMember.Untracked(); // red font if not tracked
 
 				// player name field
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Text(SquadMembers[i].CharacterName);
-				SquadMembers[i].Tooltip();
-				SquadMembers[i].ContextMenu();
-				
+				ImGui::Text(squadMember.CharacterName.empty() ? squadMember.AccountName.c_str() : squadMember.CharacterName.c_str());
+				squadMember.Tooltip();
+				squadMember.ContextMenu();
+
 				// player sub field
 				ImGui::TableSetColumnIndex(1); ImGui::SetNextItemWidth(64);
-				ImGui::InputInt(("##Sub" + id).c_str(), &SquadMembers[i].Subgroup);
-				if (SquadMembers[i].Subgroup < 1) { SquadMembers[i].Subgroup = 1; } // sub min is 1
-				if (SquadMembers[i].Subgroup > 15) { SquadMembers[i].Subgroup = 15; } // sub max is 15
+				ImGui::InputInt(("##Sub" + id).c_str(), &squadMember.Subgroup);
+				if (squadMember.Subgroup < 1) { squadMember.Subgroup = 1; } // sub min is 1
+				if (squadMember.Subgroup > 15) { squadMember.Subgroup = 15; } // sub max is 15
 
 				// player utility fields
-				ImGui::TableSetColumnIndex(2); ImGui::CheckboxCenteredColumn(("##Might" + id).c_str(), &SquadMembers[i].Utilities.Might);
-				ImGui::TableSetColumnIndex(3); ImGui::CheckboxCenteredColumn(("##Alac" + id).c_str(), &SquadMembers[i].Utilities.Alacrity);
-				ImGui::TableSetColumnIndex(4); ImGui::CheckboxCenteredColumn(("##Quic" + id).c_str(), &SquadMembers[i].Utilities.Quickness);
-				ImGui::TableSetColumnIndex(5); ImGui::CheckboxCenteredColumn(("##Fury" + id).c_str(), &SquadMembers[i].Utilities.Fury);
-				ImGui::TableSetColumnIndex(6); ImGui::CheckboxCenteredColumn(("##Vuln" + id).c_str(), &SquadMembers[i].Utilities.Vulnerability);
-				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &SquadMembers[i].Utilities.Heal);
-				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(notesWidth); ImGui::InputText(("##Notes" + id).c_str(), SquadMembers[i].Notes, sizeof(SquadMembers[i].Notes));
+				ImGui::TableSetColumnIndex(2); ImGui::CheckboxCenteredColumn(("##Might" + id).c_str(), &squadMember.Utilities.Might);
+				ImGui::TableSetColumnIndex(3); ImGui::CheckboxCenteredColumn(("##Alac" + id).c_str(), &squadMember.Utilities.Alacrity);
+				ImGui::TableSetColumnIndex(4); ImGui::CheckboxCenteredColumn(("##Quic" + id).c_str(), &squadMember.Utilities.Quickness);
+				ImGui::TableSetColumnIndex(5); ImGui::CheckboxCenteredColumn(("##Fury" + id).c_str(), &squadMember.Utilities.Fury);
+				ImGui::TableSetColumnIndex(6); ImGui::CheckboxCenteredColumn(("##Vuln" + id).c_str(), &squadMember.Utilities.Vulnerability);
+				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &squadMember.Utilities.Heal);
+				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(notesWidth); ImGui::InputText(("##Notes" + id).c_str(), squadMember.Notes, sizeof(squadMember.Notes));
 
 				// player action field
 				if (untracked) // show remove button if not tracked
 				{
 					ImGui::TableSetColumnIndex(9);
-					if (ImGui::SmallButton(("Remove##" + id).c_str())) { SquadMembers.erase(SquadMembers.begin() + i); }
+					if (ImGui::SmallButton(("Remove##" + id).c_str())) { it = SquadMembers.erase(curIt); }
 					ImGui::PopStyleColor(); // reset red font
 				}
 			}
@@ -135,8 +143,51 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 uintptr_t SquadManager::PurgeSquadMembers()
 {
-	SquadMembers.erase(std::remove_if(SquadMembers.begin(), SquadMembers.end(),
-		[](Player p) { return (time(0) - p.LastSeen) >= 60 * 30; }), SquadMembers.end());
+	for (auto it = SquadMembers.begin(); it != SquadMembers.end();)
+	{
+		if (time(0) - it->second.LastSeen >= 60 * 30)
+		{
+			it = SquadMembers.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 
 	return 0;
+}
+
+void SquadManager::MarkAllUntrackedButSelf()
+{
+	for (auto it = SquadMembers.begin(); it != SquadMembers.end(); ++it)
+	{
+		if (it->first != SelfAccountName)
+		{
+			it->second.IsTrackedByArcdps = false;
+			it->second.IsTrackedByExtras = false;
+		}
+	}
+}
+
+Player* SquadManager::FindPlayerByID(uintptr_t id)
+{
+	for (auto it = SquadMembers.begin(); it != SquadMembers.end(); ++it)
+	{
+		if (it->second.ID == id)
+		{
+			return &it->second;
+		}
+	}
+	return nullptr;
+}
+
+Player* SquadManager::FindPlayerByAccountName(const std::string &accountName)
+{
+	auto it = SquadMembers.find(accountName);
+	if (it != SquadMembers.end())
+	{
+		return &it->second;
+	}
+	return nullptr;
 }
