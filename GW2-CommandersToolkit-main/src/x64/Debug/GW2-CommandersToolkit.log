@@ -1,0 +1,3 @@
+﻿  SquadManager.cpp
+d:\hardstuck work\gw2-commanderstoolkit-main\gw2-commanderstoolkit-main\src\player.h(30): warning C4244: 'initializing': conversion from 'time_t' to 'int', possible loss of data
+  GW2-CommandersToolkit.vcxproj -> D:\Hardstuck Work\GW2-CommandersToolkit-main\GW2-CommandersToolkit-main\x64\Debug\squadmanager.dll
