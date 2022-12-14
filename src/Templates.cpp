@@ -6,7 +6,7 @@ std::vector<Template> GetTemplates(int profession)
 	/* ideally you don't want to hardcode builds in an ever changing game, but I cba right now */
 	std::vector<Template> templates;
 
-	//templates.push_back(Template("NAME", Utility(m, a, q, f, v, h)));
+	//templates.push_back(Template("NAME", Utility(m, a, q, f, v, h, p, c)));
 
 	switch (profession)
 	{
