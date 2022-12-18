@@ -105,7 +105,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				// player action field
 				if (untracked) // show remove button if not tracked
 				{
-					ImGui::TableSetColumnIndex(9);
+					ImGui::TableSetColumnIndex(11);
 					if (ImGui::SmallButton(("Remove##" + id).c_str())) { SquadMembers.erase(SquadMembers.begin() + i); }
 					ImGui::PopStyleColor(); // reset red font
 				}
