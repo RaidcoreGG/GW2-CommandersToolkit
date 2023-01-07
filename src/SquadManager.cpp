@@ -62,9 +62,12 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 			for (auto it = SquadMembers.begin(); it != SquadMembers.end();)
 			{
-				auto curIt = it++;
-				auto& squadMember = curIt->second;
-				if (squadMember.Subgroup != sub) { continue; }
+				auto& squadMember = it->second;
+				if (squadMember.Subgroup != sub)
+				{
+					++it;
+					continue;
+				}
 				current.AmountPlayers++;
 
 				// set subgroup coverage
@@ -101,12 +104,22 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				ImGui::TableSetColumnIndex(7); ImGui::CheckboxCenteredColumn(("##Heal" + id).c_str(), &squadMember.Utilities.Heal);
 				ImGui::TableSetColumnIndex(8); ImGui::SetNextItemWidth(notesWidth); ImGui::InputText(("##Notes" + id).c_str(), squadMember.Notes, sizeof(squadMember.Notes));
 
+				bool remove = false;
 				// player action field
 				if (untracked) // show remove button if not tracked
 				{
 					ImGui::TableSetColumnIndex(9);
-					if (ImGui::SmallButton(("Remove##" + id).c_str())) { it = SquadMembers.erase(curIt); }
+					if (ImGui::SmallButton(("Remove##" + id).c_str())) { remove = true; }
 					ImGui::PopStyleColor(); // reset red font
+				}
+
+				if (remove)
+				{
+					it = SquadMembers.erase(it);
+				}
+				else
+				{
+					++it;
 				}
 			}
 
