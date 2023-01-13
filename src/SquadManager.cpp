@@ -118,14 +118,14 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				ImGui::TableNextRow();
 				ImGui::TableSetColumnIndex(0); ImGui::Text("Subgroup"); if (ShortWarnings) { current.WarningShort(); }
 				ImGui::TableSetColumnIndex(1); ImGui::Text("%u", sub);
-				ImGui::TableSetColumnIndex(2); ImGui::TextCenteredColumn("%s", current.Utilities.Might ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Might");
-				ImGui::TableSetColumnIndex(3); ImGui::TextCenteredColumn("%s", current.Utilities.Alacrity ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Alacrity");
-				ImGui::TableSetColumnIndex(4); ImGui::TextCenteredColumn("%s", current.Utilities.Quickness ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Quickness");
-				ImGui::TableSetColumnIndex(5); ImGui::TextCenteredColumn("%s", current.Utilities.Fury ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Fury");
-				ImGui::TableSetColumnIndex(6); ImGui::TextCenteredColumn("%s", current.Utilities.Vulnerability ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Vulnerability");
-				ImGui::TableSetColumnIndex(7); ImGui::TextCenteredColumn("%s", current.Utilities.Heal ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Heal");
-				ImGui::TableSetColumnIndex(8); ImGui::TextCenteredColumn("%s", current.Utilities.Pow ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Power Damage");
-				ImGui::TableSetColumnIndex(9); ImGui::TextCenteredColumn("%s", current.Utilities.Condi ? "X" : ""); if (ImGui::IsItemHovered())ImGui::SetTooltip("Condition Damage");
+				ImGui::TableSetColumnIndex(2); ImGui::TextCenteredColumn("%s", current.Utilities.Might ? "X" : "");				if (ImGui::IsItemHovered())ImGui::SetTooltip("Might");
+				ImGui::TableSetColumnIndex(3); ImGui::TextCenteredColumn("%s", current.Utilities.Alacrity ? "X" : "");			if (ImGui::IsItemHovered())ImGui::SetTooltip("Alacrity");
+				ImGui::TableSetColumnIndex(4); ImGui::TextCenteredColumn("%s", current.Utilities.Quickness ? "X" : "");			if (ImGui::IsItemHovered())ImGui::SetTooltip("Quickness");
+				ImGui::TableSetColumnIndex(5); ImGui::TextCenteredColumn("%s", current.Utilities.Fury ? "X" : "");				if (ImGui::IsItemHovered())ImGui::SetTooltip("Fury");
+				ImGui::TableSetColumnIndex(6); ImGui::TextCenteredColumn("%s", current.Utilities.Vulnerability ? "X" : "");		if (ImGui::IsItemHovered())ImGui::SetTooltip("Vulnerability");
+				ImGui::TableSetColumnIndex(7); ImGui::TextCenteredColumn("%s", current.Utilities.Heal ? "X" : "");				if (ImGui::IsItemHovered())ImGui::SetTooltip("Heal");
+				ImGui::TableSetColumnIndex(8); ImGui::TextCenteredColumn("%s", current.Utilities.Pow ? "X" : "");				if (ImGui::IsItemHovered())ImGui::SetTooltip("Power Damage");
+				ImGui::TableSetColumnIndex(9); ImGui::TextCenteredColumn("%s", current.Utilities.Condi ? "X" : "");				if (ImGui::IsItemHovered())ImGui::SetTooltip("Condition Damage");
 				ImGui::TableSetColumnIndex(10); ImGui::SetNextItemWidth(notesWidth); ImGui::InputText(("##Notes" + std::to_string(sub)).c_str(), current.Notes, sizeof(current.Notes));
 
 				if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
