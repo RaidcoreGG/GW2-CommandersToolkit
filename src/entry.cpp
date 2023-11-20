@@ -129,8 +129,6 @@ float VectorDistance(float x1, float y1, float x2, float y2)
 
 void SetCursorCompass(float x, float y)
 {
-	if (VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24 > 4000) { return; } // out of placable range
-
 	ArcDPS::LogToArc((char*)"Distance:");
 	ArcDPS::LogToArc((char*)std::to_string(VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24).c_str());
 	ArcDPS::LogToArc((char*)"");
@@ -199,6 +197,8 @@ LPARAM GetLPARAM(uint32_t key, bool down, bool sys)
 
 void SetSquadMarker(int marker, float x, float y)
 {
+	if (VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24 > 4000) { return; } // out of placable range
+
 	/* store cursor pos*/
 	POINT point;
 	GetCursorPos(&point);
@@ -218,6 +218,7 @@ void SetSquadMarker(int marker, float x, float y)
 	case 6: key = 0x36; break;
 	case 7: key = 0x37; break;
 	case 8: key = 0x38; break;
+	case 9: key = 0x39; break;
 	}
 
 	Sleep(15);
@@ -236,6 +237,43 @@ void SetSquadMarker(int marker, float x, float y)
 	SetCursorPos(point.x, point.y);
 }
 
+uintptr_t PreZhaitan()
+{
+	std::thread([]()
+		{
+			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(1, 34208.9102, 104607.6641); Sleep(50);
+			SetSquadMarker(2, 34141.4805, 104607.7109); Sleep(50);
+			SetSquadMarker(3, 34175.2344, 104641.8672); Sleep(50);
+			SetSquadMarker(5, 34175.1172, 104665.5625); Sleep(50);
+			SetSquadMarker(7, 34146.2109, 104578.5000); Sleep(50);
+			SetSquadMarker(8, 34204.2109, 104637.5000);
+		}).detach();
+}
+uintptr_t Zhaitan()
+{
+	std::thread([]()
+		{
+			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(1, 34199.2031, 104583.8984); Sleep(50);
+			SetSquadMarker(2, 34151.1211, 104583.8594); Sleep(50);
+			SetSquadMarker(3, 34175.1875, 104641.7969); Sleep(50);
+			SetSquadMarker(4, 34175.1719, 104573.9688); Sleep(50);
+			SetSquadMarker(5, 34175.1172, 104665.5625);
+		}).detach();
+}
+uintptr_t SooWon()
+{
+	std::thread([]()
+		{
+			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(1, 34201.5977, 104607.7422); Sleep(50);
+			SetSquadMarker(2, 34198.4102, 104619.0781); Sleep(50);
+			SetSquadMarker(3, 34181.0078, 104641.7969); Sleep(50);
+			SetSquadMarker(5, 34175.1172, 104665.5625);
+		}).detach();
+}
+
 uintptr_t Windows(const char* category)
 {
 	if (category)
@@ -247,22 +285,17 @@ uintptr_t Windows(const char* category)
 	}
 	else
 	{
-		if (ImGui::Button("MapCenter")) { SetSquadMarker(1, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); }
-		if (ImGui::Button("Point1")) { SetSquadMarker(2, 49926.6914, 31138.3125); }
-		if (ImGui::Button("Point2")) { SetSquadMarker(3, 49749.7539, 30961.2734); }
-		if (ImGui::Button("Aerodrome"))
+		if (ImGui::Button("Pre-Zhaitan"))
 		{
-			std::thread([]()
-				{ 
-					SetSquadMarker(1, 49327.2227, 32106.1094); Sleep(50);
-					SetSquadMarker(2, 49354.0898, 32115.9766); Sleep(50);
-					SetSquadMarker(3, 49381.1523, 32133.8906); Sleep(50);
-					SetSquadMarker(4, 49380.6602, 32163.3594); Sleep(50);
-					SetSquadMarker(5, 49357.6680, 32186.7578); Sleep(50);
-					SetSquadMarker(6, 49321.9805, 32208.8438); Sleep(50);
-					SetSquadMarker(7, 49288.4688, 32193.8359); Sleep(50);
-					SetSquadMarker(8, 49287.7188, 32155.2344);
-				}).detach();
+			PreZhaitan();
+		}
+		if (ImGui::Button("Zhaitan"))
+		{
+			Zhaitan();
+		}
+		if (ImGui::Button("Soo-Won"))
+		{
+			SooWon();
 		}
 	}
 
@@ -283,6 +316,9 @@ uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if (SquadManager::Visible) { SquadManager::Visible = false; return 0; }
 		}
 	}
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F1) { PreZhaitan(); return 0; } }
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F2) { Zhaitan(); return 0; } }
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F3) { SooWon(); return 0; } }
 
 	return uMsg;
 }
