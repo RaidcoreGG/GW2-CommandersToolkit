@@ -1,11 +1,13 @@
 #pragma once
 #include <Windows.h>
-#include "arcdps.h"
 #include "imgui/imgui.h"
 #include "SquadManager.h"
 #include "Mumble.h"
 #include "nlohmann/json.hpp"
 #include <math.h>
+
+#include "Nexus.h"
+#include "arcdps.h"
 
 using json = nlohmann::json;
 
@@ -21,78 +23,226 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReser
 	}
 	return TRUE;
 }
-extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion);
-extern "C" __declspec(dllexport) void* get_release_addr();
+
+struct EvCombatData
+{
+	cbtevent* ev;
+	ag* src;
+	ag* dst;
+	char* skillname;
+	uint64_t id;
+	uint64_t revision;
+};
+
+const char* KB_CT = "KB_COMMANDERSTOOLKIT";
+
+void PreZhaitan();
+void Zhaitan();
+void SooWon();
 
 /* proto */
-ArcDPS::PluginExports* Initialize();
-uintptr_t Release();
-uintptr_t ImGuiRender(uint32_t not_charsel_or_loading);
-uintptr_t Windows(const char* category); // Windows check boxes in main menu
-uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision);
-uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void AddonLoad(AddonAPI* aApi);
+void AddonUnload();
+void ProcessKeybind(const char* aIdentifer);
+void AddonRender();
+void AddonShortcut();
+UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void OnCombatEvent(void* aEventArgs);
 
 HWND Game;
+AddonDefinition* AddonDef;
+AddonAPI* APIDefs;
+Mumble::Data* MumbleLink;
 
-/* export -- arcdps looks for this exported function and calls the address it returns on client load */
-extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion)
+extern "C" __declspec(dllexport) AddonDefinition* GetAddonDef()
 {
-	ImGui::SetCurrentContext((ImGuiContext*)imguictx);
-	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))mallocfn, (void(*)(void*, void*))freefn); // on imgui 1.80+
+	AddonDef = new AddonDefinition();
+	AddonDef->Signature = -584326;
+	AddonDef->APIVersion = NEXUS_API_VERSION;
+	AddonDef->Name = "Commander's Toolkit";
+	AddonDef->Version.Major = 1;
+	AddonDef->Version.Minor = 0;
+	AddonDef->Version.Build = 0;
+	AddonDef->Version.Revision = 1;
+	AddonDef->Author = "Raidcore";
+	AddonDef->Description = "A GW2 addon that allows you to track boon & role coverage in a squad.";
+	AddonDef->Load = AddonLoad;
+	AddonDef->Unload = AddonUnload;
 
-	ArcDPS::LogFile = (void*)GetProcAddress((HMODULE)arcdll, "e3");
-	ArcDPS::LogArc = (void*)GetProcAddress((HMODULE)arcdll, "e8");
-	ArcDPS::GetUISettings = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e6");
-	ArcDPS::GetModifiers = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e7");
-
-	return Initialize;
-}
-/* export -- arcdps looks for this exported function and calls the address it returns on client exit */
-extern "C" __declspec(dllexport) void* get_release_addr()
-{
-	return Release;
-}
-
-/* initialize mod -- return table that arcdps will use for callbacks. exports struct and strings are copied to arcdps memory only once at init */
-ArcDPS::PluginExports* Initialize()
-{
-	/* for arcdps */
-	memset(&ArcDPS::ArcPluginExports, 0, sizeof(ArcDPS::PluginExports));
-	ArcDPS::ArcPluginExports.Signature = 0x4A584326;
-	ArcDPS::ArcPluginExports.ImGuiVersion = IMGUI_VERSION_NUM;
-	ArcDPS::ArcPluginExports.Size = sizeof(ArcDPS::PluginExports);
-	ArcDPS::ArcPluginExports.Name = "Commander's Toolkit";
-	ArcDPS::ArcPluginExports.Build = __DATE__ " " __TIME__;
-	ArcDPS::ArcPluginExports.ImGuiRenderCallback = ImGuiRender;
-	ArcDPS::ArcPluginExports.UIWindows = Windows;
-	ArcDPS::ArcPluginExports.CombatCallback = Combat;
-	ArcDPS::ArcPluginExports.WndProc = WndProc;
-	ArcDPS::ArcPluginExports.WndProcFiltered = WndProcFiltered;
-
-	Mumble::Create();
-
-	return &ArcDPS::ArcPluginExports;
-}
-/* release mod -- return ignored */
-uintptr_t Release()
-{
-	Mumble::Destroy();
-
-	return 0;
+	return AddonDef;
 }
 
-uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
+void AddonLoad(AddonAPI* aApi)
 {
-	ArcDPS::IsCharacterSelectOrLoading = !not_charsel_or_loading;
-	ArcDPS::UpdateExports();
+	APIDefs = aApi;
 
-	bool movable = ArcDPS::IsWindowMovable();
-	bool clickable = ArcDPS::IsWindowClickable();
+	/* If you are using ImGui you will need to set these. */
+	ImGui::SetCurrentContext(APIDefs->ImguiContext);
+	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))APIDefs->ImguiMalloc, (void(*)(void*, void*))APIDefs->ImguiFree);
 
-	if (SquadManager::Visible) { SquadManager::DrawWindow(movable, clickable); }
+	APIDefs->RegisterRender(ERenderType_Render, AddonRender);
+	APIDefs->AddSimpleShortcut("QAS_COMMANDERSTOOLKIT", AddonShortcut);
+	APIDefs->RegisterWndProc(AddonWndProc);
+	APIDefs->RegisterKeybindWithString(KB_CT, ProcessKeybind, "CTRL+Q");
+	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
+	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
 
-	return 0;
+	MumbleLink = (Mumble::Data*)APIDefs->GetResource("DL_MUMBLE_LINK");
+}
+
+void AddonUnload()
+{
+	APIDefs->UnregisterRender(AddonRender);
+	APIDefs->RemoveSimpleShortcut("QAS_COMMANDERSTOOLKIT");
+	APIDefs->UnregisterWndProc(AddonWndProc);
+	APIDefs->UnregisterKeybind(KB_CT);
+	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
+	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
+	return;
+}
+
+void ProcessKeybind(const char* aIdentifier)
+{
+	/* if KB_COMPASS_TOGGLEVIS is passed, we toggle the compass visibility */
+	if (strcmp(aIdentifier, KB_CT) == 0)
+	{
+		SquadManager::Visible = !SquadManager::Visible;
+		return;
+	}
+}
+
+void AddonRender()
+{
+	if (SquadManager::Visible)
+	{
+		SquadManager::DrawWindow(true, true);
+	}
+}
+
+void AddonShortcut()
+{
+	ImGui::TextDisabled("Commander's Toolkit");
+
+	ImGui::Checkbox("Squad Manager", &SquadManager::Visible);
+	ImGui::Separator();
+	/*if (ImGui::Button("Pre-Zhaitan"))
+	{
+		PreZhaitan();
+	}
+	if (ImGui::Button("Zhaitan"))
+	{
+		Zhaitan();
+	}
+	if (ImGui::Button("Soo-Won"))
+	{
+		SooWon();
+	}*/
+}
+
+UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	auto const io = &ImGui::GetIO();
+
+	if (!Game) { Game = hWnd; }
+
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F1) { PreZhaitan(); return 0; } }
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F2) { Zhaitan(); return 0; } }
+	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F3) { SooWon(); return 0; } }
+
+	return uMsg;
+}
+
+void OnCombatEvent(void* aEventArgs)
+{
+	EvCombatData* cbtEv = (EvCombatData*)aEventArgs;
+
+	/* ev is null. dst will only be valid on tracking add. skillname will also be null */
+	if (!cbtEv->ev)
+	{
+		/* notify tracking change */
+		if (!cbtEv->src->elite)
+		{
+			/* add */
+			if (cbtEv->src->prof)
+			{
+				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
+				//p += _snprintf_s(p, 400, _TRUNCATE, "agent added: %s:%s (%0llx), instid: %u, prof: %u, elite: %u, self: %u, team: %u, subgroup: %u\n", src->name, dst->name, src->id, dst->id, dst->prof, dst->elite, dst->self, src->team, dst->team);
+
+				if (cbtEv->src->name != nullptr && cbtEv->src->name[0] != '\0' && cbtEv->dst->name != nullptr && cbtEv->dst->name[0] != '\0')
+				{
+					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+					bool agUpdate = false;
+
+					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+					{
+						if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
+						else
+						{
+							agUpdate = true;
+							strcpy_s(SquadManager::SquadMembers[i].CharacterName, cbtEv->src->name);
+							SquadManager::SquadMembers[i].Profession = cbtEv->dst->prof;
+							SquadManager::SquadMembers[i].Subgroup = cbtEv->dst->team;
+							SquadManager::SquadMembers[i].IsSelf = cbtEv->dst->self;
+							SquadManager::SquadMembers[i].IsTracked = true;
+							SquadManager::SquadMembers[i].LastSeen = time(0);
+							SquadManager::PurgeSquadMembers();
+							break;
+						}
+					}
+
+					if (!agUpdate) // if not agUpdate -> add new ag
+					{
+						Player p;
+						p.ID = cbtEv->src->id;
+						strcpy_s(p.AccountName, cbtEv->dst->name);
+						strcpy_s(p.CharacterName, cbtEv->src->name);
+						p.Profession = cbtEv->dst->prof;
+						p.Subgroup = cbtEv->dst->team;
+						p.IsSelf = cbtEv->dst->self;
+						p.IsTracked = true;
+						p.LastSeen = time(0);
+
+						SquadManager::SquadMembers.push_back(p);
+						SquadManager::PurgeSquadMembers();
+					}
+				}
+			}
+			else /* remove */
+			{
+				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
+				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
+
+				std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+				for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+				{
+					if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
+					else
+					{
+						SquadManager::SquadMembers[i].IsTracked = false;
+						SquadManager::SquadMembers[i].LastSeen = time(0);
+						break;
+					}
+				}
+				SquadManager::PurgeSquadMembers();
+			}
+		}
+	}
+	else // combat enter
+	{
+		if (cbtEv->ev && cbtEv->ev->is_statechange == CBTS_ENTERCOMBAT)
+		{
+			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+			{
+				if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
+				else
+				{
+					SquadManager::SquadMembers[i].Subgroup = cbtEv->ev->dst_agent;
+					break;
+				}
+			}
+		}
+	}
 }
 
 struct KeyLParam
@@ -121,24 +271,22 @@ struct KeyLParam
 		return *(KeyLParam*)&lp;
 	}
 };
-
 float VectorDistance(float x1, float y1, float x2, float y2)
 {
 	return sqrt(powf(x2 - x1, 2) + powf(y2 - y1, 2));
 }
-
 void SetCursorCompass(float x, float y)
 {
-	ArcDPS::LogToArc((char*)"Distance:");
-	ArcDPS::LogToArc((char*)std::to_string(VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24).c_str());
-	ArcDPS::LogToArc((char*)"");
+	APIDefs->Log(ELogLevel_TRACE, "Distance:");
+	APIDefs->Log(ELogLevel_TRACE, std::to_string(VectorDistance(MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y, x, y) * 24).c_str());
+	APIDefs->Log(ELogLevel_TRACE, "");
 
 	int margin = 0; // margin in pixels 0 if top, 37 if bottom (normal UI)
-	if (!Mumble::Data->Context.IsCompassTopRight) { margin = 37; }
+	if (!MumbleLink->Context.IsCompassTopRight) { margin = 37; }
 
 	/* determine UI scaling */
 	float scaling = 1.00f;
-	json j = json::parse(Mumble::Data->Identity);
+	json j = json::parse(MumbleLink->Identity);
 	switch (j["uisz"].get<unsigned>())
 	{
 	case 0: scaling = 0.90f; break;
@@ -149,8 +297,8 @@ void SetCursorCompass(float x, float y)
 
 	// map center in screen pixels relative to bottom/top right
 	// half of compass size + margin
-	int mapCenterX = (Mumble::Data->Context.Compass.Width / 2) * scaling;
-	int mapCenterY = ((Mumble::Data->Context.Compass.Height / 2) + margin) * scaling;
+	int mapCenterX = (MumbleLink->Context.Compass.Width / 2) * scaling;
+	int mapCenterY = ((MumbleLink->Context.Compass.Height / 2) + margin) * scaling;
 
 	/* replace desktop with gw2 window, there are people that don't play full screen, wtf */
 	RECT bounds;
@@ -161,11 +309,11 @@ void SetCursorCompass(float x, float y)
 	int screenHeight = bounds.bottom;
 
 	// distance from map center in units
-	float dX = (x - Mumble::Data->Context.MapCenter.X) * 24;
-	float dY = (y - Mumble::Data->Context.MapCenter.Y) * 24;
+	float dX = (x - MumbleLink->Context.Compass.Center.X) * 24;
+	float dY = (y - MumbleLink->Context.Compass.Center.Y) * 24;
 
 	// 85px = 2000u
-	float pixelsPerUnit = (85.0f / (2000.0f * Mumble::Data->Context.MapScale)) * scaling;
+	float pixelsPerUnit = (85.0f / (2000.0f * MumbleLink->Context.Compass.Scale)) * scaling;
 
 	// TODO: ADJUST FOR ROTATION
 	/*float yaw = atan2f(Mumble->cam_front.x, Mumble->cam_front.z) * 180 / 3.14159265f; // gets the rotation in degrees; north = 0, clock-wise to 360
@@ -173,7 +321,6 @@ void SetCursorCompass(float x, float y)
 
 	SetCursorPos(screenWidth - mapCenterX + (dX * pixelsPerUnit), screenHeight - mapCenterY + (dY * pixelsPerUnit));
 }
-
 LPARAM GetLPARAM(uint32_t key, bool down, bool sys)
 {
 	uint64_t lp;
@@ -190,14 +337,13 @@ LPARAM GetLPARAM(uint32_t key, bool down, bool sys)
 	lp = lp << 16;
 	lp += 1;
 
-	ArcDPS::LogToArc((char*)std::to_string(lp).c_str());
+	APIDefs->Log(ELogLevel_TRACE, std::to_string(lp).c_str());
 
 	return lp;
 }
-
 void SetSquadMarker(int marker, float x, float y)
 {
-	if (VectorDistance(Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y, x, y) * 24 > 4000) { return; } // out of placable range
+	if (VectorDistance(MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y, x, y) * 24 > 4000) { return; } // out of placable range
 
 	/* store cursor pos*/
 	POINT point;
@@ -236,12 +382,11 @@ void SetSquadMarker(int marker, float x, float y)
 	/* reset cursor pos */
 	SetCursorPos(point.x, point.y);
 }
-
-uintptr_t PreZhaitan()
+void PreZhaitan()
 {
 	std::thread([]()
 		{
-			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(9, MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y); Sleep(50);
 			SetSquadMarker(1, 34208.9102, 104607.6641); Sleep(50);
 			SetSquadMarker(2, 34141.4805, 104607.7109); Sleep(50);
 			SetSquadMarker(3, 34175.2344, 104641.8672); Sleep(50);
@@ -250,11 +395,11 @@ uintptr_t PreZhaitan()
 			SetSquadMarker(8, 34204.2109, 104637.5000);
 		}).detach();
 }
-uintptr_t Zhaitan()
+void Zhaitan()
 {
 	std::thread([]()
 		{
-			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(9, MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y); Sleep(50);
 			SetSquadMarker(1, 34199.2031, 104583.8984); Sleep(50);
 			SetSquadMarker(2, 34151.1211, 104583.8594); Sleep(50);
 			SetSquadMarker(3, 34175.1875, 104641.7969); Sleep(50);
@@ -262,174 +407,14 @@ uintptr_t Zhaitan()
 			SetSquadMarker(5, 34175.1172, 104665.5625);
 		}).detach();
 }
-uintptr_t SooWon()
+void SooWon()
 {
 	std::thread([]()
 		{
-			SetSquadMarker(9, Mumble::Data->Context.MapCenter.X, Mumble::Data->Context.MapCenter.Y); Sleep(50);
+			SetSquadMarker(9, MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y); Sleep(50);
 			SetSquadMarker(1, 34201.5977, 104607.7422); Sleep(50);
 			SetSquadMarker(2, 34198.4102, 104619.0781); Sleep(50);
 			SetSquadMarker(3, 34181.0078, 104641.7969); Sleep(50);
 			SetSquadMarker(5, 34175.1172, 104665.5625);
 		}).detach();
-}
-
-uintptr_t Windows(const char* category)
-{
-	if (category)
-	{
-		if (strcmp(category, "squad") == 0)
-		{
-			ImGui::Checkbox("Squad Manager", &SquadManager::Visible);
-		}
-	}
-	else
-	{
-		if (ImGui::Button("Pre-Zhaitan"))
-		{
-			PreZhaitan();
-		}
-		if (ImGui::Button("Zhaitan"))
-		{
-			Zhaitan();
-		}
-		if (ImGui::Button("Soo-Won"))
-		{
-			SooWon();
-		}
-	}
-
-	return 0;
-}
-
-uintptr_t WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	auto const io = &ImGui::GetIO();
-
-	if (!Game) { Game = hWnd; }
-
-	/* unfiltered */
-	if (io->KeysDown[VK_ESCAPE])
-	{
-		if (ArcDPS::ArcUISettings.IsClosingWithEscape)
-		{
-			if (SquadManager::Visible) { SquadManager::Visible = false; return 0; }
-		}
-	}
-	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F1) { PreZhaitan(); return 0; } }
-	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F2) { Zhaitan(); return 0; } }
-	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F3) { SooWon(); return 0; } }
-
-	return uMsg;
-}
-uintptr_t WndProcFiltered(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	auto const io = &ImGui::GetIO();
-
-	/* mod filtered*/
-	if (io->KeysDown[ArcDPS::ArcModifiers.Mod1] && io->KeysDown[ArcDPS::ArcModifiers.Mod2])
-	{
-		if (io->KeysDown[0x51]) // Q
-		{
-			SquadManager::Visible = !SquadManager::Visible;
-			return 0;
-		}
-	}
-
-	return uMsg;
-}
-
-/* combat callback -- may be called asynchronously, use id param to keep track of order, first event id will be 2. return ignored */
-/* at least one participant will be party/squad or minion of, or a buff applied by squad in the case of buff remove. not all statechanges present, see evtc statechange enum */
-uintptr_t Combat(ArcDPS::CombatEvent* ev, ArcDPS::Agent* src, ArcDPS::Agent* dst, char* skillname, uint64_t id, uint64_t revision)
-{
-	/* ev is null. dst will only be valid on tracking add. skillname will also be null */
-	if (!ev)
-	{
-		/* notify tracking change */
-		if (!src->elite)
-		{
-			/* add */
-			if (src->prof)
-			{
-				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
-				//p += _snprintf_s(p, 400, _TRUNCATE, "agent added: %s:%s (%0llx), instid: %u, prof: %u, elite: %u, self: %u, team: %u, subgroup: %u\n", src->name, dst->name, src->id, dst->id, dst->prof, dst->elite, dst->self, src->team, dst->team);
-
-				if (src->name != nullptr && src->name[0] != '\0' && dst->name != nullptr && dst->name[0] != '\0')
-				{
-					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-					bool agUpdate = false;
-
-					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
-					{
-						if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-						else
-						{
-							agUpdate = true;
-							strcpy_s(SquadManager::SquadMembers[i].CharacterName, src->name);
-							SquadManager::SquadMembers[i].Profession = dst->prof;
-							SquadManager::SquadMembers[i].Subgroup = dst->team;
-							SquadManager::SquadMembers[i].IsSelf = dst->self;
-							SquadManager::SquadMembers[i].IsTracked = true;
-							SquadManager::SquadMembers[i].LastSeen = time(0);
-							SquadManager::PurgeSquadMembers();
-							break;
-						}
-					}
-
-					if (!agUpdate) // if not agUpdate -> add new ag
-					{
-						Player p;
-						p.ID = src->id;
-						strcpy_s(p.AccountName, dst->name);
-						strcpy_s(p.CharacterName, src->name);
-						p.Profession = dst->prof;
-						p.Subgroup = dst->team;
-						p.IsSelf = dst->self;
-						p.IsTracked = true;
-						p.LastSeen = time(0);
-
-						SquadManager::SquadMembers.push_back(p);
-						SquadManager::PurgeSquadMembers();
-					}
-				}
-			}
-			else /* remove */
-			{
-				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
-				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
-
-				std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-				for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
-				{
-					if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-					else
-					{
-						SquadManager::SquadMembers[i].IsTracked = false;
-						SquadManager::SquadMembers[i].LastSeen = time(0);
-						break;
-					}
-				}
-				SquadManager::PurgeSquadMembers();
-			}
-		}
-	}
-	else // combat enter
-	{
-		if (ev->is_statechange == ArcDPS::CBTS_ENTERCOMBAT)
-		{
-			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
-			{
-				if (SquadManager::SquadMembers[i].ID != src->id) { continue; }
-				else
-				{
-					SquadManager::SquadMembers[i].Subgroup = ev->dst_agent;
-					break;
-				}
-			}
-		}
-	}
-
-	return 0;
 }
