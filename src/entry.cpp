@@ -55,7 +55,7 @@ ArcDPS::PluginExports* Initialize()
 	ArcDPS::ArcPluginExports.Signature = 0x4A584326;
 	ArcDPS::ArcPluginExports.ImGuiVersion = IMGUI_VERSION_NUM;
 	ArcDPS::ArcPluginExports.Size = sizeof(ArcDPS::PluginExports);
-	ArcDPS::ArcPluginExports.Name = "Commander's Toolkit";
+	ArcDPS::ArcPluginExports.Name = "Commander's Toolkit (zh_TW translated by Cavey.6432)";
 	ArcDPS::ArcPluginExports.Build = __DATE__ " " __TIME__;
 	ArcDPS::ArcPluginExports.ImGuiRenderCallback = ImGuiRender;
 	ArcDPS::ArcPluginExports.UIWindows = Windows;
@@ -89,7 +89,7 @@ uintptr_t Windows(const char* category)
 	{
 		if (strcmp(category, "squad") == 0)
 		{
-			ImGui::Checkbox("Squad Manager", &SquadManager::Visible);
+			ImGui::Checkbox(u8"團隊管理", &SquadManager::Visible); // 此註解是為了讓GitHub認為這是Big5編碼的檔案
 		}
 	}
 

@@ -26,7 +26,7 @@ public:
 		if (AmountPlayers > 5)
 		{
 			ImGui::Separator();
-			ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), "Warning: more than 5 players!");
+			ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), u8"警告:超過5名玩家!");
 		}
 	}
 
@@ -38,7 +38,7 @@ public:
 			ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), "(!)");
 			ImGui::Tooltip([]
 				{
-					ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), "More than 5 players in the subgroup.\nBoons won't be distributed properly!");
+					ImGui::TextColored(ImVec4(1.00f, 0.58f, 0.31f, 1.00f), u8"小隊有超過5位玩家。\n增益可能沒有被合適分配!");
 				});
 		}
 	}
