@@ -164,6 +164,7 @@
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Shared.cpp" />
     <ClCompile Include="SquadManager.cpp" />
     <ClCompile Include="Templates.cpp" />
   </ItemGroup>
@@ -182,6 +183,7 @@
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="Shared.h" />
     <ClInclude Include="SquadManager.h" />
     <ClInclude Include="Templates.h" />
     <ClInclude Include="Utility.h" />
@@ -191,6 +193,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="icons\Alacrity.png" />
+    <Image Include="icons\commander_toolkit.png" />
+    <Image Include="icons\commander_toolkit_hover.png" />
     <Image Include="icons\Fury.png" />
     <Image Include="icons\Heal.png" />
     <Image Include="icons\Might.png" />

@@ -7,8 +7,10 @@
 #define IDB_FURY                        103
 #define IDB_HEAL                        104
 #define IDB_QUICKNESS                   105
-#define IDB_PNG5                        106
 #define IDB_VULNERABILITY               106
+
+#define IDB_ICON						201
+#define IDB_ICON_HOVER					202
 
 // Next default values for new objects
 // 

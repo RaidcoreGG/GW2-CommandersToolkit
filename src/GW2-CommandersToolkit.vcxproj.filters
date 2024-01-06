@@ -54,6 +54,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shared.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imgui.h">
@@ -107,6 +110,9 @@
     <ClInclude Include="Mumble.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GW2-CommandersToolkit.rc">
@@ -130,6 +136,12 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="icons\Might.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\commander_toolkit_hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="icons\commander_toolkit.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

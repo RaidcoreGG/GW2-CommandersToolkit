@@ -4,6 +4,7 @@
 #include <string>
 #include "Templates.h"
 #include "SquadManager.h"
+#include "Shared.h"
 
 /* UI */
 bool SquadManager::Visible = false;
@@ -31,16 +32,18 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 
 	if (ImGui::BeginTable("table_sqmgr", 10, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_PadOuterX))
 	{
-		ImGui::TableSetupColumn("Name");
-		ImGui::TableSetupColumn("Sub");
-		ImGui::TableSetupColumn("Might");
-		ImGui::TableSetupColumn("Alac");
-		ImGui::TableSetupColumn("Quic");
-		ImGui::TableSetupColumn("Fury");
-		ImGui::TableSetupColumn("Vuln");
-		ImGui::TableSetupColumn("Heal");
-		ImGui::TableSetupColumn("Notes");
-		ImGui::TableHeadersRow();
+		float sz = ImGui::GetFontSize();
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0); ImGui::Text("Name");
+		ImGui::TableSetColumnIndex(1); ImGui::Text("Sub");
+		ImGui::TableSetColumnIndex(2); Might != nullptr ? ImGui::Image(Might->Resource, ImVec2(sz, sz)) : ImGui::Text("Might");
+		ImGui::TableSetColumnIndex(3); Alacrity != nullptr ? ImGui::Image(Alacrity->Resource, ImVec2(sz, sz)) : ImGui::Text("Alac");
+		ImGui::TableSetColumnIndex(4); Quickness != nullptr ? ImGui::Image(Quickness->Resource, ImVec2(sz, sz)) : ImGui::Text("Quic");
+		ImGui::TableSetColumnIndex(5); Fury != nullptr ? ImGui::Image(Fury->Resource, ImVec2(sz, sz)) : ImGui::Text("Fury");
+		ImGui::TableSetColumnIndex(6); Vulnerability != nullptr ? ImGui::Image(Vulnerability->Resource, ImVec2(sz, sz)) : ImGui::Text("Vuln");
+		ImGui::TableSetColumnIndex(7); Heal != nullptr ? ImGui::Image(Heal->Resource, ImVec2(sz, sz)) : ImGui::Text("Heal");
+		ImGui::TableSetColumnIndex(8); ImGui::Text("Notes");
+		ImGui::TableNextRow();
 
 		for (size_t sub = 1; sub <= 15; sub++)
 		{

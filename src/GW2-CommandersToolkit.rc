@@ -62,6 +62,10 @@ IDB_QUICKNESS           PNG                     "icons\\Quickness.png"
 
 IDB_VULNERABILITY       PNG                     "icons\\Vulnerability.png"
 
+IDB_ICON                PNG                     "icons\\commander_toolkit.png"
+
+IDB_ICON_HOVER          PNG                     "icons\\commander_toolkit_hover.png"
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

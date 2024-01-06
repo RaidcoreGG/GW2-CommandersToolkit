@@ -8,15 +8,20 @@
 
 #include "Nexus.h"
 #include "arcdps.h"
+#include "resource.h"
+#include "Shared.h"
 
 using json = nlohmann::json;
+
+HMODULE hSelf;
+
 
 /* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
-	case DLL_PROCESS_ATTACH: break;
+	case DLL_PROCESS_ATTACH: hSelf = hModule; break;
 	case DLL_PROCESS_DETACH: break;
 	case DLL_THREAD_ATTACH: break;
 	case DLL_THREAD_DETACH: break;
@@ -43,6 +48,7 @@ void SooWon();
 /* proto */
 void AddonLoad(AddonAPI* aApi);
 void AddonUnload();
+void ReceiveTexture(const char* aIdentifier, Texture* aTexture);
 void ProcessKeybind(const char* aIdentifer);
 void AddonRender();
 void AddonShortcut();
@@ -50,26 +56,25 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void OnCombatEvent(void* aEventArgs);
 
 HWND Game;
-AddonDefinition* AddonDef;
+AddonDefinition AddonDef{};
 AddonAPI* APIDefs;
 Mumble::Data* MumbleLink;
 
 extern "C" __declspec(dllexport) AddonDefinition* GetAddonDef()
 {
-	AddonDef = new AddonDefinition();
-	AddonDef->Signature = -584326;
-	AddonDef->APIVersion = NEXUS_API_VERSION;
-	AddonDef->Name = "Commander's Toolkit";
-	AddonDef->Version.Major = 1;
-	AddonDef->Version.Minor = 0;
-	AddonDef->Version.Build = 0;
-	AddonDef->Version.Revision = 1;
-	AddonDef->Author = "Raidcore";
-	AddonDef->Description = "A GW2 addon that allows you to track boon & role coverage in a squad.";
-	AddonDef->Load = AddonLoad;
-	AddonDef->Unload = AddonUnload;
+	AddonDef.Signature = -584326;
+	AddonDef.APIVersion = NEXUS_API_VERSION;
+	AddonDef.Name = "Commander's Toolkit";
+	AddonDef.Version.Major = 1;
+	AddonDef.Version.Minor = 0;
+	AddonDef.Version.Build = 0;
+	AddonDef.Version.Revision = 1;
+	AddonDef.Author = "Raidcore";
+	AddonDef.Description = "A GW2 addon that allows you to track boon & role coverage in a squad.";
+	AddonDef.Load = AddonLoad;
+	AddonDef.Unload = AddonUnload;
 
-	return AddonDef;
+	return &AddonDef;
 }
 
 void AddonLoad(AddonAPI* aApi)
@@ -81,11 +86,21 @@ void AddonLoad(AddonAPI* aApi)
 	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))APIDefs->ImguiMalloc, (void(*)(void*, void*))APIDefs->ImguiFree);
 
 	APIDefs->RegisterRender(ERenderType_Render, AddonRender);
-	APIDefs->AddSimpleShortcut("QAS_COMMANDERSTOOLKIT", AddonShortcut);
+	APIDefs->AddShortcut("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_CT, "Commander's Toolkit");
+	//APIDefs->AddSimpleShortcut("QAS_COMMANDERSTOOLKIT", AddonShortcut);
 	APIDefs->RegisterWndProc(AddonWndProc);
 	APIDefs->RegisterKeybindWithString(KB_CT, ProcessKeybind, "CTRL+Q");
 	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
 	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
+
+	APIDefs->LoadTextureFromResource("TEX_BOON_ALACRITY", IDB_ALACRITY, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("TEX_BOON_FURY", IDB_FURY, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("TEX_BOON_HEAL", IDB_HEAL, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("TEX_BOON_MIGHT", IDB_MIGHT, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("TEX_BOON_QUICKNESS", IDB_QUICKNESS, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("TEX_BOON_VULNERABILITY", IDB_VULNERABILITY, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT", IDB_ICON, hSelf, nullptr);
+	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, hSelf, ReceiveTexture);
 
 	MumbleLink = (Mumble::Data*)APIDefs->GetResource("DL_MUMBLE_LINK");
 }
@@ -98,7 +113,36 @@ void AddonUnload()
 	APIDefs->UnregisterKeybind(KB_CT);
 	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
 	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
-	return;
+}
+
+void ReceiveTexture(const char* aIdentifier, Texture* aTexture)
+{
+	std::string str = aIdentifier;
+
+	if (str == "TEX_BOON_ALACRITY")
+	{
+		Alacrity = aTexture;
+	}
+	else if (str == "TEX_BOON_FURY")
+	{
+		Fury = aTexture;
+	}
+	else if (str == "TEX_BOON_HEAL")
+	{
+		Heal = aTexture;
+	}
+	else if (str == "TEX_BOON_MIGHT")
+	{
+		Might = aTexture;
+	}
+	else if (str == "TEX_BOON_QUICKNESS")
+	{
+		Quickness = aTexture;
+	}
+	else if (str == "TEX_BOON_VULNERABILITY")
+	{
+		Vulnerability = aTexture;
+	}
 }
 
 void ProcessKeybind(const char* aIdentifier)
@@ -277,13 +321,14 @@ float VectorDistance(float x1, float y1, float x2, float y2)
 }
 void SetCursorCompass(float x, float y)
 {
+	if (!MumbleLink || !MumbleLink->Identity)
+
 	APIDefs->Log(ELogLevel_TRACE, "Distance:");
 	APIDefs->Log(ELogLevel_TRACE, std::to_string(VectorDistance(MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y, x, y) * 24).c_str());
 	APIDefs->Log(ELogLevel_TRACE, "");
 
 	int margin = 0; // margin in pixels 0 if top, 37 if bottom (normal UI)
 	if (!MumbleLink->Context.IsCompassTopRight) { margin = 37; }
-
 	/* determine UI scaling */
 	float scaling = 1.00f;
 	json j = json::parse(MumbleLink->Identity);
