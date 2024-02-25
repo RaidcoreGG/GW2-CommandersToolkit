@@ -90,8 +90,8 @@ void AddonLoad(AddonAPI* aApi)
 	//APIDefs->AddSimpleShortcut("QAS_COMMANDERSTOOLKIT", AddonShortcut);
 	APIDefs->RegisterWndProc(AddonWndProc);
 	APIDefs->RegisterKeybindWithString(KB_CT, ProcessKeybind, "CTRL+Q");
-	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
-	APIDefs->SubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
+	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
+	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
 
 	APIDefs->LoadTextureFromResource("TEX_BOON_ALACRITY", IDB_ALACRITY, hSelf, ReceiveTexture);
 	APIDefs->LoadTextureFromResource("TEX_BOON_FURY", IDB_FURY, hSelf, ReceiveTexture);
@@ -111,8 +111,8 @@ void AddonUnload()
 	APIDefs->RemoveSimpleShortcut("QAS_COMMANDERSTOOLKIT");
 	APIDefs->UnregisterWndProc(AddonWndProc);
 	APIDefs->UnregisterKeybind(KB_CT);
-	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_LOCAL", OnCombatEvent);
-	APIDefs->UnsubscribeEvent("EV_ARC_COMBATEVENT_SQUAD", OnCombatEvent);
+	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
+	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
 }
 
 void ReceiveTexture(const char* aIdentifier, Texture* aTexture)
