@@ -1,0 +1,6 @@
+[submodule "src/mumble"]
+	path = src/mumble
+	url = https://github.com/RaidcoreGG/RCGG-lib-mumble-api/
+[submodule "src/nexus"]
+	path = src/nexus
+	url = https://github.com/RaidcoreGG/RCGG-lib-nexus-api/
