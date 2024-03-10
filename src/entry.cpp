@@ -3,20 +3,31 @@
 #include "arcdps.h"
 #include "imgui/imgui.h"
 #include "SquadManager.h"
+#include <shellapi.h>
+#include <filesystem>
+#include <fstream>
+
+std::filesystem::path gameDir;
+std::filesystem::path addonsDir;
+std::filesystem::path selfPath;
+std::filesystem::path arcPath;
+HMODULE selfDll;
+
+bool showNexusNotice = true;
 
 /* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
-	case DLL_PROCESS_ATTACH: break;
+	case DLL_PROCESS_ATTACH: selfDll = hModule; break;
 	case DLL_PROCESS_DETACH: break;
 	case DLL_THREAD_ATTACH: break;
 	case DLL_THREAD_DETACH: break;
 	}
 	return TRUE;
 }
-extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext * imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion);
+extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiContext* imguictx, void* id3dptr, HANDLE arcdll, void* mallocfn, void* freefn, uint32_t d3dversion);
 extern "C" __declspec(dllexport) void* get_release_addr();
 
 /* proto */
@@ -38,6 +49,10 @@ extern "C" __declspec(dllexport) void* get_init_addr(char* arcversion, ImGuiCont
 	ArcDPS::LogArc = (void*)GetProcAddress((HMODULE)arcdll, "e8");
 	ArcDPS::GetUISettings = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e6");
 	ArcDPS::GetModifiers = (ArcDPS::Export_GetU64)GetProcAddress((HMODULE)arcdll, "e7");
+
+	char arcP[MAX_PATH];
+	GetModuleFileNameA((HMODULE)arcdll, arcP, sizeof(arcP));
+	arcPath = arcP;
 
 	return Initialize;
 }
@@ -63,6 +78,26 @@ ArcDPS::PluginExports* Initialize()
 	ArcDPS::ArcPluginExports.WndProc = WndProc;
 	ArcDPS::ArcPluginExports.WndProcFiltered = WndProcFiltered;
 
+	char selfP[MAX_PATH];
+	GetModuleFileNameA(selfDll, selfP, sizeof(selfP));
+	selfPath = selfP;
+	
+	char gamePath[MAX_PATH];
+	GetModuleFileNameA(GetModuleHandleA(NULL), gamePath, sizeof(gamePath));
+	gameDir = gamePath;
+	gameDir = gameDir.parent_path();
+	addonsDir = gameDir / "addons";
+
+	if (!std::filesystem::exists(addonsDir / "CommandersToolkit"))
+	{
+		std::filesystem::create_directory(addonsDir / "CommandersToolkit");
+	}
+
+	if (std::filesystem::exists(addonsDir / "CommandersToolkit/Settings.json"))
+	{
+		showNexusNotice = false;
+	}
+
 	return &ArcDPS::ArcPluginExports;
 }
 /* release mod -- return ignored */
@@ -77,6 +112,59 @@ uintptr_t ImGuiRender(uint32_t not_charsel_or_loading)
 
 	bool movable = ArcDPS::IsWindowMovable();
 	bool clickable = ArcDPS::IsWindowClickable();
+
+	if (showNexusNotice)
+	{
+		if (ImGui::Begin("Upgrade to Nexus!##Commander's Toolkit"))
+		{
+			ImGui::Text("Commander's Toolkit is moving to Nexus on March 31st, 2024!");
+			ImGui::Text("If you're using an auto-updater for ArcDPS plugins, Commander's Toolkit will probably break!");
+
+			ImGui::Text("");
+
+			ImGui::Text("What is Nexus?");
+			ImGui::Text(""); ImGui::SameLine(); ImGui::Text("Nexus is a powerful Addon Host & Framework making it as convenient as possible for players.");
+			ImGui::Text(""); ImGui::SameLine();
+			if (ImGui::TextURL("Learn more: https://raidcore.gg/Nexus", true, false))
+			{
+				ShellExecuteA(0, 0, "https://raidcore.gg/Nexus", 0, 0, SW_SHOW);
+			}
+
+			ImGui::Text("");
+
+			ImGui::Text("What this means for you:");
+			ImGui::Text(""); ImGui::SameLine(); ImGui::Text("If you're not running Nexus yet visit the link above and install it, if you want to receive new features and updates for Commander's Toolkit.");
+			ImGui::Text(""); ImGui::SameLine(); ImGui::Text("If you don't care about it, you can keep using this version of the addon!");
+			ImGui::Text("");
+			ImGui::Text(""); ImGui::SameLine(); ImGui::Text("If you're already running Nexus, and both ArcDPS & Commander's Toolkit are in %s, you are already set!", addonsDir.string().c_str());
+			ImGui::Text(""); ImGui::SameLine(); ImGui::TextDisabled("ArcDPS:"); ImGui::SameLine(); ImGui::Text(arcPath.string().c_str());
+			ImGui::Text(""); ImGui::SameLine(); ImGui::TextDisabled("Commander's Toolkit:"); ImGui::SameLine(); ImGui::Text(selfPath.string().c_str());
+			ImGui::Text("");
+			if (arcPath.parent_path() == addonsDir && selfPath.parent_path() == addonsDir)
+			{
+				ImGui::Text(""); ImGui::SameLine(); ImGui::TextColored(ImVec4(0, 1, 0, 1), "It looks like you're good to go!");
+			}
+			else
+			{
+				ImGui::Text(""); ImGui::SameLine(); ImGui::TextColored(ImVec4(1, 1, 0, 1), "If either of those paths aren't in %s, close the game and move them there.", addonsDir.string().c_str());
+			}
+
+			if (ImGui::Button("Remind me later"))
+			{
+				showNexusNotice = false;
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Never show this again"))
+			{
+				showNexusNotice = false;
+
+				std::ofstream file(gameDir / "addons/CommandersToolkit" / "Settings.json");
+				file << "null" << std::endl;
+				file.close();
+			}
+		}
+		ImGui::End();
+	}
 
 	if (SquadManager::Visible) { SquadManager::DrawWindow(movable, clickable); }
 
