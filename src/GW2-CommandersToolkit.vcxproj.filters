@@ -25,6 +25,9 @@
     <Filter Include="Header Files\nlohmann">
       <UniqueIdentifier>{f47a43cc-16f8-40c3-83e9-c7a32ab44128}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\unofficial_extras">
+      <UniqueIdentifier>{8aebaef5-568e-4a30-a1b0-f0f682174b66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entry.cpp">
@@ -100,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="Subgroup.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unofficial_extras\Definitions.h">
+      <Filter>Header Files\unofficial_extras</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

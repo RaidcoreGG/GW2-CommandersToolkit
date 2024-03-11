@@ -6,26 +6,45 @@
 #include <string>
 #include "Templates.h"
 
+enum class AddedBy
+{
+	Arcdps,
+	Extras,
+};
+
+/*
+ * Possible state transitions:
+ * - Agent added by arc, (agent updated by arc), agent removed by arc
+ *   - arcdps only state transition
+ * - Agent added by extras, agent added by arc, (agent updated by arc/extras), (agent removed by arc), (agent added by arc) agent removed by extras, agent removed by arc
+ *   - normal arcdps+extras transition
+ * - Agent added by arc, (agent updated by arc/extras), agent removed by extras, agent removed by arc
+ *   - arcdps+extras transition for players that were already in the squad when game started up - limitations of extras hooking at character select and missing the initial squad update
+ *
+ * Arcdps updates should always come after extras updates due to live API delays
+ */
 class Player
 {
 	public:
-		uintptr_t ID;
-		char AccountName[64];
-		char CharacterName[64];
-		int Profession;
-		int Subgroup;
+		uintptr_t ID{};
+		std::string AccountName;
+		std::string CharacterName;
+		int Profession{};
+		int Subgroup{};
 		Utility Utilities;
 		char Notes[64] = "";
-		bool IsSelf;
-		bool IsTracked;
-		time_t LastSeen;
+		bool IsSelf{};
+		bool IsTrackedByArcdps{};
+		bool IsTrackedByExtras{};
+		time_t LastSeen{};
+		AddedBy AddedBy;
 
 		void Tooltip()
 		{
 			ImGui::Tooltip([this]
 				{
-					ImGui::Text("%s", AccountName);
-					if (!IsTracked)
+					ImGui::Text("%s", AccountName.c_str());
+					if (!IsTrackedByArcdps)
 					{
 						int secondsSince = time(0) - LastSeen;
 
@@ -33,12 +52,15 @@ class Player
 							secondsSince < 60 ? secondsSince : secondsSince / 60,
 							secondsSince < 60 ? "seconds" : "minutes");
 					}
+#ifdef _DEBUG
+					ImGui::Text("prof: %d, sub: %d, self: %d, arc: %d, extras: %d, added: %d", Profession, Subgroup, IsSelf, IsTrackedByArcdps, IsTrackedByExtras, AddedBy);
+#endif
 				});
 		}
 
 		bool Untracked()
 		{
-			if (!IsTracked && !IsSelf)
+			if (!IsTrackedByArcdps && !IsTrackedByExtras && !IsSelf)
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255));
 				return true;
