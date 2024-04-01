@@ -12,6 +12,24 @@
 #define IDB_ICON						201
 #define IDB_ICON_HOVER					202
 
+#define IDB_MW_GRID						301
+#define IDB_MW_ARROW					302
+#define IDB_MW_ARROW_HOVER				303
+#define IDB_MW_CIRCLE					304
+#define IDB_MW_CIRCLE_HOVER				305
+#define IDB_MW_HEART					306
+#define IDB_MW_HEART_HOVER				307
+#define IDB_MW_SQUARE					308
+#define IDB_MW_SQUARE_HOVER				309
+#define IDB_MW_STAR						310
+#define IDB_MW_STAR_HOVER				311
+#define IDB_MW_SWIRL					312
+#define IDB_MW_SWIRL_HOVER				313
+#define IDB_MW_TRIANGLE					314
+#define IDB_MW_TRIANGLE_HOVER			315
+#define IDB_MW_CROSS					316
+#define IDB_MW_CROSS_HOVER				317
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

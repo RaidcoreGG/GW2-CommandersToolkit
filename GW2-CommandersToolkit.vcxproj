@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{dc86dc8b-171a-446c-a014-db6b5af0c312}</ProjectGuid>
+    <RootNamespace>GW2CommandersToolkit</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>commanderstoolkit</TargetName>
+    <OutDir>$(SolutionDir)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>commanderstoolkit</TargetName>
+    <OutDir>$(SolutionDir)$(Platform)\</OutDir>
+    <IntDir>$(SolutionDir)$(Platform)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;GW2COMMANDERSTOOLKIT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+    <PreBuildEvent>
+      <Command>CALL $(SolutionDir)Scripts\remoteurl.bat
+CALL $(SolutionDir)Scripts\version.bat</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;GW2COMMANDERSTOOLKIT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+    <PreBuildEvent>
+      <Command>CALL $(SolutionDir)Scripts\remoteurl.bat
+CALL $(SolutionDir)Scripts\version.bat</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src/entry.cpp" />
+    <ClCompile Include="src/Player.cpp" />
+    <ClCompile Include="src/Shared.cpp" />
+    <ClCompile Include="src/SquadManager.cpp" />
+    <ClCompile Include="src/Templates.cpp" />
+    <ClCompile Include="src\imgui\imgui.cpp" />
+    <ClCompile Include="src\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src/arcdps.h" />
+    <ClInclude Include="src/mumble\Mumble.h" />
+    <ClInclude Include="src/nexus\Nexus.h" />
+    <ClInclude Include="src/Player.h" />
+    <ClInclude Include="src/nlohmann\json.hpp" />
+    <ClInclude Include="src/resource.h" />
+    <ClInclude Include="src/Settings.h" />
+    <ClInclude Include="src/Shared.h" />
+    <ClInclude Include="src/SquadManager.h" />
+    <ClInclude Include="src/Templates.h" />
+    <ClInclude Include="src/Utility.h" />
+    <ClInclude Include="src\imgui\imconfig.h" />
+    <ClInclude Include="src\imgui\imgui.h" />
+    <ClInclude Include="src\imgui\imgui_internal.h" />
+    <ClInclude Include="src\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\Remote.h" />
+    <ClInclude Include="src\Version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src/GW2-CommandersToolkit.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src/templates.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src/Resources\Alacrity.png" />
+    <Image Include="src/Resources\commander_toolkit.png" />
+    <Image Include="src/Resources\commander_toolkit_hover.png" />
+    <Image Include="src/Resources\Fury.png" />
+    <Image Include="src/Resources\Heal.png" />
+    <Image Include="src/Resources\MarkersWheel_Arrow.png" />
+    <Image Include="src/Resources\MarkersWheel_Arrow_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Circle.png" />
+    <Image Include="src/Resources\MarkersWheel_Circle_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Cross.png" />
+    <Image Include="src/Resources\MarkersWheel_Cross_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Grid.png" />
+    <Image Include="src/Resources\MarkersWheel_Heart.png" />
+    <Image Include="src/Resources\MarkersWheel_Heart_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Square.png" />
+    <Image Include="src/Resources\MarkersWheel_Square_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Star.png" />
+    <Image Include="src/Resources\MarkersWheel_Star_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Swirl.png" />
+    <Image Include="src/Resources\MarkersWheel_Swirl_Hover.png" />
+    <Image Include="src/Resources\MarkersWheel_Triangle.png" />
+    <Image Include="src/Resources\MarkersWheel_Triangle_Hover.png" />
+    <Image Include="src/Resources\Might.png" />
+    <Image Include="src/Resources\Quickness.png" />
+    <Image Include="src/Resources\SquadMarker_Arrow.png" />
+    <Image Include="src/Resources\SquadMarker_Circle.png" />
+    <Image Include="src/Resources\SquadMarker_Cross.png" />
+    <Image Include="src/Resources\SquadMarker_Heart.png" />
+    <Image Include="src/Resources\SquadMarker_Square.png" />
+    <Image Include="src/Resources\SquadMarker_Star.png" />
+    <Image Include="src/Resources\SquadMarker_Swirl.png" />
+    <Image Include="src/Resources\SquadMarker_Triangle.png" />
+    <Image Include="src/Resources\Vulnerability.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

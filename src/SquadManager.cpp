@@ -5,6 +5,7 @@
 #include "Templates.h"
 #include "SquadManager.h"
 #include "Shared.h"
+#include "resource.h"
 
 /* UI */
 bool SquadManager::Visible = false;
@@ -36,12 +37,72 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0); ImGui::Text("Name");
 		ImGui::TableSetColumnIndex(1); ImGui::Text("Sub");
-		ImGui::TableSetColumnIndex(2); Might != nullptr ? ImGui::Image(Might->Resource, ImVec2(sz, sz)) : ImGui::Text("Might");
-		ImGui::TableSetColumnIndex(3); Alacrity != nullptr ? ImGui::Image(Alacrity->Resource, ImVec2(sz, sz)) : ImGui::Text("Alac");
-		ImGui::TableSetColumnIndex(4); Quickness != nullptr ? ImGui::Image(Quickness->Resource, ImVec2(sz, sz)) : ImGui::Text("Quic");
-		ImGui::TableSetColumnIndex(5); Fury != nullptr ? ImGui::Image(Fury->Resource, ImVec2(sz, sz)) : ImGui::Text("Fury");
-		ImGui::TableSetColumnIndex(6); Vulnerability != nullptr ? ImGui::Image(Vulnerability->Resource, ImVec2(sz, sz)) : ImGui::Text("Vuln");
-		ImGui::TableSetColumnIndex(7); Heal != nullptr ? ImGui::Image(Heal->Resource, ImVec2(sz, sz)) : ImGui::Text("Heal");
+		ImGui::TableSetColumnIndex(2);
+		if (Might && Might->Resource)
+		{
+			ImGui::Image(Might->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Might");
+		}
+		else
+		{
+			Might = APIDefs->GetTextureOrCreateFromResource("TEX_BOON_MIGHT", IDB_MIGHT, SelfModule);
+			ImGui::Text("Might");
+		}
+		ImGui::TableSetColumnIndex(3);
+		if (Alacrity && Alacrity->Resource)
+		{
+			ImGui::Image(Alacrity->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Alacrity");
+		}
+		else
+		{
+			Alacrity = APIDefs->GetTextureOrCreateFromResource("TEX_BOON_ALACRITY", IDB_ALACRITY, SelfModule);
+			ImGui::Text("Alac");
+		}
+		ImGui::TableSetColumnIndex(4);
+		if (Quickness && Quickness->Resource)
+		{
+			ImGui::Image(Quickness->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Quickness");
+		}
+		else
+		{
+			Quickness = APIDefs->GetTextureOrCreateFromResource("TEX_BOON_QUICKNESS", IDB_QUICKNESS, SelfModule);
+			ImGui::Text("Quic");
+		}
+		ImGui::TableSetColumnIndex(5);
+		if (Fury && Fury->Resource)
+		{
+			ImGui::Image(Fury->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Fury");
+		}
+		else
+		{
+			Fury =  APIDefs->GetTextureOrCreateFromResource("TEX_BOON_FURY", IDB_FURY, SelfModule);
+			ImGui::Text("Fury");
+		}
+		ImGui::TableSetColumnIndex(6);
+		if (Vulnerability && Vulnerability->Resource)
+		{
+			ImGui::Image(Vulnerability->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Vulnerability");
+		}
+		else
+		{
+			Vulnerability =APIDefs->GetTextureOrCreateFromResource("TEX_BOON_VULNERABILITY", IDB_VULNERABILITY, SelfModule);
+			ImGui::Text("Vuln");
+		}
+		ImGui::TableSetColumnIndex(7);
+		if (Heal && Heal->Resource)
+		{
+			ImGui::Image(Heal->Resource, ImVec2(sz, sz));
+			ImGui::TooltipGeneric("Heal");
+		}
+		else
+		{
+			Heal = APIDefs->GetTextureOrCreateFromResource("TEX_BOON_HEAL", IDB_HEAL, SelfModule);
+			ImGui::Text("Heal");
+		}
 		ImGui::TableSetColumnIndex(8); ImGui::Text("Notes");
 		ImGui::TableNextRow();
 

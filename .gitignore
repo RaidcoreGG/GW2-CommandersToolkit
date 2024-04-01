@@ -9,3 +9,5 @@
 /src/x64
 /.vs
 *.aps
+Version.h
+Remote.h

@@ -1,0 +1,229 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\arcdps">
+      <UniqueIdentifier>{111d6abd-7adc-4b41-bbf8-98c67630125d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\nlohmann">
+      <UniqueIdentifier>{f47a43cc-16f8-40c3-83e9-c7a32ab44128}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{9182ae6d-d1c6-4c6d-837f-8eb7e4f56407}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_GLOBALS">
+      <UniqueIdentifier>{fed69037-9c49-436a-9099-913ea89edd6b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src/entry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/Shared.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/SquadManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src/Templates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src/arcdps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/mumble\Mumble.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/nexus\Nexus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/nlohmann\json.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/Settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/Shared.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/SquadManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/Templates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src/Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.h">
+      <Filter>_GLOBALS</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Remote.h">
+      <Filter>_GLOBALS</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="src/GW2-CommandersToolkit.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="src/Resources\Alacrity.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\commander_toolkit.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\commander_toolkit_hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\Fury.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\Heal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Arrow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Arrow_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Circle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Circle_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Cross.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Cross_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Grid.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Heart.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Heart_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Square.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Square_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Star.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Star_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Swirl.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Swirl_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Triangle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\MarkersWheel_Triangle_Hover.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\Might.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\Quickness.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Arrow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Circle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Cross.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Heart.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Square.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Star.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Swirl.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\SquadMarker_Triangle.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src/Resources\Vulnerability.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src/templates.json" />
+  </ItemGroup>
+</Project>

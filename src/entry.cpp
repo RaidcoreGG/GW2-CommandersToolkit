@@ -2,26 +2,25 @@
 #include <Windows.h>
 #include "imgui/imgui.h"
 #include "SquadManager.h"
-#include "Mumble.h"
+#include "mumble/Mumble.h"
 #include "nlohmann/json.hpp"
 #include <math.h>
 
-#include "Nexus.h"
+#include "nexus/Nexus.h"
 #include "arcdps.h"
-#include "resource.h"
 #include "Shared.h"
+#include "resource.h"
+#include "Remote.h"
+#include "Version.h"
 
 using json = nlohmann::json;
-
-HMODULE hSelf;
-
 
 /* entry */
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call)
 	{
-	case DLL_PROCESS_ATTACH: hSelf = hModule; break;
+	case DLL_PROCESS_ATTACH: SelfModule = hModule; break;
 	case DLL_PROCESS_DETACH: break;
 	case DLL_THREAD_ATTACH: break;
 	case DLL_THREAD_DETACH: break;
@@ -48,31 +47,30 @@ void SooWon();
 /* proto */
 void AddonLoad(AddonAPI* aApi);
 void AddonUnload();
-void ReceiveTexture(const char* aIdentifier, Texture* aTexture);
 void ProcessKeybind(const char* aIdentifer);
 void AddonRender();
 void AddonShortcut();
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void OnCombatEvent(void* aEventArgs);
 
-HWND Game;
 AddonDefinition AddonDef{};
-AddonAPI* APIDefs;
-Mumble::Data* MumbleLink;
 
 extern "C" __declspec(dllexport) AddonDefinition* GetAddonDef()
 {
 	AddonDef.Signature = -584326;
 	AddonDef.APIVersion = NEXUS_API_VERSION;
 	AddonDef.Name = "Commander's Toolkit";
-	AddonDef.Version.Major = 1;
-	AddonDef.Version.Minor = 0;
-	AddonDef.Version.Build = 0;
-	AddonDef.Version.Revision = 1;
+	AddonDef.Version.Major = V_MAJOR;
+	AddonDef.Version.Minor = V_MINOR;
+	AddonDef.Version.Build = V_BUILD;
+	AddonDef.Version.Revision = V_REVISION;
 	AddonDef.Author = "Raidcore";
-	AddonDef.Description = "A GW2 addon that allows you to track boon & role coverage in a squad.";
+	AddonDef.Description = "Allows you to track boon & role coverage in a squad and other features.";
 	AddonDef.Load = AddonLoad;
 	AddonDef.Unload = AddonUnload;
+
+	AddonDef.Provider = EUpdateProvider_GitHub;
+	AddonDef.UpdateLink = REMOTE_URL;
 
 	return &AddonDef;
 }
@@ -82,67 +80,30 @@ void AddonLoad(AddonAPI* aApi)
 	APIDefs = aApi;
 
 	/* If you are using ImGui you will need to set these. */
-	ImGui::SetCurrentContext(APIDefs->ImguiContext);
+	ImGui::SetCurrentContext((ImGuiContext*)APIDefs->ImguiContext);
 	ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))APIDefs->ImguiMalloc, (void(*)(void*, void*))APIDefs->ImguiFree);
 
 	APIDefs->RegisterRender(ERenderType_Render, AddonRender);
 	APIDefs->AddShortcut("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_CT, "Commander's Toolkit");
-	//APIDefs->AddSimpleShortcut("QAS_COMMANDERSTOOLKIT", AddonShortcut);
-	APIDefs->RegisterWndProc(AddonWndProc);
+	//APIDefs->RegisterWndProc(AddonWndProc);
 	APIDefs->RegisterKeybindWithString(KB_CT, ProcessKeybind, "CTRL+Q");
 	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
 	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
 
-	APIDefs->LoadTextureFromResource("TEX_BOON_ALACRITY", IDB_ALACRITY, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("TEX_BOON_FURY", IDB_FURY, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("TEX_BOON_HEAL", IDB_HEAL, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("TEX_BOON_MIGHT", IDB_MIGHT, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("TEX_BOON_QUICKNESS", IDB_QUICKNESS, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("TEX_BOON_VULNERABILITY", IDB_VULNERABILITY, hSelf, ReceiveTexture);
-	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT", IDB_ICON, hSelf, nullptr);
-	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, hSelf, ReceiveTexture);
+	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT", IDB_ICON, SelfModule, nullptr);
+	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, SelfModule, nullptr);
 
 	MumbleLink = (Mumble::Data*)APIDefs->GetResource("DL_MUMBLE_LINK");
 }
 
 void AddonUnload()
 {
-	APIDefs->UnregisterRender(AddonRender);
-	APIDefs->RemoveSimpleShortcut("QAS_COMMANDERSTOOLKIT");
-	APIDefs->UnregisterWndProc(AddonWndProc);
-	APIDefs->UnregisterKeybind(KB_CT);
+	APIDefs->DeregisterRender(AddonRender);
+	APIDefs->RemoveShortcut("QA_COMMANDERSTOOLKIT");
+	APIDefs->DeregisterWndProc(AddonWndProc);
+	APIDefs->DeregisterKeybind(KB_CT);
 	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
 	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
-}
-
-void ReceiveTexture(const char* aIdentifier, Texture* aTexture)
-{
-	std::string str = aIdentifier;
-
-	if (str == "TEX_BOON_ALACRITY")
-	{
-		Alacrity = aTexture;
-	}
-	else if (str == "TEX_BOON_FURY")
-	{
-		Fury = aTexture;
-	}
-	else if (str == "TEX_BOON_HEAL")
-	{
-		Heal = aTexture;
-	}
-	else if (str == "TEX_BOON_MIGHT")
-	{
-		Might = aTexture;
-	}
-	else if (str == "TEX_BOON_QUICKNESS")
-	{
-		Quickness = aTexture;
-	}
-	else if (str == "TEX_BOON_VULNERABILITY")
-	{
-		Vulnerability = aTexture;
-	}
 }
 
 void ProcessKeybind(const char* aIdentifier)
@@ -155,8 +116,213 @@ void ProcessKeybind(const char* aIdentifier)
 	}
 }
 
+#include <cmath>
+
+double calculate_angle(ImVec2 pos1, ImVec2 pos2)
+{
+	float delta_x = pos2.x - pos1.x;
+	float delta_y = pos2.y - pos1.y;
+
+	// Calculate the angle using arctangent (in radians)
+	float angle_rad = atan2(delta_y, delta_x);
+
+	// Convert radians to degrees
+	float angle_deg = angle_rad * 180.0f / 3.14159f;
+
+	// Adjust the angle to be between 0 and 360 degrees
+	angle_deg += 90.0f;
+	if (angle_deg < 0) {
+		angle_deg += 360.0f;
+	}
+
+	return angle_deg;
+}
+
+bool isInitialCtrl = false;
+bool wasCtrlHeld = false;
+ImVec2 initialCursor;
+
+bool h_arrow = false;
+bool h_circle = false;
+bool h_heart = false;
+bool h_square = false;
+bool h_star = false;
+bool h_swirl = false;
+bool h_triangle = false;
+bool h_cross = false;
+
 void AddonRender()
 {
+	// use wndproc instead of asynckeystate, else even while tabbed out holding ctrl will trigger it
+	//meme FIX MEMEME
+	/*bool ctrlHeld = GetAsyncKeyState(VK_CONTROL);
+	if (ctrlHeld && !wasCtrlHeld)
+	{
+		isInitialCtrl = true;
+		initialCursor = ImGui::GetMousePos();
+	}
+	else
+	{
+		isInitialCtrl = false;
+	}
+	wasCtrlHeld = ctrlHeld;
+
+	if (ctrlHeld)
+	{
+		ImVec2 mPos = ImGui::GetMousePos();
+
+		float angle = calculate_angle(initialCursor, mPos);
+
+		if (angle >= 0 && angle < 45.0f)
+		{
+			h_arrow = true;
+			h_circle = h_heart = h_square = h_star = h_swirl = h_triangle = h_cross = false;
+		}
+		else if (angle >= 45.0f && angle < 90.0f)
+		{
+			h_circle = true;
+			h_arrow = h_heart = h_square = h_star = h_swirl = h_triangle = h_cross = false;
+		}
+		else if (angle >= 90.0f && angle < 135.0f)
+		{
+			h_heart = true;
+			h_arrow = h_circle = h_square = h_star = h_swirl = h_triangle = h_cross = false;
+		}
+		else if (angle >= 135.0f && angle < 180.0f)
+		{
+			h_square = true;
+			h_arrow = h_circle = h_heart = h_star = h_swirl = h_triangle = h_cross = false;
+		}
+		else if (angle >= 180.0f && angle < 225.0f)
+		{
+			h_star = true;
+			h_arrow = h_circle = h_heart = h_square = h_swirl = h_triangle = h_cross = false;
+		}
+		else if (angle >= 225.0f && angle < 270.0f)
+		{
+			h_swirl = true;
+			h_arrow = h_circle = h_heart = h_square = h_star = h_triangle = h_cross = false;
+		}
+		else if (angle >= 270.0f && angle < 315.0f)
+		{
+			h_triangle = true;
+			h_arrow = h_circle = h_heart = h_square = h_star = h_swirl = h_cross = false;
+		}
+		else if (angle >= 315.0f && angle < 360.0f)
+		{
+			h_cross = true;
+			h_arrow = h_circle = h_heart = h_square = h_star = h_swirl = h_triangle = false;
+		}
+
+		if (isInitialCtrl)
+		{
+			ImGui::SetNextWindowPos(ImVec2(mPos.x - 56, mPos.y - 56));
+		}
+
+		if (ImGui::Begin("##markers_wheel", (bool*)0, (ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar)))
+		{
+			ImVec2 intialPos = ImVec2(0, 0);
+			if (MW_Grid && MW_Grid->Resource)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(MW_Grid->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Grid = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_GRID", IDB_MW_GRID, SelfModule);
+			}
+
+			if (MW_Arrow && MW_ArrowHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_arrow ? MW_Arrow->Resource : MW_ArrowHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Arrow = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_ARROW", IDB_MW_ARROW, SelfModule);
+				MW_ArrowHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_ARROW_HOVER", IDB_MW_ARROW_HOVER, SelfModule);
+			}
+
+			if (MW_Circle && MW_CircleHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_circle ? MW_Circle->Resource : MW_CircleHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Circle = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CIRCLE", IDB_MW_CIRCLE, SelfModule);
+				MW_CircleHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CIRCLE_HOVER", IDB_MW_CIRCLE_HOVER, SelfModule);
+			}
+
+			if (MW_Heart && MW_HeartHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_heart ? MW_Heart->Resource : MW_HeartHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Heart = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_HEART", IDB_MW_HEART, SelfModule);
+				MW_HeartHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_HEART_HOVER", IDB_MW_HEART_HOVER, SelfModule);
+			}
+
+			if (MW_Square && MW_SquareHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_square ? MW_Square->Resource : MW_SquareHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Square = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SQUARE", IDB_MW_SQUARE, SelfModule);
+				MW_SquareHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SQUARE_HOVER", IDB_MW_SQUARE_HOVER, SelfModule);
+			}
+
+			if (MW_Star && MW_StarHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_star ? MW_Star->Resource : MW_StarHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Star = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_STAR", IDB_MW_STAR, SelfModule);
+				MW_StarHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_STAR_HOVER", IDB_MW_STAR_HOVER, SelfModule);
+			}
+
+			if (MW_Swirl && MW_SwirlHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_swirl ? MW_Swirl->Resource : MW_SwirlHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Swirl = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SWIRL", IDB_MW_SWIRL, SelfModule);
+				MW_SwirlHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SWIRL_HOVER", IDB_MW_SWIRL_HOVER, SelfModule);
+			}
+
+			if (MW_Triangle && MW_TriangleHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_triangle ? MW_Triangle->Resource : MW_TriangleHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Triangle = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_TRIANGLE", IDB_MW_TRIANGLE, SelfModule);
+				MW_TriangleHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_TRIANGLE_HOVER", IDB_MW_TRIANGLE_HOVER, SelfModule);
+			}
+
+			if (MW_Cross && MW_CrossHover)
+			{
+				ImGui::SetCursorPos(intialPos);
+				ImGui::Image(!h_cross ? MW_Cross->Resource : MW_CrossHover->Resource, ImVec2(112, 112));
+			}
+			else
+			{
+				MW_Cross = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CROSS", IDB_MW_CROSS, SelfModule);
+				MW_CrossHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CROSS_HOVER", IDB_MW_CROSS_HOVER, SelfModule);
+			}
+		}
+		ImGui::End();
+	}*/
+
 	if (SquadManager::Visible)
 	{
 		SquadManager::DrawWindow(true, true);
@@ -187,7 +353,7 @@ UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	auto const io = &ImGui::GetIO();
 
-	if (!Game) { Game = hWnd; }
+	if (!GameHandle) { GameHandle = hWnd; }
 
 	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F1) { PreZhaitan(); return 0; } }
 	if (uMsg == WM_KEYDOWN) { if (wParam == VK_F2) { Zhaitan(); return 0; } }
@@ -323,9 +489,9 @@ void SetCursorCompass(float x, float y)
 {
 	if (!MumbleLink || !MumbleLink->Identity)
 
-	APIDefs->Log(ELogLevel_TRACE, "Distance:");
-	APIDefs->Log(ELogLevel_TRACE, std::to_string(VectorDistance(MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y, x, y) * 24).c_str());
-	APIDefs->Log(ELogLevel_TRACE, "");
+	APIDefs->Log(ELogLevel_TRACE, "Commander's Toolkit", "Distance:");
+	APIDefs->Log(ELogLevel_TRACE, "Commander's Toolkit", std::to_string(VectorDistance(MumbleLink->Context.Compass.Center.X, MumbleLink->Context.Compass.Center.Y, x, y) * 24).c_str());
+	APIDefs->Log(ELogLevel_TRACE, "Commander's Toolkit", "");
 
 	int margin = 0; // margin in pixels 0 if top, 37 if bottom (normal UI)
 	if (!MumbleLink->Context.IsCompassTopRight) { margin = 37; }
@@ -382,7 +548,7 @@ LPARAM GetLPARAM(uint32_t key, bool down, bool sys)
 	lp = lp << 16;
 	lp += 1;
 
-	APIDefs->Log(ELogLevel_TRACE, std::to_string(lp).c_str());
+	APIDefs->Log(ELogLevel_TRACE, "Commander's Toolkit", std::to_string(lp).c_str());
 
 	return lp;
 }
@@ -414,13 +580,13 @@ void SetSquadMarker(int marker, float x, float y)
 
 	Sleep(15);
 
-	PostMessage(Game, WM_SYSKEYDOWN, VK_MENU, GetLPARAM(VK_MENU, true, true));//0x20380001); // alt
+	PostMessage(GameHandle, WM_SYSKEYDOWN, VK_MENU, GetLPARAM(VK_MENU, true, true));//0x20380001); // alt
 	Sleep(5);
-	PostMessage(Game, WM_KEYDOWN, key, GetLPARAM(key, true, false));//0x20001);
+	PostMessage(GameHandle, WM_KEYDOWN, key, GetLPARAM(key, true, false));//0x20001);
 	Sleep(15);
-	PostMessage(Game, WM_KEYUP, key, GetLPARAM(key, false, false));//0xC0020001);
+	PostMessage(GameHandle, WM_KEYUP, key, GetLPARAM(key, false, false));//0xC0020001);
 	Sleep(5);
-	PostMessage(Game, WM_SYSKEYUP, VK_MENU, GetLPARAM(VK_MENU, false, true));//0xC0380001); // alt
+	PostMessage(GameHandle, WM_SYSKEYUP, VK_MENU, GetLPARAM(VK_MENU, false, true));//0xC0380001); // alt
 	
 	Sleep(5);
 

@@ -25,21 +25,21 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
-    "resource.h\0"
+"resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
-    "#include ""winres.h""\r\n"
-    "\0"
+"#include ""winres.h""\r\n"
+"\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
-    "\r\n"
-    "\0"
+"\r\n"
+"\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -50,21 +50,33 @@ END
 // PNG
 //
 
-IDB_MIGHT               PNG                     "icons\\Might.png"
+IDB_MIGHT               PNG                     "Resources\\Might.png"
+IDB_ALACRITY            PNG                     "Resources\\Alacrity.png"
+IDB_FURY                PNG                     "Resources\\Fury.png"
+IDB_HEAL                PNG                     "Resources\\Heal.png"
+IDB_QUICKNESS           PNG                     "Resources\\Quickness.png"
+IDB_VULNERABILITY       PNG                     "Resources\\Vulnerability.png"
 
-IDB_ALACRITY            PNG                     "icons\\Alacrity.png"
+IDB_ICON                PNG                     "Resources\\commander_toolkit.png"
+IDB_ICON_HOVER          PNG                     "Resources\\commander_toolkit_hover.png"
 
-IDB_FURY                PNG                     "icons\\Fury.png"
-
-IDB_HEAL                PNG                     "icons\\Heal.png"
-
-IDB_QUICKNESS           PNG                     "icons\\Quickness.png"
-
-IDB_VULNERABILITY       PNG                     "icons\\Vulnerability.png"
-
-IDB_ICON                PNG                     "icons\\commander_toolkit.png"
-
-IDB_ICON_HOVER          PNG                     "icons\\commander_toolkit_hover.png"
+/*IDB_MW_GRID             PNG                     "Resources\\MarkersWheel_Grid.png"
+IDB_MW_ARROW            PNG                     "Resources\\MarkersWheel_Arrow.png"
+IDB_MW_ARROW_HOVER      PNG                     "Resources\\MarkersWheel_Arrow_Hover.png"
+IDB_MW_CIRCLE           PNG                     "Resources\\MarkersWheel_Circle.png"
+IDB_MW_CIRCLE_HOVER     PNG                     "Resources\\MarkersWheel_Circle_Hover.png"
+IDB_MW_HEART            PNG                     "Resources\\MarkersWheel_Heart.png"
+IDB_MW_HEART_HOVER      PNG                     "Resources\\MarkersWheel_Heart_Hover.png"
+IDB_MW_SQUARE           PNG                     "Resources\\MarkersWheel_Square.png"
+IDB_MW_SQUARE_HOVER     PNG                     "Resources\\MarkersWheel_Square_Hover.png"
+IDB_MW_STAR             PNG                     "Resources\\MarkersWheel_Star.png"
+IDB_MW_STAR_HOVER       PNG                     "Resources\\MarkersWheel_Star_Hover.png"
+IDB_MW_SWIRL            PNG                     "Resources\\MarkersWheel_Swirl.png"
+IDB_MW_SWIRL_HOVER      PNG                     "Resources\\MarkersWheel_Swirl_Hover.png"
+IDB_MW_TRIANGLE         PNG                     "Resources\\MarkersWheel_Triangle.png"
+IDB_MW_TRIANGLE_HOVER   PNG                     "Resources\\MarkersWheel_Triangle_Hover.png"
+IDB_MW_CROSS            PNG                     "Resources\\MarkersWheel_Cross.png"
+IDB_MW_CROSS_HOVER      PNG                     "Resources\\MarkersWheel_Cross_Hover.png"*/
 
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
