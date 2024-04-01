@@ -8,6 +8,9 @@
 # GW2-CommandersToolkit
 A simple arcdps module that tracks squad members, so that you can check if someone left the party what they were responsible for.
 
+## Installation
+Install via the [Nexus](https://raidcore.gg/Nexus) Addon Library or download the latest `commanderstoolkit.dll` from the [Releases](https://github.com/RaidcoreGG/GW2-CommandersToolkit/releases) and place in `<Guild Wars 2>/addons`
+
 ![alt text](https://i.imgur.com/dqEmEae.png)
 
 ## Usage
