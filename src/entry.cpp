@@ -52,8 +52,12 @@ void AddonRender();
 void AddonShortcut();
 UINT AddonWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void OnCombatEvent(void* aEventArgs);
+void OnSquadUpdate(void* aEventArgs);
 
 AddonDefinition AddonDef{};
+
+std::string selfAccountName;
+bool isManagedByUE = false;
 
 extern "C" __declspec(dllexport) AddonDefinition* GetAddonDef()
 {
@@ -89,6 +93,7 @@ void AddonLoad(AddonAPI* aApi)
 	APIDefs->RegisterKeybindWithString(KB_CT, ProcessKeybind, "CTRL+Q");
 	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
 	APIDefs->SubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
+	APIDefs->SubscribeEvent("EV_UNOFFICIAL_EXTRAS_SQUAD_UPDATE", OnSquadUpdate);
 
 	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT", IDB_ICON, SelfModule, nullptr);
 	APIDefs->LoadTextureFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, SelfModule, nullptr);
@@ -99,11 +104,12 @@ void AddonLoad(AddonAPI* aApi)
 void AddonUnload()
 {
 	APIDefs->DeregisterRender(AddonRender);
-	APIDefs->RemoveShortcut("QA_COMMANDERSTOOLKIT");
+	//APIDefs->RemoveShortcut("QA_COMMANDERSTOOLKIT");
 	APIDefs->DeregisterWndProc(AddonWndProc);
 	APIDefs->DeregisterKeybind(KB_CT);
 	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_LOCAL_RAW", OnCombatEvent);
 	APIDefs->UnsubscribeEvent("EV_ARCDPS_COMBATEVENT_SQUAD_RAW", OnCombatEvent);
+	APIDefs->UnsubscribeEvent("EV_UNOFFICIAL_EXTRAS_SQUAD_UPDATE", OnSquadUpdate);
 }
 
 void ProcessKeybind(const char* aIdentifier)
@@ -116,213 +122,8 @@ void ProcessKeybind(const char* aIdentifier)
 	}
 }
 
-#include <cmath>
-
-double calculate_angle(ImVec2 pos1, ImVec2 pos2)
-{
-	float delta_x = pos2.x - pos1.x;
-	float delta_y = pos2.y - pos1.y;
-
-	// Calculate the angle using arctangent (in radians)
-	float angle_rad = atan2(delta_y, delta_x);
-
-	// Convert radians to degrees
-	float angle_deg = angle_rad * 180.0f / 3.14159f;
-
-	// Adjust the angle to be between 0 and 360 degrees
-	angle_deg += 90.0f;
-	if (angle_deg < 0) {
-		angle_deg += 360.0f;
-	}
-
-	return angle_deg;
-}
-
-bool isInitialCtrl = false;
-bool wasCtrlHeld = false;
-ImVec2 initialCursor;
-
-bool h_arrow = false;
-bool h_circle = false;
-bool h_heart = false;
-bool h_square = false;
-bool h_star = false;
-bool h_swirl = false;
-bool h_triangle = false;
-bool h_cross = false;
-
 void AddonRender()
 {
-	// use wndproc instead of asynckeystate, else even while tabbed out holding ctrl will trigger it
-	//meme FIX MEMEME
-	/*bool ctrlHeld = GetAsyncKeyState(VK_CONTROL);
-	if (ctrlHeld && !wasCtrlHeld)
-	{
-		isInitialCtrl = true;
-		initialCursor = ImGui::GetMousePos();
-	}
-	else
-	{
-		isInitialCtrl = false;
-	}
-	wasCtrlHeld = ctrlHeld;
-
-	if (ctrlHeld)
-	{
-		ImVec2 mPos = ImGui::GetMousePos();
-
-		float angle = calculate_angle(initialCursor, mPos);
-
-		if (angle >= 0 && angle < 45.0f)
-		{
-			h_arrow = true;
-			h_circle = h_heart = h_square = h_star = h_swirl = h_triangle = h_cross = false;
-		}
-		else if (angle >= 45.0f && angle < 90.0f)
-		{
-			h_circle = true;
-			h_arrow = h_heart = h_square = h_star = h_swirl = h_triangle = h_cross = false;
-		}
-		else if (angle >= 90.0f && angle < 135.0f)
-		{
-			h_heart = true;
-			h_arrow = h_circle = h_square = h_star = h_swirl = h_triangle = h_cross = false;
-		}
-		else if (angle >= 135.0f && angle < 180.0f)
-		{
-			h_square = true;
-			h_arrow = h_circle = h_heart = h_star = h_swirl = h_triangle = h_cross = false;
-		}
-		else if (angle >= 180.0f && angle < 225.0f)
-		{
-			h_star = true;
-			h_arrow = h_circle = h_heart = h_square = h_swirl = h_triangle = h_cross = false;
-		}
-		else if (angle >= 225.0f && angle < 270.0f)
-		{
-			h_swirl = true;
-			h_arrow = h_circle = h_heart = h_square = h_star = h_triangle = h_cross = false;
-		}
-		else if (angle >= 270.0f && angle < 315.0f)
-		{
-			h_triangle = true;
-			h_arrow = h_circle = h_heart = h_square = h_star = h_swirl = h_cross = false;
-		}
-		else if (angle >= 315.0f && angle < 360.0f)
-		{
-			h_cross = true;
-			h_arrow = h_circle = h_heart = h_square = h_star = h_swirl = h_triangle = false;
-		}
-
-		if (isInitialCtrl)
-		{
-			ImGui::SetNextWindowPos(ImVec2(mPos.x - 56, mPos.y - 56));
-		}
-
-		if (ImGui::Begin("##markers_wheel", (bool*)0, (ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar)))
-		{
-			ImVec2 intialPos = ImVec2(0, 0);
-			if (MW_Grid && MW_Grid->Resource)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(MW_Grid->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Grid = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_GRID", IDB_MW_GRID, SelfModule);
-			}
-
-			if (MW_Arrow && MW_ArrowHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_arrow ? MW_Arrow->Resource : MW_ArrowHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Arrow = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_ARROW", IDB_MW_ARROW, SelfModule);
-				MW_ArrowHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_ARROW_HOVER", IDB_MW_ARROW_HOVER, SelfModule);
-			}
-
-			if (MW_Circle && MW_CircleHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_circle ? MW_Circle->Resource : MW_CircleHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Circle = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CIRCLE", IDB_MW_CIRCLE, SelfModule);
-				MW_CircleHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CIRCLE_HOVER", IDB_MW_CIRCLE_HOVER, SelfModule);
-			}
-
-			if (MW_Heart && MW_HeartHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_heart ? MW_Heart->Resource : MW_HeartHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Heart = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_HEART", IDB_MW_HEART, SelfModule);
-				MW_HeartHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_HEART_HOVER", IDB_MW_HEART_HOVER, SelfModule);
-			}
-
-			if (MW_Square && MW_SquareHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_square ? MW_Square->Resource : MW_SquareHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Square = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SQUARE", IDB_MW_SQUARE, SelfModule);
-				MW_SquareHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SQUARE_HOVER", IDB_MW_SQUARE_HOVER, SelfModule);
-			}
-
-			if (MW_Star && MW_StarHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_star ? MW_Star->Resource : MW_StarHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Star = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_STAR", IDB_MW_STAR, SelfModule);
-				MW_StarHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_STAR_HOVER", IDB_MW_STAR_HOVER, SelfModule);
-			}
-
-			if (MW_Swirl && MW_SwirlHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_swirl ? MW_Swirl->Resource : MW_SwirlHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Swirl = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SWIRL", IDB_MW_SWIRL, SelfModule);
-				MW_SwirlHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_SWIRL_HOVER", IDB_MW_SWIRL_HOVER, SelfModule);
-			}
-
-			if (MW_Triangle && MW_TriangleHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_triangle ? MW_Triangle->Resource : MW_TriangleHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Triangle = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_TRIANGLE", IDB_MW_TRIANGLE, SelfModule);
-				MW_TriangleHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_TRIANGLE_HOVER", IDB_MW_TRIANGLE_HOVER, SelfModule);
-			}
-
-			if (MW_Cross && MW_CrossHover)
-			{
-				ImGui::SetCursorPos(intialPos);
-				ImGui::Image(!h_cross ? MW_Cross->Resource : MW_CrossHover->Resource, ImVec2(112, 112));
-			}
-			else
-			{
-				MW_Cross = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CROSS", IDB_MW_CROSS, SelfModule);
-				MW_CrossHover = APIDefs->GetTextureOrCreateFromResource("TEX_MARKERSWHEEL_CROSS_HOVER", IDB_MW_CROSS_HOVER, SelfModule);
-			}
-		}
-		ImGui::End();
-	}*/
-
 	if (SquadManager::Visible)
 	{
 		SquadManager::DrawWindow(true, true);
@@ -385,7 +186,7 @@ void OnCombatEvent(void* aEventArgs)
 
 					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
 					{
-						if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
+						if (SquadManager::SquadMembers[i].ID != cbtEv->src->id || strcmp(SquadManager::SquadMembers[i].AccountName, cbtEv->dst->name) != 0) { continue; }
 						else
 						{
 							agUpdate = true;
@@ -395,7 +196,12 @@ void OnCombatEvent(void* aEventArgs)
 							SquadManager::SquadMembers[i].IsSelf = cbtEv->dst->self;
 							SquadManager::SquadMembers[i].IsTracked = true;
 							SquadManager::SquadMembers[i].LastSeen = time(0);
-							SquadManager::PurgeSquadMembers();
+							
+							if (!isManagedByUE)
+							{
+								SquadManager::PurgeSquadMembers();
+							}
+
 							break;
 						}
 					}
@@ -413,7 +219,17 @@ void OnCombatEvent(void* aEventArgs)
 						p.LastSeen = time(0);
 
 						SquadManager::SquadMembers.push_back(p);
-						SquadManager::PurgeSquadMembers();
+
+						// cache account name globally
+						if (p.IsSelf)
+						{
+							selfAccountName = p.AccountName;
+						}
+
+						if (!isManagedByUE)
+						{
+							SquadManager::PurgeSquadMembers();
+						}
 					}
 				}
 			}
@@ -422,18 +238,21 @@ void OnCombatEvent(void* aEventArgs)
 				//p += _snprintf_s(p, 400, _TRUNCATE, "==== cbtnotify ====\n");
 				//p += _snprintf_s(p, 400, _TRUNCATE, "agent removed: %s (%0llx)\n", src->name, src->id);
 
-				std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
-				for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+				if (!isManagedByUE)
 				{
-					if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
-					else
+					std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+					for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
 					{
-						SquadManager::SquadMembers[i].IsTracked = false;
-						SquadManager::SquadMembers[i].LastSeen = time(0);
-						break;
+						if (SquadManager::SquadMembers[i].ID != cbtEv->src->id) { continue; }
+						else
+						{
+							SquadManager::SquadMembers[i].IsTracked = false;
+							SquadManager::SquadMembers[i].LastSeen = time(0);
+							break;
+						}
 					}
+					SquadManager::PurgeSquadMembers();
 				}
-				SquadManager::PurgeSquadMembers();
 			}
 		}
 	}
@@ -450,6 +269,126 @@ void OnCombatEvent(void* aEventArgs)
 					SquadManager::SquadMembers[i].Subgroup = cbtEv->ev->dst_agent;
 					break;
 				}
+			}
+		}
+	}
+}
+
+enum class UserRole : uint8_t
+{
+	SquadLeader = 0,
+	Lieutenant = 1,
+	Member = 2,
+	Invited = 3,
+	Applied = 4,
+	None = 5,
+	Invalid = 6 // Internal only
+};
+
+struct UserInfo
+{
+	const char* AccountName; // Null terminated account name, including leading ':'. Only valid for the duration of the call
+
+	// Unix timestamp when the user joined the squad (or 0 if time could not be determined)
+	__time64_t JoinTime;
+
+	UserRole Role; // Role in squad, or ::None if the user was removed from the squad
+
+	// Subgroup the user is in (0 when no subgroup could be found, which is either the first subgroup or no subgroup)
+	uint8_t Subgroup;
+
+	// Whether this player is ready or not (in a squad ready check). Role == UserRole::SquadLeader and ReadyStatus == true
+	// implies that a ready check was just started. Similarly, Role == UserRole::SquadLeader and ReadyStatus == false
+	// implies that a ready check either finished or was cancelled. If everyone in the squad had an event sent with
+	// ReadyStatus == true then that means that the ready check finished successfully (after which there will be events
+	// sent for each user where their ReadyStatus == false)
+	bool ReadyStatus;
+
+	uint8_t _Unused1 = 0; // padding
+	uint32_t _Unused2 = 0; // padding
+
+	UserInfo(const char* pAccountName, __time64_t pJoinTime, UserRole pRole, uint8_t pSubgroup, bool pReadyStatus)
+		: AccountName{ pAccountName }
+		, JoinTime{ pJoinTime }
+		, Role{ pRole }
+		, Subgroup{ pSubgroup }
+		, ReadyStatus{ pReadyStatus }
+	{
+	}
+};
+
+struct SquadUpdate
+{
+	UserInfo* UserInfo;
+	uint64_t UsersCount;
+};
+
+#include <dxgi.h>
+#include <d3d11.h>
+
+void OnSquadUpdate(void* aEventArgs)
+{
+	isManagedByUE = true; // global state
+
+	SquadUpdate* updateInfo = (SquadUpdate*)aEventArgs;
+
+	for (size_t i = 0; i < updateInfo->UsersCount; i++)
+	{
+		UserInfo user = updateInfo->UserInfo[i];
+
+		/* remove */
+		if (user.Role == UserRole::None)
+		{
+			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+
+			if (selfAccountName == user.AccountName)
+			{
+				SquadManager::SquadMembers.erase(std::remove_if(SquadManager::SquadMembers.begin(), SquadManager::SquadMembers.end(),
+					[user](Player p) { return strcmp(p.AccountName, user.AccountName) != 0; }), SquadManager::SquadMembers.end());
+			}
+			else
+			{
+				SquadManager::SquadMembers.erase(std::remove_if(SquadManager::SquadMembers.begin(), SquadManager::SquadMembers.end(),
+					[user](Player p) { return strcmp(p.AccountName, user.AccountName) == 0; }), SquadManager::SquadMembers.end());
+			}
+		}
+		else
+		{
+			bool found = false;
+			std::lock_guard<std::mutex> lock(SquadManager::SquadMembersMutex);
+			for (size_t i = 0; i < SquadManager::SquadMembers.size(); i++)
+			{
+				if (strcmp(SquadManager::SquadMembers[i].AccountName, user.AccountName) != 0) { continue; }
+				else
+				{
+					found = true;
+					SquadManager::SquadMembers[i].IsTracked = true;
+					SquadManager::SquadMembers[i].LastSeen = time(0);
+					SquadManager::SquadMembers[i].Subgroup = user.Subgroup;
+					break;
+				}
+			}
+
+			if (!found)
+			{
+				Player p;
+				p.ID = 0; // unknown at this time
+				strcpy_s(p.AccountName, user.AccountName);
+				strcpy_s(p.CharacterName, "-");
+				p.Profession = 0; // unknown at this time
+				p.Subgroup = user.Subgroup;
+				p.IsSelf = false;
+				p.IsTracked = true;
+				p.LastSeen = time(0);
+
+				/*std::string msg = p.AccountName;
+				msg.append(" (");
+				msg.append(std::to_string(user.Subgroup));
+				msg.append(")");
+
+				APIDefs->Log(ELogLevel_DEBUG, "Commander's Toolkit", msg.c_str());*/
+
+				SquadManager::SquadMembers.push_back(p);
 			}
 		}
 	}

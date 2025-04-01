@@ -106,7 +106,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 		ImGui::TableSetColumnIndex(8); ImGui::Text("Notes");
 		ImGui::TableNextRow();
 
-		for (size_t sub = 1; sub <= 15; sub++)
+		for (size_t sub = 0; sub <= 15; sub++)
 		{
 			int subPlayerCount = 0;
 			bool subTotalUntracked;
@@ -131,7 +131,7 @@ uintptr_t SquadManager::DrawWindow(bool movable = true, bool clickable = true)
 				if (!SquadMembers[i].IsTracked && !SquadMembers[i].IsSelf) { ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255)); }
 
 				ImGui::TableNextRow();
-				ImGui::TableSetColumnIndex(0); ImGui::Text(SquadMembers[i].CharacterName);
+				ImGui::TableSetColumnIndex(0); ImGui::Text(strcmp(SquadMembers[i].CharacterName, "-") != 0 ? SquadMembers[i].CharacterName : SquadMembers[i].AccountName);
 				
 				SquadMembers[i].Tooltip();
 

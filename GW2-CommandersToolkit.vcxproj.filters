@@ -25,6 +25,9 @@
     <Filter Include="_GLOBALS">
       <UniqueIdentifier>{fed69037-9c49-436a-9099-913ea89edd6b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\MarkerWheelSmall">
+      <UniqueIdentifier>{4b3e6f91-5bc6-43d3-8f20-48a1fc9e7a45}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src/entry.cpp">
@@ -138,55 +141,7 @@
     <Image Include="src/Resources\Heal.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src/Resources\MarkersWheel_Arrow.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Arrow_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Circle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Circle_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Cross.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Cross_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="src/Resources\MarkersWheel_Grid.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Heart.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Heart_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Square.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Square_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Star.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Star_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Swirl.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Swirl_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Triangle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Triangle_Hover.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="src/Resources\Might.png">
@@ -221,6 +176,33 @@
     </Image>
     <Image Include="src/Resources\Vulnerability.png">
       <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_8_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_2_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_3_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_4_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_5_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_6_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_7_SELECTOR.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_BASE.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
+    </Image>
+    <Image Include="src\Resources\MWS_DIVIDER.png">
+      <Filter>Resource Files\MarkerWheelSmall</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
