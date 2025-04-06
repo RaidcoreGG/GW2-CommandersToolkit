@@ -16,3 +16,6 @@
 [submodule "src/RTAPI"]
 	path = src/RTAPI
 	url = https://github.com/RaidcoreGG/GW2-RealTime-API-Releases
+[submodule "src/Util"]
+	path = src/Util
+	url = https://github.com/RaidcoreGG/RCGG-Utils

@@ -13,108 +13,171 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="_GLOBALS">
-      <UniqueIdentifier>{fed69037-9c49-436a-9099-913ea89edd6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="_EXTERNAL">
+    <Filter Include="EXTERNAL">
       <UniqueIdentifier>{0560d06e-1341-4e11-a94c-c427029f7e46}</UniqueIdentifier>
     </Filter>
-    <Filter Include="_EXTERNAL\imgui">
+    <Filter Include="EXTERNAL\imgui">
       <UniqueIdentifier>{9182ae6d-d1c6-4c6d-837f-8eb7e4f56407}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{23cdb4d1-a77d-4f9e-b891-f2dd3bc0e130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SquadMgr">
+      <UniqueIdentifier>{21dcb96f-f767-460c-a480-0bbb9cbfe433}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Util">
+      <UniqueIdentifier>{caa44a8b-bba3-44c7-b0d5-0048235a3389}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src/entry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src/Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src/Shared.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src/SquadManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src/Templates.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\imgui\imgui.cpp">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_demo.cpp">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_draw.cpp">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_tables.cpp">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Addon.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UI.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SquadMgr\SquadMgr.cpp">
+      <Filter>SquadMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Memory.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Paths.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Resources.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Strings.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Time.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Url.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Base64.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\CmdLine.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\DLL.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Util\src\Inputs.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src/Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src/resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src/Settings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/Shared.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/SquadManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/Templates.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\imgui\imconfig.h">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imgui.h">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imgui_internal.h">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_rectpack.h">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_textedit.h">
-      <Filter>_EXTERNAL\imgui</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_truetype.h">
-      <Filter>_EXTERNAL\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Version.h">
-      <Filter>_GLOBALS</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Remote.h">
-      <Filter>_GLOBALS</Filter>
+      <Filter>EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src/mumble\Mumble.h">
-      <Filter>_EXTERNAL</Filter>
+      <Filter>EXTERNAL</Filter>
     </ClInclude>
     <ClInclude Include="src/nexus\Nexus.h">
-      <Filter>_EXTERNAL</Filter>
+      <Filter>EXTERNAL</Filter>
     </ClInclude>
     <ClInclude Include="src/nlohmann\json.hpp">
-      <Filter>_EXTERNAL</Filter>
+      <Filter>EXTERNAL</Filter>
     </ClInclude>
     <ClInclude Include="src\arcdps\ArcDPS.h">
-      <Filter>_EXTERNAL</Filter>
+      <Filter>EXTERNAL</Filter>
     </ClInclude>
     <ClInclude Include="src\RTAPI\RTAPI.h">
-      <Filter>_EXTERNAL</Filter>
+      <Filter>EXTERNAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Remote.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Addon.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Globals.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UI.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SquadMgr\SquadMgr.h">
+      <Filter>SquadMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SquadMgr\PlayerInfo.h">
+      <Filter>SquadMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SquadMgr\UtilityInfo.h">
+      <Filter>SquadMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Memory.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Paths.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Resources.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Strings.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Time.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Url.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Base64.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\CmdLine.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\DLL.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Enums.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util\src\Inputs.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -138,92 +201,20 @@
     <Image Include="src/Resources\Heal.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src/Resources\MarkersWheel_Arrow.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Arrow_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Circle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Circle_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Cross.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Cross_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Grid.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Heart.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Heart_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Square.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Square_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Star.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Star_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Swirl.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Swirl_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Triangle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\MarkersWheel_Triangle_Hover.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="src/Resources\Might.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="src/Resources\Quickness.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src/Resources\SquadMarker_Arrow.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Circle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Cross.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Heart.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Square.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Star.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Swirl.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\SquadMarker_Triangle.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="src/Resources\Vulnerability.png">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src/templates.json" />
+    <Image Include="src\Resources\Tag_Commander.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\Resources\Tag_Lieutenant.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

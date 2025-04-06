@@ -22,14 +22,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -64,9 +64,10 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>src/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,9 +90,10 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>src/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -106,29 +108,33 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src/entry.cpp" />
-    <ClCompile Include="src/Player.cpp" />
-    <ClCompile Include="src/Shared.cpp" />
-    <ClCompile Include="src/SquadManager.cpp" />
-    <ClCompile Include="src/Templates.cpp" />
+    <ClCompile Include="src\Addon.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\SquadMgr\SquadMgr.cpp" />
+    <ClCompile Include="src\UI.cpp" />
+    <ClCompile Include="src\Util\src\Base64.cpp" />
+    <ClCompile Include="src\Util\src\CmdLine.cpp" />
+    <ClCompile Include="src\Util\src\DLL.cpp" />
+    <ClCompile Include="src\Util\src\Inputs.cpp" />
+    <ClCompile Include="src\Util\src\Memory.cpp" />
+    <ClCompile Include="src\Util\src\Paths.cpp" />
+    <ClCompile Include="src\Util\src\Resources.cpp" />
+    <ClCompile Include="src\Util\src\Strings.cpp" />
+    <ClCompile Include="src\Util\src\Time.cpp" />
+    <ClCompile Include="src\Util\src\Url.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src/mumble\Mumble.h" />
     <ClInclude Include="src/nexus\Nexus.h" />
-    <ClInclude Include="src/Player.h" />
     <ClInclude Include="src/nlohmann\json.hpp" />
     <ClInclude Include="src/resource.h" />
-    <ClInclude Include="src/Settings.h" />
-    <ClInclude Include="src/Shared.h" />
-    <ClInclude Include="src/SquadManager.h" />
-    <ClInclude Include="src/Templates.h" />
-    <ClInclude Include="src/Utility.h" />
+    <ClInclude Include="src\Addon.h" />
     <ClInclude Include="src\arcdps\ArcDPS.h" />
+    <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
     <ClInclude Include="src\imgui\imgui_internal.h" />
@@ -137,13 +143,25 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Remote.h" />
     <ClInclude Include="src\RTAPI\RTAPI.h" />
+    <ClInclude Include="src\SquadMgr\PlayerInfo.h" />
+    <ClInclude Include="src\SquadMgr\SquadMgr.h" />
+    <ClInclude Include="src\SquadMgr\UtilityInfo.h" />
+    <ClInclude Include="src\UI.h" />
+    <ClInclude Include="src\Util\src\Base64.h" />
+    <ClInclude Include="src\Util\src\CmdLine.h" />
+    <ClInclude Include="src\Util\src\DLL.h" />
+    <ClInclude Include="src\Util\src\Enums.h" />
+    <ClInclude Include="src\Util\src\Inputs.h" />
+    <ClInclude Include="src\Util\src\Memory.h" />
+    <ClInclude Include="src\Util\src\Paths.h" />
+    <ClInclude Include="src\Util\src\Resources.h" />
+    <ClInclude Include="src\Util\src\Strings.h" />
+    <ClInclude Include="src\Util\src\Time.h" />
+    <ClInclude Include="src\Util\src\Url.h" />
     <ClInclude Include="src\Version.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src/GW2-CommandersToolkit.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="src/templates.json" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="src/Resources\Alacrity.png" />
@@ -151,34 +169,11 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <Image Include="src/Resources\commander_toolkit_hover.png" />
     <Image Include="src/Resources\Fury.png" />
     <Image Include="src/Resources\Heal.png" />
-    <Image Include="src/Resources\MarkersWheel_Arrow.png" />
-    <Image Include="src/Resources\MarkersWheel_Arrow_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Circle.png" />
-    <Image Include="src/Resources\MarkersWheel_Circle_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Cross.png" />
-    <Image Include="src/Resources\MarkersWheel_Cross_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Grid.png" />
-    <Image Include="src/Resources\MarkersWheel_Heart.png" />
-    <Image Include="src/Resources\MarkersWheel_Heart_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Square.png" />
-    <Image Include="src/Resources\MarkersWheel_Square_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Star.png" />
-    <Image Include="src/Resources\MarkersWheel_Star_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Swirl.png" />
-    <Image Include="src/Resources\MarkersWheel_Swirl_Hover.png" />
-    <Image Include="src/Resources\MarkersWheel_Triangle.png" />
-    <Image Include="src/Resources\MarkersWheel_Triangle_Hover.png" />
     <Image Include="src/Resources\Might.png" />
     <Image Include="src/Resources\Quickness.png" />
-    <Image Include="src/Resources\SquadMarker_Arrow.png" />
-    <Image Include="src/Resources\SquadMarker_Circle.png" />
-    <Image Include="src/Resources\SquadMarker_Cross.png" />
-    <Image Include="src/Resources\SquadMarker_Heart.png" />
-    <Image Include="src/Resources\SquadMarker_Square.png" />
-    <Image Include="src/Resources\SquadMarker_Star.png" />
-    <Image Include="src/Resources\SquadMarker_Swirl.png" />
-    <Image Include="src/Resources\SquadMarker_Triangle.png" />
     <Image Include="src/Resources\Vulnerability.png" />
+    <Image Include="src\Resources\Tag_Commander.png" />
+    <Image Include="src\Resources\Tag_Lieutenant.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
