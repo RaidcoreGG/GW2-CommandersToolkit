@@ -13,17 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\arcdps">
-      <UniqueIdentifier>{111d6abd-7adc-4b41-bbf8-98c67630125d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\nlohmann">
-      <UniqueIdentifier>{f47a43cc-16f8-40c3-83e9-c7a32ab44128}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{9182ae6d-d1c6-4c6d-837f-8eb7e4f56407}</UniqueIdentifier>
-    </Filter>
     <Filter Include="_GLOBALS">
       <UniqueIdentifier>{fed69037-9c49-436a-9099-913ea89edd6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_EXTERNAL">
+      <UniqueIdentifier>{0560d06e-1341-4e11-a94c-c427029f7e46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="_EXTERNAL\imgui">
+      <UniqueIdentifier>{9182ae6d-d1c6-4c6d-837f-8eb7e4f56407}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -43,35 +40,23 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClCompile>
     <ClCompile Include="src\imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src/arcdps.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/mumble\Mumble.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/nexus\Nexus.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src/Player.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src/nlohmann\json.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src/resource.h">
@@ -93,28 +78,43 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imconfig.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imgui.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
+      <Filter>_EXTERNAL\imgui</Filter>
     </ClInclude>
     <ClInclude Include="src\Version.h">
       <Filter>_GLOBALS</Filter>
     </ClInclude>
     <ClInclude Include="src\Remote.h">
       <Filter>_GLOBALS</Filter>
+    </ClInclude>
+    <ClInclude Include="src/mumble\Mumble.h">
+      <Filter>_EXTERNAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src/nexus\Nexus.h">
+      <Filter>_EXTERNAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src/nlohmann\json.hpp">
+      <Filter>_EXTERNAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcdps\ArcDPS.h">
+      <Filter>_EXTERNAL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RTAPI\RTAPI.h">
+      <Filter>_EXTERNAL</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

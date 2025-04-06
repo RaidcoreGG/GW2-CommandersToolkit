@@ -64,6 +64,9 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -86,6 +89,9 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,7 +118,6 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src/arcdps.h" />
     <ClInclude Include="src/mumble\Mumble.h" />
     <ClInclude Include="src/nexus\Nexus.h" />
     <ClInclude Include="src/Player.h" />
@@ -123,6 +128,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src/SquadManager.h" />
     <ClInclude Include="src/Templates.h" />
     <ClInclude Include="src/Utility.h" />
+    <ClInclude Include="src\arcdps\ArcDPS.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />
     <ClInclude Include="src\imgui\imgui_internal.h" />
@@ -130,6 +136,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\Remote.h" />
+    <ClInclude Include="src\RTAPI\RTAPI.h" />
     <ClInclude Include="src\Version.h" />
   </ItemGroup>
   <ItemGroup>

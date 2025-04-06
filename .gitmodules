@@ -10,3 +10,9 @@
 [submodule "src/imgui"]
 	path = src/imgui
 	url = https://github.com/RaidcoreGG/imgui
+[submodule "src/arcdps"]
+	path = src/arcdps
+	url = https://github.com/RaidcoreGG/RCGG-lib-arcdps-api
+[submodule "src/RTAPI"]
+	path = src/RTAPI
+	url = https://github.com/RaidcoreGG/GW2-RealTime-API-Releases
