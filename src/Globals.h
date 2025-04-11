@@ -17,6 +17,18 @@
 #define KB_COMMANDERSTOOLKIT "KB_COMMANDERSTOOLKIT"
 
 ///----------------------------------------------------------------------------------------------------
+/// ETextures Enumeration
+///----------------------------------------------------------------------------------------------------
+enum ETextures
+{
+	BoonAlacrity,
+	BoonQuickness,
+	TagCommander,
+	TagLieutenant,
+	COUNT
+};
+
+///----------------------------------------------------------------------------------------------------
 /// Globals Namespace
 ///----------------------------------------------------------------------------------------------------
 namespace G
@@ -26,6 +38,8 @@ namespace G
 	extern Mumble::Data*        MumbleLink;
 	extern Mumble::Identity*    MumbleIdentity;
 	extern RTAPI::RealTimeData* RTAPI;
+
+	extern Texture*             Textures[ETextures::COUNT];
 }
 
 #endif

@@ -28,6 +28,9 @@
     <Filter Include="Util">
       <UniqueIdentifier>{caa44a8b-bba3-44c7-b0d5-0048235a3389}</UniqueIdentifier>
     </Filter>
+    <Filter Include="PullTimer">
+      <UniqueIdentifier>{8c0a8e17-6595-4853-a8cd-f5657bddc9b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -83,6 +86,9 @@
     </ClCompile>
     <ClCompile Include="src\Util\src\Inputs.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PullTimer\PullTimer.cpp">
+      <Filter>PullTimer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +184,12 @@
     </ClInclude>
     <ClInclude Include="src\Util\src\Inputs.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PullTimer\PullTimer.h">
+      <Filter>PullTimer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

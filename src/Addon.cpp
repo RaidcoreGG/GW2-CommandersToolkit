@@ -26,6 +26,8 @@ namespace G
 	Mumble::Data*        MumbleLink     = nullptr;
 	Mumble::Identity*    MumbleIdentity = nullptr;
 	RTAPI::RealTimeData* RTAPI          = nullptr;
+
+	Texture*             Textures[ETextures::COUNT];
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -75,13 +77,13 @@ namespace Addon
 		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT",       IDB_ICON,       G::Module, nullptr);
 		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, G::Module, nullptr);
 
-		G::APIDefs->Renderer.Register(ERenderType_Render, SquadMgr::Render);
+		G::APIDefs->Renderer.Register(ERenderType_Render, UI::Render);
 		G::APIDefs->QuickAccess.Add("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_COMMANDERSTOOLKIT, "Commander's Toolkit");
 		G::APIDefs->QuickAccess.AddContextMenu("QACTX_COMMANDERSTOOLKIT", "QA_COMMANDERSTOOLKIT", UI::RenderShortcutContextMenu);
 
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  SquadMgr::OnGroupMemberJoin);
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    SquadMgr::OnGroupMemberLeave);
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, SquadMgr::OnGroupMemberUpdate);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  Addon::OnGroupMemberJoin);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    Addon::OnGroupMemberLeave);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, Addon::OnGroupMemberUpdate);
 
 		G::APIDefs->InputBinds.RegisterWithString(KB_COMMANDERSTOOLKIT, Addon::OnInputBind, "CTRL+Q");
 
@@ -90,13 +92,13 @@ namespace Addon
 
 	void Unload()
 	{
-		G::APIDefs->Renderer.Deregister(SquadMgr::Render);
+		G::APIDefs->Renderer.Deregister(UI::Render);
 		G::APIDefs->QuickAccess.Remove("QA_COMMANDERSTOOLKIT");
 		G::APIDefs->QuickAccess.RemoveContextMenu("QACTX_COMMANDERSTOOLKIT");
 
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  SquadMgr::OnGroupMemberJoin);
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    SquadMgr::OnGroupMemberLeave);
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, SquadMgr::OnGroupMemberUpdate);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  Addon::OnGroupMemberJoin);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    Addon::OnGroupMemberLeave);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, Addon::OnGroupMemberUpdate);
 
 		G::APIDefs->InputBinds.Deregister(KB_COMMANDERSTOOLKIT);
 	}
@@ -112,8 +114,23 @@ namespace Addon
 
 		if (bind == KB_COMMANDERSTOOLKIT)
 		{
-			SquadMgr::ToggleVisible();
+			UI::GetSquadMgr()->ToggleVisible();
 			return;
 		}
+	}
+
+	void OnGroupMemberJoin(void* aEventArgs)
+	{
+		UI::GetSquadMgr()->OnGroupMemberJoin(aEventArgs);
+	}
+
+	void OnGroupMemberLeave(void* aEventArgs)
+	{
+		UI::GetSquadMgr()->OnGroupMemberLeave(aEventArgs);
+	}
+
+	void OnGroupMemberUpdate(void* aEventArgs)
+	{
+		UI::GetSquadMgr()->OnGroupMemberUpdate(aEventArgs);
 	}
 }

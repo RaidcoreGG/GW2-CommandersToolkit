@@ -114,6 +114,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\PullTimer\PullTimer.cpp" />
     <ClCompile Include="src\SquadMgr\SquadMgr.cpp" />
     <ClCompile Include="src\UI.cpp" />
     <ClCompile Include="src\Util\src\Base64.cpp" />
@@ -141,6 +142,8 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\PullTimer\PullTimer.h" />
+    <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\Remote.h" />
     <ClInclude Include="src\RTAPI\RTAPI.h" />
     <ClInclude Include="src\SquadMgr\PlayerInfo.h" />

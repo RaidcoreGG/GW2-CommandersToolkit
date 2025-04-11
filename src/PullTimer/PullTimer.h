@@ -1,53 +1,40 @@
 ///----------------------------------------------------------------------------------------------------
 /// Copyright (c) Raidcore.GG - All rights reserved.
 /// 
-/// Name         :  SquadMgr.h
-/// Description  :  Squad manager logic.
+/// Name         :  PullTimer.h
+/// Description  :  Pull timer logic.
 /// Authors      :  K. Bieniek
 ///----------------------------------------------------------------------------------------------------
 
-#ifndef SQUADMGR_H
-#define SQUADMGR_H
-
-#include <mutex>
-#include <unordered_map>
-#include <string>
-
-#include "PlayerInfo.h"
+#ifndef PULLTIMER_H
+#define PULLTIMER_H
 
 ///----------------------------------------------------------------------------------------------------
-/// CSquadMgr Class
+/// CPullTimer Class
 ///----------------------------------------------------------------------------------------------------
-class CSquadMgr
+class CPullTimer
 {
 	public:
 	///----------------------------------------------------------------------------------------------------
 	/// Render:
-	/// 	Renders the squad manager window.
+	/// 	Renders the pull timer window.
 	///----------------------------------------------------------------------------------------------------
 	void Render();
 
 	///----------------------------------------------------------------------------------------------------
-	/// IsVisible:
-	/// 	Returns the state of the squad manager window.
+	/// IsActive:
+	/// 	Returns the state of the pull timer.
 	///----------------------------------------------------------------------------------------------------
-	bool IsVisible();
+	bool IsActive();
 
 	///----------------------------------------------------------------------------------------------------
-	/// ToggleVisible:
-	/// 	Toggles the window visibility.
+	/// Toggle:
+	/// 	Toggles the pull timer.
 	///----------------------------------------------------------------------------------------------------
-	void ToggleVisible();
-
-	void OnGroupMemberJoin(void* aEventArgs);
-	void OnGroupMemberLeave(void* aEventArgs);
-	void OnGroupMemberUpdate(void* aEventArgs);
+	void Toggle();
 
 	private:
-	bool                                          Visible = false;
-
-	std::mutex                                    Mutex;
-	std::unordered_map<std::string, PlayerInfo_t> Players;
+	bool Active = false;
 };
 
 #endif

@@ -39,6 +39,10 @@ namespace Addon
 	/// 	Called when a keybind is pressed.
 	///----------------------------------------------------------------------------------------------------
 	void OnInputBind(const char* aIdentifier, bool aIsRelease);
+
+	void OnGroupMemberJoin(void* aEventArgs);
+	void OnGroupMemberLeave(void* aEventArgs);
+	void OnGroupMemberUpdate(void* aEventArgs);
 }
 
 #endif

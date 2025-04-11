@@ -28,12 +28,8 @@ enum class EDamageType : uint32_t
 struct UtilityInfo_t
 {
 	EDamageType DamageType;
-
-	bool        Might;
 	bool        Alacrity;
 	bool        Quickness;
-	bool        Fury;
-	bool        Vulnerability;
 };
 
 #endif
