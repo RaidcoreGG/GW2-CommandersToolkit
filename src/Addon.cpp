@@ -64,7 +64,6 @@ AddonDefinition* GetAddonDef()
 	return &s_AddonDef;
 }
 
-
 namespace Addon
 {
 	void Load(AddonAPI* aApi)
@@ -81,12 +80,12 @@ namespace Addon
 		G::APIDefs->QuickAccess.Add("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_COMMANDERSTOOLKIT, "Commander's Toolkit");
 		G::APIDefs->QuickAccess.AddContextMenu("QACTX_COMMANDERSTOOLKIT", "QA_COMMANDERSTOOLKIT", UI::RenderShortcutContextMenu);
 
-		G::APIDefs->Events.Subscribe("EV_ADDON_LOADED", (EVENT_CONSUME)OnAddonLoaded);
-		G::APIDefs->Events.Subscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+		G::APIDefs->Events.Subscribe("EV_ADDON_LOADED",                   (EVENT_CONSUME)OnAddonLoaded);
+		G::APIDefs->Events.Subscribe("EV_ADDON_UNLOADED",                 (EVENT_CONSUME)OnAddonUnloaded);
 
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  (EVENT_CONSUME)Addon::OnGroupMemberJoin);
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    (EVENT_CONSUME)Addon::OnGroupMemberLeave);
-		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_JOINED,        (EVENT_CONSUME)Addon::OnGroupMemberJoin);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_LEFT,          (EVENT_CONSUME)Addon::OnGroupMemberLeave);
+		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_UPDATED,       (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
 		
 		G::APIDefs->Events.Subscribe("EV_ARCDPS_SELF_JOIN",               (EVENT_CONSUME)Addon::OnAgentJoin);
 		G::APIDefs->Events.Subscribe("EV_ARCDPS_SELF_LEAVE",              (EVENT_CONSUME)Addon::OnAgentLeave);
@@ -113,12 +112,12 @@ namespace Addon
 		G::APIDefs->QuickAccess.Remove("QA_COMMANDERSTOOLKIT");
 		G::APIDefs->QuickAccess.RemoveContextMenu("QACTX_COMMANDERSTOOLKIT");
 
-		G::APIDefs->Events.Unsubscribe("EV_ADDON_LOADED", (EVENT_CONSUME)OnAddonLoaded);
-		G::APIDefs->Events.Unsubscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+		G::APIDefs->Events.Unsubscribe("EV_ADDON_LOADED",                   (EVENT_CONSUME)OnAddonLoaded);
+		G::APIDefs->Events.Unsubscribe("EV_ADDON_UNLOADED",                 (EVENT_CONSUME)OnAddonUnloaded);
 
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  (EVENT_CONSUME)Addon::OnGroupMemberJoin);
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    (EVENT_CONSUME)Addon::OnGroupMemberLeave);
-		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_JOINED,        (EVENT_CONSUME)Addon::OnGroupMemberJoin);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_LEFT,          (EVENT_CONSUME)Addon::OnGroupMemberLeave);
+		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_UPDATED,       (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
 		
 		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SELF_JOIN",               (EVENT_CONSUME)Addon::OnAgentJoin);
 		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SELF_LEAVE",              (EVENT_CONSUME)Addon::OnAgentLeave);
