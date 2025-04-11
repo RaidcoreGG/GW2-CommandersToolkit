@@ -31,6 +31,9 @@
     <Filter Include="PullTimer">
       <UniqueIdentifier>{8c0a8e17-6595-4853-a8cd-f5657bddc9b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EXTERNAL\arcdps_ue">
+      <UniqueIdentifier>{97976ba8-ff2a-46df-9735-e7792a4efe8c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -89,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="src\PullTimer\PullTimer.cpp">
       <Filter>PullTimer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arcdps_ue\KeyBindsTranslation.cpp">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
+    </ClCompile>
+    <ClCompile Include="src\arcdps_ue\KeyBindHelper.cpp">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +199,18 @@
     </ClInclude>
     <ClInclude Include="src\PullTimer\PullTimer.h">
       <Filter>PullTimer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcdps_ue\Definitions.h">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcdps_ue\KeyBindsTranslation.h">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcdps_ue\KeyBindStructs.h">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
+    </ClInclude>
+    <ClInclude Include="src\arcdps_ue\KeyBindHelper.h">
+      <Filter>EXTERNAL\arcdps_ue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

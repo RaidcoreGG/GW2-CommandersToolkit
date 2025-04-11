@@ -12,6 +12,7 @@
 #include "nexus/Nexus.h"
 #include "mumble/Mumble.h"
 #include "RTAPI/RTAPI.h"
+#include "arcdps_ue/Definitions.h"
 
 #define ADDON_NAME           "Commander's Toolkit"
 #define KB_COMMANDERSTOOLKIT "KB_COMMANDERSTOOLKIT"
@@ -27,6 +28,33 @@ enum ETextures
 	TagCommander,
 	TagLieutenant,
 	COUNT
+};
+
+///----------------------------------------------------------------------------------------------------
+/// SquadUpdate Struct
+///----------------------------------------------------------------------------------------------------
+struct AgentUpdate
+{
+	char AccountName[64];
+	char CharacterName[64];
+	uintptr_t ID;
+	uintptr_t InstanceID;
+	uint32_t Added;
+	uint32_t Target;
+	uint32_t Self;
+	uint32_t Prof;
+	uint32_t Elite;
+	uint16_t Team;
+	uint16_t Subgroup;
+};
+
+///----------------------------------------------------------------------------------------------------
+/// SquadUpdate Struct
+///----------------------------------------------------------------------------------------------------
+struct SquadUpdate
+{
+	UserInfo* UserInfo;
+	uint64_t UsersCount;
 };
 
 ///----------------------------------------------------------------------------------------------------

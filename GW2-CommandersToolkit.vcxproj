@@ -109,6 +109,8 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Addon.cpp" />
+    <ClCompile Include="src\arcdps_ue\KeyBindHelper.cpp" />
+    <ClCompile Include="src\arcdps_ue\KeyBindsTranslation.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
@@ -135,6 +137,10 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src/resource.h" />
     <ClInclude Include="src\Addon.h" />
     <ClInclude Include="src\arcdps\ArcDPS.h" />
+    <ClInclude Include="src\arcdps_ue\Definitions.h" />
+    <ClInclude Include="src\arcdps_ue\KeyBindHelper.h" />
+    <ClInclude Include="src\arcdps_ue\KeyBindsTranslation.h" />
+    <ClInclude Include="src\arcdps_ue\KeyBindStructs.h" />
     <ClInclude Include="src\Globals.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
     <ClInclude Include="src\imgui\imgui.h" />

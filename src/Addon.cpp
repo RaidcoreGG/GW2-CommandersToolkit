@@ -10,7 +10,6 @@
 
 #include <string>
 
-#include "Globals.h"
 #include "UI.h"
 #include "Version.h"
 #include "Remote.h"
@@ -82,17 +81,30 @@ namespace Addon
 		G::APIDefs->QuickAccess.Add("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_COMMANDERSTOOLKIT, "Commander's Toolkit");
 		G::APIDefs->QuickAccess.AddContextMenu("QACTX_COMMANDERSTOOLKIT", "QA_COMMANDERSTOOLKIT", UI::RenderShortcutContextMenu);
 
+		G::APIDefs->Events.Subscribe("EV_ADDON_LOADED", (EVENT_CONSUME)OnAddonLoaded);
+		G::APIDefs->Events.Subscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+
 		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  (EVENT_CONSUME)Addon::OnGroupMemberJoin);
 		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    (EVENT_CONSUME)Addon::OnGroupMemberLeave);
 		G::APIDefs->Events.Subscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
-
-		G::APIDefs->Events.Subscribe("EV_ADDON_LOADED",   (EVENT_CONSUME)OnAddonLoaded);
-		G::APIDefs->Events.Subscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+		
+		G::APIDefs->Events.Subscribe("EV_ARCDPS_SELF_JOIN",               (EVENT_CONSUME)Addon::OnAgentJoin);
+		G::APIDefs->Events.Subscribe("EV_ARCDPS_SELF_LEAVE",              (EVENT_CONSUME)Addon::OnAgentLeave);
+		G::APIDefs->Events.Subscribe("EV_ARCDPS_SQUAD_JOIN",              (EVENT_CONSUME)Addon::OnAgentJoin);
+		G::APIDefs->Events.Subscribe("EV_ARCDPS_SQUAD_LEAVE",             (EVENT_CONSUME)Addon::OnAgentLeave);
+		G::APIDefs->Events.Subscribe("EV_UNOFFICIAL_EXTRAS_SQUAD_UPDATE", (EVENT_CONSUME)Addon::OnSquadUpdate);
 
 		G::APIDefs->InputBinds.RegisterWithString(KB_COMMANDERSTOOLKIT, Addon::OnInputBind, "CTRL+Q");
 
 		G::MumbleLink = (Mumble::Data*)       G::APIDefs->DataLink.Get("DL_MUMBLE_LINK");
 		G::RTAPI      = (RTAPI::RealTimeData*)G::APIDefs->DataLink.Get(DL_RTAPI);
+
+		if (!G::RTAPI || (G::RTAPI && G::RTAPI->GameBuild == 0))
+		{
+			G::RTAPI = nullptr;
+			G::APIDefs->Events.RaiseNotification("EV_REPLAY_ARCDPS_SELF_JOIN");
+			G::APIDefs->Events.RaiseNotification("EV_REPLAY_ARCDPS_SQUAD_JOIN");
+		}
 	}
 
 	void Unload()
@@ -101,12 +113,18 @@ namespace Addon
 		G::APIDefs->QuickAccess.Remove("QA_COMMANDERSTOOLKIT");
 		G::APIDefs->QuickAccess.RemoveContextMenu("QACTX_COMMANDERSTOOLKIT");
 
+		G::APIDefs->Events.Unsubscribe("EV_ADDON_LOADED", (EVENT_CONSUME)OnAddonLoaded);
+		G::APIDefs->Events.Unsubscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+
 		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_JOINED,  (EVENT_CONSUME)Addon::OnGroupMemberJoin);
 		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_LEFT,    (EVENT_CONSUME)Addon::OnGroupMemberLeave);
 		G::APIDefs->Events.Unsubscribe(EV_RTAPI_GROUP_MEMBER_UPDATED, (EVENT_CONSUME)Addon::OnGroupMemberUpdate);
 		
-		G::APIDefs->Events.Unsubscribe("EV_ADDON_LOADED",   (EVENT_CONSUME)OnAddonLoaded);
-		G::APIDefs->Events.Unsubscribe("EV_ADDON_UNLOADED", (EVENT_CONSUME)OnAddonUnloaded);
+		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SELF_JOIN",               (EVENT_CONSUME)Addon::OnAgentJoin);
+		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SELF_LEAVE",              (EVENT_CONSUME)Addon::OnAgentLeave);
+		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SQUAD_JOIN",              (EVENT_CONSUME)Addon::OnAgentJoin);
+		G::APIDefs->Events.Unsubscribe("EV_ARCDPS_SQUAD_LEAVE",             (EVENT_CONSUME)Addon::OnAgentLeave);
+		G::APIDefs->Events.Unsubscribe("EV_UNOFFICIAL_EXTRAS_SQUAD_UPDATE", (EVENT_CONSUME)Addon::OnSquadUpdate);
 
 		G::APIDefs->InputBinds.Deregister(KB_COMMANDERSTOOLKIT);
 
@@ -138,7 +156,6 @@ namespace Addon
 			G::RTAPI = (RTAPI::RealTimeData*)G::APIDefs->DataLink.Get(DL_RTAPI);
 		}
 	}
-
 	void OnAddonUnloaded(int* aSignature)
 	{
 		if (!aSignature) { return; }
@@ -153,14 +170,25 @@ namespace Addon
 	{
 		UI::GetSquadMgr()->OnGroupMemberJoin(aGroupMember);
 	}
-
 	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 	{
 		UI::GetSquadMgr()->OnGroupMemberLeave(aGroupMember);
 	}
-
 	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 	{
 		UI::GetSquadMgr()->OnGroupMemberUpdate(aGroupMember);
+	}
+
+	void OnAgentJoin(AgentUpdate* aAgentUpdate)
+	{
+		UI::GetSquadMgr()->OnAgentJoin(aAgentUpdate);
+	}
+	void OnAgentLeave(AgentUpdate* aAgentUpdate)
+	{
+		UI::GetSquadMgr()->OnAgentLeave(aAgentUpdate);
+	}
+	void OnSquadUpdate(SquadUpdate* aSquadUpdate)
+	{
+		UI::GetSquadMgr()->OnSquadUpdate(aSquadUpdate);
 	}
 }

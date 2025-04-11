@@ -13,6 +13,9 @@
 
 #include "nexus/Nexus.h"
 #include "RTAPI/RTAPI.h"
+#include "arcdps_ue/Definitions.h"
+
+#include "Globals.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);
 
@@ -47,6 +50,10 @@ namespace Addon
 	void OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember);
 	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember);
 	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember);
+
+	void OnAgentJoin(AgentUpdate* aAgentUpdate);
+	void OnAgentLeave(AgentUpdate* aAgentUpdate);
+	void OnSquadUpdate(SquadUpdate* aSquadUpdate);
 }
 
 #endif

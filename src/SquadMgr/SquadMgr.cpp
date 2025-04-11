@@ -41,8 +41,6 @@ void CSquadMgr::Render()
 		return;
 	}
 
-	if (G::RTAPI == nullptr && G::IsUEEnabled == false) { return; }
-
 	static ImGuiWindowFlags s_WndFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 	long long now = Time::GetTimestamp();
@@ -55,7 +53,14 @@ void CSquadMgr::Render()
 
 		if (this->Players.size() == 0)
 		{
-			ImGui::Text("Not in a squad or party.");
+			if (G::RTAPI == nullptr && G::IsUEEnabled == false)
+			{
+				ImGui::Text("Neither RealTime API nor Unofficial Extras loaded.");
+			}
+			else
+			{
+				ImGui::Text("Not in a squad or party.");
+			}
 		}
 		else
 		{
@@ -248,13 +253,16 @@ void CSquadMgr::Render()
 
 					ImGui::TableHeadersRow();
 					ImGui::TableSetColumnIndex(1);
-					if (sub == 0 && G::RTAPI->GroupType == RTAPI::EGroupType::Party)
+					if (G::RTAPI && sub == 0)
 					{
-						ImGui::Text("Party");
-					}
-					else if (sub == 0)
-					{
-						ImGui::Text("Pending");
+						if (G::RTAPI->GroupType == RTAPI::EGroupType::Party)
+						{
+							ImGui::Text("Party");
+						}
+						else
+						{
+							ImGui::Text("Pending");
+						}
 					}
 					else
 					{
@@ -327,5 +335,111 @@ void CSquadMgr::OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 {
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	this->Players[aGroupMember->AccountName].Member = *aGroupMember;
+	auto& player = this->Players[aGroupMember->AccountName];
+	player.Member = *aGroupMember;
+	player.HasLeft = 0; /* Reset in case the player rejoined without removal. */
+}
+
+void CSquadMgr::OnAgentJoin(AgentUpdate* aAgentUpdate)
+{
+	if (!aAgentUpdate) { return; }
+
+	const std::lock_guard<std::mutex> lock(this->CacheMutex);
+
+	this->CachedAgentsArc[&aAgentUpdate->AccountName[1]] = *aAgentUpdate;
+
+	/* Is in party according to arc, else it'd give the display sub. */
+	if (aAgentUpdate->Subgroup == 0)
+	{
+		this->CachedAgentsArc[&aAgentUpdate->AccountName[1]].Subgroup++;
+	}
+
+	RTAPI::GroupMember member{};
+	strcpy_s(&member.AccountName[0], sizeof(member.AccountName), &aAgentUpdate->AccountName[1]);
+	strcpy_s(&member.CharacterName[0], sizeof(member.CharacterName), &aAgentUpdate->CharacterName[0]);
+	member.Profession = aAgentUpdate->Prof;
+	member.EliteSpecialization = aAgentUpdate->Elite;
+	member.IsSelf = aAgentUpdate->Self;
+	member.IsInInstance = true; // arc only reports in instance players
+
+	auto ue = this->CachedAgentsUE.find(member.AccountName);
+
+	if (ue != this->CachedAgentsUE.end())
+	{
+		member.Subgroup = ue->second.Subgroup;
+		member.IsCommander = ue->second.Role == UserRole::SquadLeader;
+		member.IsLieutenant = ue->second.Role == UserRole::Lieutenant;
+	}
+	else
+	{
+		member.Subgroup = aAgentUpdate->Subgroup;
+	}
+
+	if (G::RTAPI) { return; }
+	this->OnGroupMemberUpdate(&member);
+}
+void CSquadMgr::OnAgentLeave(AgentUpdate* aAgentUpdate)
+{
+	if (!aAgentUpdate) { return; }
+	if (G::IsUEEnabled) { return; } // We only want leave events from UE.
+
+	RTAPI::GroupMember member{};
+
+	/* Minimal data needed here. */
+	strcpy_s(&member.AccountName[0], sizeof(member.AccountName), &aAgentUpdate->AccountName[1]);
+	member.IsSelf = aAgentUpdate->Self;
+
+	if (G::RTAPI) { return; }
+	this->OnGroupMemberLeave(&member);
+}
+
+void CSquadMgr::OnSquadUpdate(SquadUpdate* aSquadUpdate)
+{
+	G::IsUEEnabled = true;
+	
+	if (G::RTAPI) { return; } /* Prefer RTAPI updates over UE. */
+
+	for (size_t i = 0; i < aSquadUpdate->UsersCount; i++)
+	{
+		const std::lock_guard<std::mutex> lock(this->CacheMutex);
+
+		UserInfo& user = aSquadUpdate->UserInfo[i];
+		RTAPI::GroupMember member{};
+		AgentUpdate& agent = this->CachedAgentsArc[&user.AccountName[1]];
+
+		this->CachedAgentsUE[&user.AccountName[1]] = user;
+		this->CachedAgentsUE[&user.AccountName[1]].Subgroup++;
+
+		strcpy_s(&member.AccountName[0], sizeof(member.AccountName), &user.AccountName[1]);
+		strcpy_s(&member.CharacterName[0], sizeof(member.CharacterName), &agent.CharacterName[0]);
+		member.Subgroup = user.Subgroup;
+		/* UE reports 0 based subgroup instead of display value. */
+		if (user.Role != UserRole::Invited && user.Role != UserRole::Applied)
+		{
+			member.Subgroup++;
+		}
+		member.Profession = agent.Prof;
+		member.EliteSpecialization = agent.Elite;
+		member.IsInInstance = agent.ID > 0;
+		member.IsSelf = agent.Self;
+		member.IsCommander  = user.Role == UserRole::SquadLeader;
+		member.IsLieutenant = user.Role == UserRole::Lieutenant;
+
+		if (user.Role == UserRole::None)
+		{
+			this->CachedAgentsUE.erase(&user.AccountName[1]);
+			if (!this->CachedAgentsArc[&user.AccountName[1]].Self)
+			{
+				this->CachedAgentsArc.erase(&user.AccountName[1]);
+			}
+
+			if (G::RTAPI) { return; }
+			this->OnGroupMemberLeave(&member);
+		}
+		else
+		{
+			if (G::RTAPI) { return; }
+			this->OnGroupMemberUpdate(&member);
+		}
+	}
 }

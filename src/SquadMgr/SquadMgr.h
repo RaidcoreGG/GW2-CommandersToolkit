@@ -14,6 +14,7 @@
 #include <string>
 
 #include "PlayerInfo.h"
+#include "Globals.h"
 
 ///----------------------------------------------------------------------------------------------------
 /// CSquadMgr Class
@@ -43,11 +44,19 @@ class CSquadMgr
 	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember);
 	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember);
 
+	void OnAgentJoin(AgentUpdate* aAgentUpdate);
+	void OnAgentLeave(AgentUpdate* aAgentUpdate);
+	void OnSquadUpdate(SquadUpdate* aSquadUpdate);
+
 	private:
 	bool                                          Visible = false;
 
 	std::mutex                                    Mutex;
 	std::unordered_map<std::string, PlayerInfo_t> Players;
+
+	std::mutex                                    CacheMutex;
+	std::unordered_map<std::string, AgentUpdate>  CachedAgentsArc;
+	std::unordered_map<std::string, UserInfo>     CachedAgentsUE;
 };
 
 #endif
