@@ -28,6 +28,8 @@ namespace UI
 			s_SquadMgr.ToggleVisible();
 		}
 
+		return; // This feature is not implemented yet.
+
 		if (ImGui::Button(s_PullTimer.IsActive() ? "Cancel Pull Countdown" : "Start Pull Countdown"))
 		{
 			s_PullTimer.Toggle();

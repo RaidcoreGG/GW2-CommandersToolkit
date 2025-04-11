@@ -27,7 +27,7 @@ void PlayerLeftTooltip(const bool& aActive, const long long& aSeconds)
 	if (ImGui::IsItemHovered())
 	{
 		ImGui::BeginTooltip();
-		ImGui::Text("Last seen %u %s ago",
+		ImGui::Text("Last seen %u %s ago.",
 					aSeconds < 60 ? aSeconds : aSeconds / 60,
 					aSeconds < 60 ? "seconds" : "minutes");
 		ImGui::EndTooltip();
