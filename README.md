@@ -6,26 +6,21 @@
 ![](https://img.shields.io/github/downloads/RaidcoreGG/GW2-CommandersToolkit/total?style=for-the-badge&labelColor=%23131519&color=%230F79AA)
 
 # GW2-CommandersToolkit
-A simple arcdps module that tracks squad members, so that you can check if someone left the party what they were responsible for.
-
-## Installation
-Install via the [Nexus](https://raidcore.gg/Nexus) Addon Library or download the latest `commanderstoolkit.dll` from the [Releases](https://github.com/RaidcoreGG/GW2-CommandersToolkit/releases) and place in `<Guild Wars 2>/addons`
-
-![alt text](https://i.imgur.com/dqEmEae.png)
-
-## Usage
-When someone joins your squad simply tick off what they're responsible for and set their subgroup.
-This way you can see whether Subgroup X has the main boons, as well as Heal and Vulnerability covered.
-You can also write down a quick note, to remind yourself for example who will later do Handkite or Pylon.
+A simple addon that lets you keep track of who's responsible for which job.
+If someone leaves the group, you see at a glance what's missing.
 
 If everything in a subgroup is covered, the text will be in green. If you have more than 5 members in a sub, you will be shown a warning.
 
 When a user goes out of scope (leaves instance or squad), they will be shown in red and you can click to remove them. Once they go into scope again, they will no longer be marked.
 
-## Templates
-![alt text](https://i.imgur.com/HFnTWg5.png)
+## Requirements
+Requires [RealTime API](https://github.com/RaidcoreGG/GW2-RealTime-API-Releases) or [ArcDPS](https://github.com/RaidcoreGG/GW2-RealTime-API-Releases) with [Unofficial Extras](https://github.com/Krappa322/arcdps_unofficial_extras_releases) optionally.  
+Both RealTime API and Unofficial Extras automatically and more accurately detect subgroups and player joins/leaves.
 
-For ease of usability you can also apply the coverage of someone based on their build. If a Heal Alacrity Mechanist for example joins, you can select that from the context menu and it will be filled out from there.
+### Limitations
+With just ArcDPS subgroups have to be managed manually, or are updated on combat enter or instance change.
 
-## Limitations
-Subgroups have to be manually set for each user, as they are only exposed by arc when entering combat or when changing the instance.
+## Installation
+Install via the [Nexus](https://raidcore.gg/Nexus) Addon Library or download the latest `commanderstoolkit.dll` from the [Releases](https://github.com/RaidcoreGG/GW2-CommandersToolkit/releases) and place in `<Guild Wars 2>/addons`
+
+![alt text](https://i.imgur.com/dqEmEae.png)
