@@ -19,6 +19,3 @@
 [submodule "src/Util"]
 	path = src/Util
 	url = https://github.com/RaidcoreGG/RCGG-Utils
-[submodule "src/arcdps_ue"]
-	path = src/arcdps_ue
-	url = https://github.com/Krappa322/arcdps_unofficial_extras_releases
