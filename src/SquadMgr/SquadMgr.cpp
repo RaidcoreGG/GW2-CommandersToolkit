@@ -176,7 +176,7 @@ void CSquadMgr::Render()
 						ImGui::SetNextItemWidth(sz * 5);
 						if (ImGui::BeginCombo(("##DamageType_" + std::string(player.Member.AccountName)).c_str(), dmgTypePreview.c_str()))
 						{
-							if (ImGui::Selectable("-", player.UtilityInfo.DamageType == EDamageType::None))
+							if (ImGui::Selectable("None", player.UtilityInfo.DamageType == EDamageType::None))
 							{
 								player.UtilityInfo.DamageType = EDamageType::None;
 							}
