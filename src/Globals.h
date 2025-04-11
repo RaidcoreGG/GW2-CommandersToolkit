@@ -21,6 +21,7 @@
 ///----------------------------------------------------------------------------------------------------
 enum ETextures
 {
+	BtnClose,
 	BoonAlacrity,
 	BoonQuickness,
 	TagCommander,
@@ -38,6 +39,7 @@ namespace G
 	extern Mumble::Data*        MumbleLink;
 	extern Mumble::Identity*    MumbleIdentity;
 	extern RTAPI::RealTimeData* RTAPI;
+	extern bool                 IsUEEnabled;
 
 	extern Texture*             Textures[ETextures::COUNT];
 }

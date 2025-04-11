@@ -42,6 +42,7 @@ struct PlayerInfo_t
 	RTAPI::GroupMember Member;
 	UtilityInfo_t      UtilityInfo;
 	char               Note[250];
+	long long          HasLeft;     /* Timestamp (seconds) */
 };
 
 #endif

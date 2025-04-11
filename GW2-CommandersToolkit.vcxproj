@@ -175,6 +175,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <Image Include="src/Resources\Might.png" />
     <Image Include="src/Resources\Quickness.png" />
     <Image Include="src/Resources\Vulnerability.png" />
+    <Image Include="src\Resources\close.png" />
     <Image Include="src\Resources\Tag_Commander.png" />
     <Image Include="src\Resources\Tag_Lieutenant.png" />
   </ItemGroup>

@@ -59,6 +59,7 @@ IDB_VULNERABILITY       PNG                     "Resources\\Vulnerability.png"
 
 IDB_ICON                PNG                     "Resources\\commander_toolkit.png"
 IDB_ICON_HOVER          PNG                     "Resources\\commander_toolkit_hover.png"
+IDB_CLOSE               PNG                     "Resources\\close.png"
 
 IDB_ICON_COMMANDER      PNG                     "Resources\\tag_commander.png"
 IDB_ICON_LIEUTENANT     PNG                     "Resources\\tag_lieutenant.png"

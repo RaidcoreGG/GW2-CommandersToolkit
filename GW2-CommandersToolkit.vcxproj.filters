@@ -228,5 +228,8 @@
     <Image Include="src\Resources\Tag_Lieutenant.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="src\Resources\close.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

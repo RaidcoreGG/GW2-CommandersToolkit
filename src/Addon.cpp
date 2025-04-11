@@ -26,6 +26,7 @@ namespace G
 	Mumble::Data*        MumbleLink     = nullptr;
 	Mumble::Identity*    MumbleIdentity = nullptr;
 	RTAPI::RealTimeData* RTAPI          = nullptr;
+	bool                 IsUEEnabled    = false;
 
 	Texture*             Textures[ETextures::COUNT];
 }

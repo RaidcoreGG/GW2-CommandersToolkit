@@ -17,6 +17,7 @@
 #include "resource.h"
 #include "Globals.h"
 #include "Util/src/Strings.h"
+#include "Util/src/Time.h"
 #include "Util.h"
 
 void CSquadMgr::Render()
@@ -26,187 +27,249 @@ void CSquadMgr::Render()
 		return;
 	}
 
-	if (G::RTAPI == nullptr) { return; }
+	if (G::RTAPI == nullptr && G::IsUEEnabled == false) { return; }
 
 	static ImGuiWindowFlags s_WndFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 	if (ImGui::Begin("Squad Manager", &this->Visible, s_WndFlags))
 	{
-		// TODO: ROLE CONFIGURATION HERE
-		//Configure what roles are needed, tick who does what
-		//On Leave show whats missing
-
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
-		if (ImGui::BeginTable("##TableSquadMgr", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+		const std::lock_guard<std::mutex> lock(this->Mutex);
+
+		if (this->Players.size() == 0)
 		{
-			float sz = ImGui::GetFontSize();
-
-			/* Header Row*/
-			{
-				ImGui::TableHeadersRow();
-				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("Account");
-
-				ImGui::TableSetColumnIndex(1);
-				ImGui::Text("Character");
-
-				ImGui::TableSetColumnIndex(2);
-				ImGui::Text("Damage");
-
-				ImGui::TableSetColumnIndex(3);
-				RenderIcon(sz, &G::Textures[ETextures::BoonAlacrity], "TEX_BOON_ALACRITY", "Alacrity", IDB_ALACRITY);
-
-				ImGui::TableSetColumnIndex(4);
-				RenderIcon(sz, &G::Textures[ETextures::BoonQuickness], "TEX_BOON_QUICKNESS", "Quickness", IDB_QUICKNESS);
-
-				ImGui::TableSetColumnIndex(5);
-				ImGui::Text("Notes");
-			}
-
-			const std::lock_guard<std::mutex> lock(this->Mutex);
-
-			for (size_t sub = 0; sub <= 15; sub++)
-			{
-				int           playerCount = 0;
-				UtilityInfo_t summary = {};
-				int           dmgType_pwr = 0;
-				int           dmgType_cnd = 0;
-				int           dmgType_heal = 0;
-
-				for (auto& [accname, player] : this->Players)
-				{
-					if (player.Member.Subgroup != sub) { continue; }
-
-					ImGui::TableNextRow();
-					ImGui::TableNextColumn();
-					if (player.Member.IsCommander)
-					{
-						RenderIcon(sz, &G::Textures[ETextures::TagCommander], "TEX_TAG_COMMANDER", "Commander", IDB_ICON_COMMANDER);
-						ImGui::SameLine();
-					}
-					else if (player.Member.IsLieutenant)
-					{
-						RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_ICON_LIEUTENANT);
-						ImGui::SameLine();
-					}
-					ImGui::Text(player.Member.AccountName);
-
-					ImGui::TableNextColumn();
-					ImGui::Text(player.Member.CharacterName);
-
-					ImGui::TableNextColumn();
-					std::string dmgTypePreview =
-						player.UtilityInfo.DamageType == EDamageType::None
-						? "None"
-						: player.UtilityInfo.DamageType == EDamageType::Power
-						? "PWR"
-						: player.UtilityInfo.DamageType == EDamageType::Condition
-						? "CND"
-						: "HEAL";
-					ImGui::SetNextItemWidth(sz * 5);
-					if (ImGui::BeginCombo(("##DamageType_" + std::string(player.Member.AccountName)).c_str(), dmgTypePreview.c_str()))
-					{
-						if (ImGui::Selectable("-", player.UtilityInfo.DamageType == EDamageType::None))
-						{
-							player.UtilityInfo.DamageType = EDamageType::None;
-						}
-
-						if (ImGui::Selectable("PWR", player.UtilityInfo.DamageType == EDamageType::Power))
-						{
-							player.UtilityInfo.DamageType = EDamageType::Power;
-						}
-
-						if (ImGui::Selectable("CND", player.UtilityInfo.DamageType == EDamageType::Condition))
-						{
-							player.UtilityInfo.DamageType = EDamageType::Condition;
-						}
-
-						if (ImGui::Selectable("HEAL", player.UtilityInfo.DamageType == EDamageType::Heal))
-						{
-							player.UtilityInfo.DamageType = EDamageType::Heal;
-						}
-
-						ImGui::EndCombo();
-					}
-
-					ImGui::TableNextColumn();
-					ImGui::Checkbox(("##Alacrity_" + std::string(player.Member.AccountName)).c_str(), &player.UtilityInfo.Alacrity);
-
-					ImGui::TableNextColumn();
-					ImGui::Checkbox(("##Quickness_" + std::string(player.Member.AccountName)).c_str(), &player.UtilityInfo.Quickness);
-
-					ImGui::TableNextColumn();
-					ImGui::SetNextItemWidth(sz * 10);
-					ImGui::InputText(("##Note_" + std::string(player.Member.AccountName)).c_str(), &player.Note[0], sizeof(player.Note));
-
-					switch (player.UtilityInfo.DamageType)
-					{
-						case EDamageType::Power:
-							dmgType_pwr++;
-							break;
-						case EDamageType::Condition:
-							dmgType_cnd++;
-							break;
-						case EDamageType::Heal:
-							dmgType_heal++;
-							break;
-					}
-					if (player.UtilityInfo.Alacrity) { summary.Alacrity = true; }
-					if (player.UtilityInfo.Quickness) { summary.Quickness = true; }
-
-					playerCount++;
-				}
-
-				if (playerCount == 0) { continue; }
-
-				// subgroup totals
-				bool fullCoverage = false;
-				if (summary.Alacrity && summary.Quickness)
-				{
-					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(89, 172, 98, 255)); // if all utilities are covered -> green text
-					fullCoverage = true;
-				}
-
-				ImGui::TableHeadersRow();
-				ImGui::TableSetColumnIndex(1);
-				if (sub == 0 && G::RTAPI->GroupType == RTAPI::EGroupType::Party)
-				{
-					ImGui::Text("Party");
-				}
-				else if (sub == 0)
-				{
-					ImGui::Text("Pending");
-				}
-				else
-				{
-					ImGui::Text("Subgroup %d", sub);
-				}
-				ImGui::TableSetColumnIndex(2);
-				ImGui::Text(
-					"%s%s%s",
-					dmgType_pwr ? String::Format("PWR: %d\n", dmgType_pwr).c_str() : "",
-					dmgType_cnd ? String::Format("CND: %d\n", dmgType_cnd).c_str() : "",
-					dmgType_heal ? String::Format("HEAL: %d", dmgType_heal).c_str() : ""
-				);
-
-				ImU32 textCol = ImU32(ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]));
-				ImU32 successCol = IM_COL32(89, 172, 98, 255);
-				ImU32 warnCol = IM_COL32(255, 148, 79, 255);
-
-				ImDrawList* dl = ImGui::GetWindowDrawList();
-				if (summary.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
-				if (summary.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
-				
-				if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
-
-				if (playerCount > 5) { ImGui::TableSetColumnIndex(5); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
-			}
-
-			ImGui::EndTable();
-
-			ImGui::PopStyleVar();
+			ImGui::Text("Not in a squad or party.");
 		}
+		else
+		{
+			if (ImGui::BeginTable("##TableSquadMgr", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+			{
+				float sz = ImGui::GetFontSize();
+
+				/* Header Row*/
+				{
+					ImGui::TableHeadersRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Account");
+
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("Character");
+
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text("Damage");
+
+					ImGui::TableSetColumnIndex(3);
+					RenderIcon(sz, &G::Textures[ETextures::BoonAlacrity], "TEX_BOON_ALACRITY", "Alacrity", IDB_ALACRITY);
+
+					ImGui::TableSetColumnIndex(4);
+					RenderIcon(sz, &G::Textures[ETextures::BoonQuickness], "TEX_BOON_QUICKNESS", "Quickness", IDB_QUICKNESS);
+
+					ImGui::TableSetColumnIndex(5);
+					ImGui::Text("Notes");
+				}
+
+				for (size_t sub = 0; sub <= 15; sub++)
+				{
+					int           playerCount = 0;
+					UtilityInfo_t summary = {};
+					int           dmgType_pwr = 0;
+					int           dmgType_cnd = 0;
+					int           dmgType_heal = 0;
+
+					std::string rem;
+
+					for (auto& [accname, player] : this->Players)
+					{
+						if (player.Member.Subgroup != sub) { continue; }
+
+						/* Push red font, if player left. */
+						if (player.HasLeft && !player.Member.IsSelf)
+						{
+							ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255));
+						}
+
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();
+						if (player.Member.IsCommander)
+						{
+							RenderIcon(sz, &G::Textures[ETextures::TagCommander], "TEX_TAG_COMMANDER", "Commander", IDB_ICON_COMMANDER);
+							ImGui::SameLine();
+						}
+						else if (player.Member.IsLieutenant)
+						{
+							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_ICON_LIEUTENANT);
+							ImGui::SameLine();
+						}
+						ImGui::Text(player.Member.AccountName);
+
+						ImGui::TableNextColumn();
+						ImGui::Text(player.Member.CharacterName);
+
+						ImGui::TableNextColumn();
+						std::string dmgTypePreview =
+							player.UtilityInfo.DamageType == EDamageType::None
+								? "None"
+								: player.UtilityInfo.DamageType == EDamageType::Power
+									? "PWR"
+									: player.UtilityInfo.DamageType == EDamageType::Condition
+										? "CND"
+										: "HEAL";
+						ImGui::SetNextItemWidth(sz * 5);
+						if (ImGui::BeginCombo(("##DamageType_" + std::string(player.Member.AccountName)).c_str(), dmgTypePreview.c_str()))
+						{
+							if (ImGui::Selectable("-", player.UtilityInfo.DamageType == EDamageType::None))
+							{
+								player.UtilityInfo.DamageType = EDamageType::None;
+							}
+
+							if (ImGui::Selectable("PWR", player.UtilityInfo.DamageType == EDamageType::Power))
+							{
+								player.UtilityInfo.DamageType = EDamageType::Power;
+							}
+
+							if (ImGui::Selectable("CND", player.UtilityInfo.DamageType == EDamageType::Condition))
+							{
+								player.UtilityInfo.DamageType = EDamageType::Condition;
+							}
+
+							if (ImGui::Selectable("HEAL", player.UtilityInfo.DamageType == EDamageType::Heal))
+							{
+								player.UtilityInfo.DamageType = EDamageType::Heal;
+							}
+
+							ImGui::EndCombo();
+						}
+
+						ImGui::TableNextColumn();
+						ImGui::Checkbox(("##Alacrity_" + std::string(player.Member.AccountName)).c_str(), &player.UtilityInfo.Alacrity);
+
+						ImGui::TableNextColumn();
+						ImGui::Checkbox(("##Quickness_" + std::string(player.Member.AccountName)).c_str(), &player.UtilityInfo.Quickness);
+
+						ImGui::TableNextColumn();
+						ImGui::SetNextItemWidth(sz * 10);
+						ImGui::InputText(("##Note_" + std::string(player.Member.AccountName)).c_str(), &player.Note[0], sizeof(player.Note));
+
+						if (player.HasLeft && !player.Member.IsSelf)
+						{
+							ImGui::SameLine();
+							if (G::Textures[ETextures::BtnClose])
+							{
+								/* Push unique ID because image button uses texture as ID -> not unique. */
+								ImGui::PushID(("X##Remove_" + std::string(player.Member.AccountName)).c_str());
+								if (ImGui::ImageButton(
+									G::Textures[ETextures::BtnClose]->Resource,
+									ImVec2(sz, sz),
+									ImVec2(0, 0),
+									ImVec2(1, 1),
+									-1,
+									ImVec4(0, 0, 0, 0),
+									ImColor(IM_COL32(172, 89, 89, 255))
+								))
+								{
+									rem = accname;
+								}
+								ImGui::PopID();
+								if (ImGui::IsItemHovered())
+								{
+									ImGui::BeginTooltip();
+									ImGui::Text("Remove player that left the group.");
+									ImGui::EndTooltip();
+								}
+							}
+							else
+							{
+								G::Textures[ETextures::BtnClose] = G::APIDefs->Textures.GetOrCreateFromResource("ICON_CLOSE", IDB_CLOSE, G::Module);
+								if (ImGui::SmallButton(("X##Remove_" + std::string(player.Member.AccountName)).c_str()))
+								{
+									rem = accname;
+								}
+							}
+
+							/* Pop red font, if player left. */
+							ImGui::PopStyleColor();
+
+							/* Automatically remove, if left 5 minutes ago. */
+							if (player.HasLeft >= 60 * 5)
+							{
+								rem = accname;
+							}
+						}
+
+						switch (player.UtilityInfo.DamageType)
+						{
+							case EDamageType::Power:
+								dmgType_pwr++;
+								break;
+							case EDamageType::Condition:
+								dmgType_cnd++;
+								break;
+							case EDamageType::Heal:
+								dmgType_heal++;
+								break;
+						}
+						if (player.UtilityInfo.Alacrity) { summary.Alacrity = true; }
+						if (player.UtilityInfo.Quickness) { summary.Quickness = true; }
+
+						playerCount++;
+					}
+
+					if (!rem.empty())
+					{
+						this->Players.erase(rem);
+					}
+
+					if (playerCount == 0) { continue; }
+
+					// subgroup totals
+					bool fullCoverage = false;
+					if (summary.Alacrity && summary.Quickness)
+					{
+						ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(89, 172, 98, 255)); // if all utilities are covered -> green text
+						fullCoverage = true;
+					}
+
+					ImGui::TableHeadersRow();
+					ImGui::TableSetColumnIndex(1);
+					if (sub == 0 && G::RTAPI->GroupType == RTAPI::EGroupType::Party)
+					{
+						ImGui::Text("Party");
+					}
+					else if (sub == 0)
+					{
+						ImGui::Text("Pending");
+					}
+					else
+					{
+						ImGui::Text("Subgroup %d", sub);
+					}
+					ImGui::TableSetColumnIndex(2);
+					ImGui::Text(
+						"%s%s%s",
+						dmgType_pwr ? String::Format("PWR: %d\n", dmgType_pwr).c_str() : "",
+						dmgType_cnd ? String::Format("CND: %d\n", dmgType_cnd).c_str() : "",
+						dmgType_heal ? String::Format("HEAL: %d", dmgType_heal).c_str() : ""
+					);
+
+					ImU32 textCol = ImU32(ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]));
+					ImU32 successCol = IM_COL32(89, 172, 98, 255);
+					ImU32 warnCol = IM_COL32(255, 148, 79, 255);
+
+					ImDrawList* dl = ImGui::GetWindowDrawList();
+					if (summary.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+
+					if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
+
+					if (playerCount > 5) { ImGui::TableSetColumnIndex(5); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
+				}
+
+				ImGui::EndTable();
+			}
+		}
+
+		ImGui::PopStyleVar();
 	}
 	ImGui::End();
 }
@@ -225,9 +288,9 @@ void CSquadMgr::OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember)
 {
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	this->Players[aGroupMember->AccountName] = PlayerInfo_t{
-		*aGroupMember
-	};
+	auto& player = this->Players[aGroupMember->AccountName];
+	player.Member = *aGroupMember;
+	player.HasLeft = 0; /* Reset in case the player rejoined without removal. */
 }
 
 void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
@@ -240,7 +303,7 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 	}
 	else
 	{
-		this->Players.erase(aGroupMember->AccountName);
+		this->Players[aGroupMember->AccountName].HasLeft = Time::GetTimestamp();
 	}
 }
 
