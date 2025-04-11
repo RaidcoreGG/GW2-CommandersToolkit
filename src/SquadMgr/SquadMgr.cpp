@@ -53,17 +53,11 @@ void CSquadMgr::Render()
 
 		if (this->Players.size() == 0)
 		{
-			if (G::RTAPI == nullptr && G::IsUEEnabled == false)
-			{
-				ImGui::Text("Neither RealTime API nor Unofficial Extras loaded.");
-			}
-			else
-			{
-				ImGui::Text("Not in a squad or party.");
-			}
+			ImGui::Text("Not in a squad or party.");
 		}
 		else
 		{
+			ImGui::Text("RealTime API not installed.");
 			if (ImGui::BeginTable("##TableSquadMgr", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 			{
 				float sz = ImGui::GetFontSize();
@@ -322,7 +316,10 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 
 	if (aGroupMember->IsSelf)
 	{
-		this->Players.clear();
+		if (G::RTAPI || G::IsUEEnabled)
+		{
+			this->Players.clear();
+		}
 	}
 	else
 	{
