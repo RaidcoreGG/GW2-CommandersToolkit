@@ -316,7 +316,6 @@ void CSquadMgr::OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember)
 	player.Member = *aGroupMember;
 	player.HasLeft = 0; /* Reset in case the player rejoined without removal. */
 }
-
 void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 {
 	const std::lock_guard<std::mutex> lock(this->Mutex);
@@ -330,7 +329,6 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 		this->Players[aGroupMember->AccountName].HasLeft = Time::GetTimestamp();
 	}
 }
-
 void CSquadMgr::OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 {
 	const std::lock_guard<std::mutex> lock(this->Mutex);
@@ -392,7 +390,6 @@ void CSquadMgr::OnAgentLeave(AgentUpdate* aAgentUpdate)
 	if (G::RTAPI) { return; }
 	this->OnGroupMemberLeave(&member);
 }
-
 void CSquadMgr::OnSquadUpdate(SquadUpdate* aSquadUpdate)
 {
 	G::IsUEEnabled = true;
