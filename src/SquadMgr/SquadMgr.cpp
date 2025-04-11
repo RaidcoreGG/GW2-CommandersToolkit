@@ -20,6 +20,20 @@
 #include "Util/src/Time.h"
 #include "Util.h"
 
+void PlayerLeftTooltip(const bool& aActive, const long long& aSeconds)
+{
+	if (!aActive) { return; }
+
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text("Last seen %u %s ago",
+					aSeconds < 60 ? aSeconds : aSeconds / 60,
+					aSeconds < 60 ? "seconds" : "minutes");
+		ImGui::EndTooltip();
+	};
+}
+
 void CSquadMgr::Render()
 {
 	if (!this->Visible)
@@ -30,6 +44,8 @@ void CSquadMgr::Render()
 	if (G::RTAPI == nullptr && G::IsUEEnabled == false) { return; }
 
 	static ImGuiWindowFlags s_WndFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
+
+	long long now = Time::GetTimestamp();
 
 	if (ImGui::Begin("Squad Manager", &this->Visible, s_WndFlags))
 	{
@@ -89,6 +105,8 @@ void CSquadMgr::Render()
 							ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(172, 89, 89, 255));
 						}
 
+						int secondsSinceLeft = now - player.HasLeft;
+
 						ImGui::TableNextRow();
 						ImGui::TableNextColumn();
 						if (player.Member.IsCommander)
@@ -102,9 +120,11 @@ void CSquadMgr::Render()
 							ImGui::SameLine();
 						}
 						ImGui::Text(player.Member.AccountName);
+						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 						ImGui::TableNextColumn();
 						ImGui::Text(player.Member.CharacterName);
+						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 						ImGui::TableNextColumn();
 						std::string dmgTypePreview =
@@ -150,6 +170,7 @@ void CSquadMgr::Render()
 						ImGui::TableNextColumn();
 						ImGui::SetNextItemWidth(sz * 10);
 						ImGui::InputText(("##Note_" + std::string(player.Member.AccountName)).c_str(), &player.Note[0], sizeof(player.Note));
+						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 						if (player.HasLeft && !player.Member.IsSelf)
 						{
@@ -171,12 +192,6 @@ void CSquadMgr::Render()
 									rem = accname;
 								}
 								ImGui::PopID();
-								if (ImGui::IsItemHovered())
-								{
-									ImGui::BeginTooltip();
-									ImGui::Text("Remove player that left the group.");
-									ImGui::EndTooltip();
-								}
 							}
 							else
 							{
@@ -186,12 +201,13 @@ void CSquadMgr::Render()
 									rem = accname;
 								}
 							}
+							PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 							/* Pop red font, if player left. */
 							ImGui::PopStyleColor();
 
 							/* Automatically remove, if left 5 minutes ago. */
-							if (player.HasLeft >= 60 * 5)
+							if (secondsSinceLeft >= 60 * 5)
 							{
 								rem = accname;
 							}
