@@ -39,9 +39,9 @@ class CSquadMgr
 	///----------------------------------------------------------------------------------------------------
 	void ToggleVisible();
 
-	void OnGroupMemberJoin(void* aEventArgs);
-	void OnGroupMemberLeave(void* aEventArgs);
-	void OnGroupMemberUpdate(void* aEventArgs);
+	void OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember);
+	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember);
+	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember);
 
 	private:
 	bool                                          Visible = false;

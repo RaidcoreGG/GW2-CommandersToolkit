@@ -12,6 +12,7 @@
 #include <windows.h>
 
 #include "nexus/Nexus.h"
+#include "RTAPI/RTAPI.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);
 
@@ -40,9 +41,12 @@ namespace Addon
 	///----------------------------------------------------------------------------------------------------
 	void OnInputBind(const char* aIdentifier, bool aIsRelease);
 
-	void OnGroupMemberJoin(void* aEventArgs);
-	void OnGroupMemberLeave(void* aEventArgs);
-	void OnGroupMemberUpdate(void* aEventArgs);
+	void OnAddonLoaded(int* aSignature);
+	void OnAddonUnloaded(int* aSignature);
+
+	void OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember);
+	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember);
+	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember);
 }
 
 #endif

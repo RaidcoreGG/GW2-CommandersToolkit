@@ -26,6 +26,8 @@ void CSquadMgr::Render()
 		return;
 	}
 
+	if (G::RTAPI == nullptr) { return; }
+
 	static ImGuiWindowFlags s_WndFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse;
 
 	if (ImGui::Begin("Squad Manager", &this->Visible, s_WndFlags))
@@ -168,9 +170,13 @@ void CSquadMgr::Render()
 
 				ImGui::TableHeadersRow();
 				ImGui::TableSetColumnIndex(1);
-				if (sub == 0)
+				if (sub == 0 && G::RTAPI->GroupType == RTAPI::EGroupType::Party)
 				{
 					ImGui::Text("Party");
+				}
+				else if (sub == 0)
+				{
+					ImGui::Text("Pending");
 				}
 				else
 				{
@@ -215,38 +221,32 @@ void CSquadMgr::ToggleVisible()
 	this->Visible = !this->Visible;
 }
 
-void CSquadMgr::OnGroupMemberJoin(void* aEventArgs)
+void CSquadMgr::OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember)
 {
-	RTAPI::GroupMember* member = (RTAPI::GroupMember*)aEventArgs;
-
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	this->Players[member->AccountName] = PlayerInfo_t{
-		*member
+	this->Players[aGroupMember->AccountName] = PlayerInfo_t{
+		*aGroupMember
 	};
 }
 
-void CSquadMgr::OnGroupMemberLeave(void* aEventArgs)
+void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 {
-	RTAPI::GroupMember* member = (RTAPI::GroupMember*)aEventArgs;
-
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	if (member->IsSelf)
+	if (aGroupMember->IsSelf)
 	{
 		this->Players.clear();
 	}
 	else
 	{
-		this->Players.erase(member->AccountName);
+		this->Players.erase(aGroupMember->AccountName);
 	}
 }
 
-void CSquadMgr::OnGroupMemberUpdate(void* aEventArgs)
+void CSquadMgr::OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 {
-	RTAPI::GroupMember* member = (RTAPI::GroupMember*)aEventArgs;
-
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	this->Players[member->AccountName].Member = *member;
+	this->Players[aGroupMember->AccountName].Member = *aGroupMember;
 }
