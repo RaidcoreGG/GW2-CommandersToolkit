@@ -45,11 +45,18 @@ void CSquadMgr::Render()
 
 	long long now = Time::GetTimestamp();
 
+	static ImU32 successCol = IM_COL32(89, 172, 98, 255);
+	static ImU32 warnCol = IM_COL32(255, 148, 79, 255);
+
 	if (ImGui::Begin("Squad Manager", &this->Visible, s_WndFlags))
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
 		const std::lock_guard<std::mutex> lock(this->Mutex);
+
+		/* Cache these so that no race cond can happen. */
+		bool hasRTAPI = G::RTAPI != nullptr;
+		bool hasUE = G::IsUEEnabled;
 
 		if (this->Players.size() == 0)
 		{
@@ -57,8 +64,26 @@ void CSquadMgr::Render()
 		}
 		else
 		{
-			ImGui::Text("RealTime API not installed.");
-			if (ImGui::BeginTable("##TableSquadMgr", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+			if (!hasRTAPI)
+			{
+				ImGui::TextColored(ImColor(warnCol), "RealTime API not installed.");
+			}
+			if (ImGui::SmallButton("Remove all untracked"))
+			{
+				for (auto it = this->Players.begin(); it != this->Players.end(); )
+				{
+					if (it->second.HasLeft > 0)
+					{
+						it = this->Players.erase(it);
+					}
+					else
+					{
+						++it;
+					}
+				}
+			}
+
+			if (ImGui::BeginTable("##TableSquadMgr", hasRTAPI || hasUE ? 6 : 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 			{
 				float sz = ImGui::GetFontSize();
 
@@ -71,16 +96,22 @@ void CSquadMgr::Render()
 					ImGui::TableSetColumnIndex(1);
 					ImGui::Text("Character");
 
-					ImGui::TableSetColumnIndex(2);
+					if (!(hasRTAPI || hasUE))
+					{
+						ImGui::TableSetColumnIndex(2);
+						ImGui::Text("Subgroup");
+					}
+
+					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 2 : 3);
 					ImGui::Text("Damage");
 
-					ImGui::TableSetColumnIndex(3);
+					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 3 : 4);
 					RenderIcon(sz, &G::Textures[ETextures::BoonAlacrity], "TEX_BOON_ALACRITY", "Alacrity", IDB_ALACRITY);
 
-					ImGui::TableSetColumnIndex(4);
+					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 4 : 5);
 					RenderIcon(sz, &G::Textures[ETextures::BoonQuickness], "TEX_BOON_QUICKNESS", "Quickness", IDB_QUICKNESS);
 
-					ImGui::TableSetColumnIndex(5);
+					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 5 : 6);
 					ImGui::Text("Notes");
 				}
 
@@ -124,6 +155,14 @@ void CSquadMgr::Render()
 						ImGui::TableNextColumn();
 						ImGui::Text(player.Member.CharacterName);
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
+
+						if (!(hasRTAPI || hasUE))
+						{
+							ImGui::TableNextColumn();
+							ImGui::SetNextItemWidth(sz * 5);
+							ImGui::InputInt(("##Subgroup_" + std::string(player.Member.AccountName)).c_str(), &player.Member.Subgroup);
+							player.Member.Subgroup = min(max(player.Member.Subgroup, 1), 15);
+						}
 
 						ImGui::TableNextColumn();
 						std::string dmgTypePreview =
@@ -247,7 +286,7 @@ void CSquadMgr::Render()
 
 					ImGui::TableHeadersRow();
 					ImGui::TableSetColumnIndex(1);
-					if (G::RTAPI && sub == 0)
+					if (hasRTAPI && sub == 0)
 					{
 						if (G::RTAPI->GroupType == RTAPI::EGroupType::Party)
 						{
@@ -262,7 +301,7 @@ void CSquadMgr::Render()
 					{
 						ImGui::Text("Subgroup %d", sub);
 					}
-					ImGui::TableSetColumnIndex(2);
+					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 2 : 3);
 					ImGui::Text(
 						"%s%s%s",
 						dmgType_pwr ? String::Format("PWR: %d\n", dmgType_pwr).c_str() : "",
@@ -271,16 +310,14 @@ void CSquadMgr::Render()
 					);
 
 					ImU32 textCol = ImU32(ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]));
-					ImU32 successCol = IM_COL32(89, 172, 98, 255);
-					ImU32 warnCol = IM_COL32(255, 148, 79, 255);
 
 					ImDrawList* dl = ImGui::GetWindowDrawList();
-					if (summary.Alacrity) { ImGui::TableSetColumnIndex(3); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
-					if (summary.Quickness) { ImGui::TableSetColumnIndex(4); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Alacrity) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 3 : 4); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Quickness) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 4 : 5); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
 
 					if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
-					if (playerCount > 5) { ImGui::TableSetColumnIndex(5); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
+					if (playerCount > 5) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 5 : 6); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
 				}
 
 				ImGui::EndTable();
@@ -316,6 +353,7 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 
 	if (aGroupMember->IsSelf)
 	{
+		/* Only clear for RT/UE, because arc also reports changes on load screen. */
 		if (G::RTAPI || G::IsUEEnabled)
 		{
 			this->Players.clear();
