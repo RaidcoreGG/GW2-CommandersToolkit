@@ -27,6 +27,54 @@ enum ETextures
 	BoonQuickness,
 	TagCommander,
 	TagLieutenant,
+
+	SpecEle,
+	SpecEleCat,
+	SpecEleTmp,
+	SpecEleWvr,
+
+	SpecEng,
+	SpecEngHls,
+	SpecEngMch,
+	SpecEngScr,
+
+	SpecGrd,
+	SpecGrdDgh,
+	SpecGrdFbd,
+	SpecGrdWbd,
+
+	SpecMes,
+	SpecMesChr,
+	SpecMesMir,
+	SpecMesVrt,
+
+	SpecNec,
+	SpecNecHrb,
+	SpecNecRpr,
+	SpecNecScg,
+
+	SpecRev,
+	SpecRevHer,
+	SpecRevRen,
+	SpecRevVin,
+
+	SpecRgr,
+	SpecRgrDrd,
+	SpecRgrSlb,
+	SpecRgrUtd,
+
+	SpecThf,
+	SpecThfDde,
+	SpecThfDdl,
+	SpecThfSpc,
+
+	SpecWar,
+	SpecWarBrs,
+	SpecWarBsw,
+	SpecWarSpb,
+
+	SpecUnknown,
+
 	COUNT
 };
 

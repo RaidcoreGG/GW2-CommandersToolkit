@@ -60,6 +60,53 @@ IDB_CLOSE             PNG "Resources\\close.png"
 IDB_TAG_COMMANDER     PNG "Resources\\tag_commander.png"
 IDB_TAG_LIEUTENANT    PNG "Resources\\tag_lieutenant.png"
 
+IDB_SPEC_ELE          PNG "Resources\\professions\\ele.png"
+IDB_SPEC_ELE_CAT      PNG "Resources\\professions\\ele_cat.png"
+IDB_SPEC_ELE_TMP      PNG "Resources\\professions\\ele_tmp.png"
+IDB_SPEC_ELE_WVR      PNG "Resources\\professions\\ele_wvr.png"
+
+IDB_SPEC_ENG          PNG "Resources\\professions\\eng.png"
+IDB_SPEC_ENG_HLS      PNG "Resources\\professions\\eng_hls.png"
+IDB_SPEC_ENG_MCH      PNG "Resources\\professions\\eng_mch.png"
+IDB_SPEC_ENG_SCR      PNG "Resources\\professions\\eng_scr.png"
+
+IDB_SPEC_GRD          PNG "Resources\\professions\\grd.png"
+IDB_SPEC_GRD_DGH      PNG "Resources\\professions\\grd_dgh.png"
+IDB_SPEC_GRD_FBD      PNG "Resources\\professions\\grd_fbd.png"
+IDB_SPEC_GRD_WBD      PNG "Resources\\professions\\grd_wbd.png"
+
+IDB_SPEC_MES          PNG "Resources\\professions\\mes.png"
+IDB_SPEC_MES_CHR      PNG "Resources\\professions\\mes_chr.png"
+IDB_SPEC_MES_MIR      PNG "Resources\\professions\\mes_mir.png"
+IDB_SPEC_MES_VRT      PNG "Resources\\professions\\mes_vrt.png"
+
+IDB_SPEC_NEC          PNG "Resources\\professions\\nec.png"
+IDB_SPEC_NEC_HRB      PNG "Resources\\professions\\nec_hrb.png"
+IDB_SPEC_NEC_RPR      PNG "Resources\\professions\\nec_rpr.png"
+IDB_SPEC_NEC_SCG      PNG "Resources\\professions\\nec_scg.png"
+
+IDB_SPEC_REV          PNG "Resources\\professions\\rev.png"
+IDB_SPEC_REV_HER      PNG "Resources\\professions\\rev_her.png"
+IDB_SPEC_REV_REN      PNG "Resources\\professions\\rev_ren.png"
+IDB_SPEC_REV_VIN      PNG "Resources\\professions\\rev_vin.png"
+
+IDB_SPEC_RGR          PNG "Resources\\professions\\rgr.png"
+IDB_SPEC_RGR_DRD      PNG "Resources\\professions\\rgr_drd.png"
+IDB_SPEC_RGR_SLB      PNG "Resources\\professions\\rgr_slb.png"
+IDB_SPEC_RGR_UTD      PNG "Resources\\professions\\rgr_utd.png"
+
+IDB_SPEC_THF          PNG "Resources\\professions\\thf.png"
+IDB_SPEC_THF_DDE      PNG "Resources\\professions\\thf_dde.png"
+IDB_SPEC_THF_DDL      PNG "Resources\\professions\\thf_ddl.png"
+IDB_SPEC_THF_SPC      PNG "Resources\\professions\\thf_spc.png"
+
+IDB_SPEC_WAR          PNG "Resources\\professions\\war.png"
+IDB_SPEC_WAR_BRS      PNG "Resources\\professions\\war_brs.png"
+IDB_SPEC_WAR_BSW      PNG "Resources\\professions\\war_bsw.png"
+IDB_SPEC_WAR_SPB      PNG "Resources\\professions\\war_spb.png"
+
+IDB_SPEC_UNNKOWN      PNG "Resources\\professions\\unknown.png"
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 

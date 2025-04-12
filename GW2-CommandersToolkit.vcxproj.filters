@@ -34,6 +34,9 @@
     <Filter Include="EXTERNAL\arcdps_ue">
       <UniqueIdentifier>{97976ba8-ff2a-46df-9735-e7792a4efe8c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\professions">
+      <UniqueIdentifier>{114713f4-0636-4c57-b07f-269d9212bce6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\imgui\imgui.cpp">
@@ -239,6 +242,117 @@
     </Image>
     <Image Include="src\Resources\close.png">
       <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\nec_scg.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rev.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rev_her.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rev_ren.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rev_vin.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rgr.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rgr_drd.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rgr_slb.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\rgr_utd.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\thf.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\thf_dde.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\thf_ddl.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\thf_spc.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\war.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\war_brs.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\war_bsw.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\war_spb.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\ele.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\ele_cat.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\ele_tmp.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\ele_wvr.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\eng.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\eng_hls.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\eng_mch.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\eng_scr.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\grd.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\grd_dgh.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\grd_fbd.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\grd_wbd.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\mes.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\mes_chr.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\mes_mir.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\mes_vrt.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\nec.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\nec_hrb.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\nec_rpr.png">
+      <Filter>Resource Files\professions</Filter>
+    </Image>
+    <Image Include="src\Resources\professions\unknown.png">
+      <Filter>Resource Files\professions</Filter>
     </Image>
   </ItemGroup>
 </Project>

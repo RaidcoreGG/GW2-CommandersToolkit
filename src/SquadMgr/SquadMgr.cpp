@@ -153,6 +153,8 @@ void CSquadMgr::Render()
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 						ImGui::TableNextColumn();
+						RenderSpecIcon(sz, player.Member.Profession, player.Member.EliteSpecialization);
+						ImGui::SameLine();
 						ImGui::Text(player.Member.CharacterName);
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
