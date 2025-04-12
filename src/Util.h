@@ -37,8 +37,8 @@ inline void RenderIcon(float aSize, Texture** aTexture, std::string aIdentifer, 
 
 inline void RenderSpecIcon(float aSize, int aProfession, int aSpec)
 {
-	// Map (Profession, Spec) to ETextures, Identifier, AltText, and ResourceID
-	struct IconEntry {
+	struct IconEntry
+	{
 		ETextures textureEnum;
 		const char* identifier;
 		const char* altText;
@@ -106,7 +106,6 @@ inline void RenderSpecIcon(float aSize, int aProfession, int aSpec)
 			break;
 	}
 
-	// Render using the same logic as RenderIcon
 	Texture** texPtr = &G::Textures[entry.textureEnum];
 	if (*texPtr)
 	{
