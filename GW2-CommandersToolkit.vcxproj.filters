@@ -228,19 +228,7 @@
     <Image Include="src/Resources\commander_toolkit_hover.png">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="src/Resources\Fury.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\Heal.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\Might.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="src/Resources\Quickness.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="src/Resources\Vulnerability.png">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="src\Resources\Tag_Commander.png">

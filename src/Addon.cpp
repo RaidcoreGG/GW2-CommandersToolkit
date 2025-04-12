@@ -73,8 +73,8 @@ namespace Addon
 		ImGui::SetCurrentContext((ImGuiContext*)G::APIDefs->ImguiContext);
 		ImGui::SetAllocatorFunctions((void* (*)(size_t, void*))G::APIDefs->ImguiMalloc, (void(*)(void*, void*))G::APIDefs->ImguiFree);
 
-		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT",       IDB_ICON,       G::Module, nullptr);
-		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_ICON_HOVER, G::Module, nullptr);
+		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT",       IDB_QUICKACCESS,       G::Module, nullptr);
+		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_QUICKACCESS_HOVER, G::Module, nullptr);
 
 		G::APIDefs->Renderer.Register(ERenderType_Render, UI::Render);
 		G::APIDefs->QuickAccess.Add("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_COMMANDERSTOOLKIT, "Commander's Toolkit");

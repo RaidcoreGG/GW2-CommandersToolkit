@@ -141,12 +141,12 @@ void CSquadMgr::Render()
 						ImGui::TableNextColumn();
 						if (player.Member.IsCommander)
 						{
-							RenderIcon(sz, &G::Textures[ETextures::TagCommander], "TEX_TAG_COMMANDER", "Commander", IDB_ICON_COMMANDER);
+							RenderIcon(sz, &G::Textures[ETextures::TagCommander], "TEX_TAG_COMMANDER", "Commander", IDB_TAG_COMMANDER);
 							ImGui::SameLine();
 						}
 						else if (player.Member.IsLieutenant)
 						{
-							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_ICON_LIEUTENANT);
+							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_TAG_LIEUTENANT);
 							ImGui::SameLine();
 						}
 						ImGui::Text(player.Member.AccountName);

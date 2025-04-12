@@ -2,19 +2,15 @@
 // Microsoft Visual C++ generated include file.
 // Used by GW2-CommandersToolkit.rc
 //
-#define IDB_MIGHT                       101
-#define IDB_ALACRITY                    102
-#define IDB_FURY                        103
-#define IDB_HEAL                        104
-#define IDB_QUICKNESS                   105
-#define IDB_VULNERABILITY               106
+#define IDB_ALACRITY          101
+#define IDB_QUICKNESS         102
 
-#define IDB_ICON                        201
-#define IDB_ICON_HOVER                  202
-#define IDB_CLOSE                       203
+#define IDB_QUICKACCESS       201
+#define IDB_QUICKACCESS_HOVER 202
+#define IDB_CLOSE             203
 
-#define IDB_ICON_COMMANDER              301
-#define IDB_ICON_LIEUTENANT             302
+#define IDB_TAG_COMMANDER     301
+#define IDB_TAG_LIEUTENANT    302
 
 // Next default values for new objects
 // 

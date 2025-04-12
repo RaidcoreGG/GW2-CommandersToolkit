@@ -1,3 +1,0 @@
-SELECTOR
-out white -> Gaussian 5 -> 50/255 opacity
-inner white -> 155/255 opacity
