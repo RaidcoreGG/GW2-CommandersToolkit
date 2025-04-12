@@ -68,22 +68,30 @@ void CSquadMgr::Render()
 			{
 				ImGui::TextColored(ImColor(warnCol), "RealTime API not installed.");
 			}
-			if (ImGui::SmallButton("Remove all untracked"))
+
+			static bool s_AnyUntracked = false;
+			bool anyUntracked = false;
+
+			int dmgIdx = 2;
+			int alacIdx = 3;
+			int quicIdx = 4;
+			int noteIdx = 5;
+			int trckIdx = 6;
+
+			if (!(hasRTAPI || hasUE))
 			{
-				for (auto it = this->Players.begin(); it != this->Players.end(); )
-				{
-					if (it->second.HasLeft > 0)
-					{
-						it = this->Players.erase(it);
-					}
-					else
-					{
-						++it;
-					}
-				}
+				dmgIdx++;
+				alacIdx++;
+				quicIdx++;
+				noteIdx++;
+				trckIdx++;
 			}
 
-			if (ImGui::BeginTable("##TableSquadMgr", hasRTAPI || hasUE ? 6 : 7, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+			int columns = 6;
+			if (!(hasRTAPI || hasUE)) { columns++; } // To render subgroup column.
+			if (s_AnyUntracked)       { columns++; } // To render untracked column.
+
+			if (ImGui::BeginTable("##TableSquadMgr", columns, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 			{
 				float sz = ImGui::GetFontSize();
 
@@ -102,17 +110,75 @@ void CSquadMgr::Render()
 						ImGui::Text("Subgroup");
 					}
 
-					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 2 : 3);
+					ImGui::TableSetColumnIndex(dmgIdx);
 					ImGui::Text("Damage");
 
-					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 3 : 4);
+					ImGui::TableSetColumnIndex(alacIdx);
 					RenderIcon(sz, &G::Textures[ETextures::BoonAlacrity], "TEX_BOON_ALACRITY", "Alacrity", IDB_ALACRITY);
 
-					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 4 : 5);
+					ImGui::TableSetColumnIndex(quicIdx);
 					RenderIcon(sz, &G::Textures[ETextures::BoonQuickness], "TEX_BOON_QUICKNESS", "Quickness", IDB_QUICKNESS);
 
-					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 5 : 6);
+					ImGui::TableSetColumnIndex(noteIdx);
 					ImGui::Text("Notes");
+
+					if (s_AnyUntracked)
+					{
+						ImGui::TableSetColumnIndex(trckIdx);
+						if (G::Textures[ETextures::BtnClose])
+						{
+							/* Push unique ID because image button uses texture as ID -> not unique. */
+							ImGui::PushID("X##RemoveAll");
+							if (ImGui::ImageButton(
+								G::Textures[ETextures::BtnClose]->Resource,
+								ImVec2(sz, sz),
+								ImVec2(0, 0),
+								ImVec2(1, 1),
+								-1,
+								ImVec4(0, 0, 0, 0),
+								ImColor(IM_COL32(172, 89, 89, 255))
+								))
+							{
+								for (auto it = this->Players.begin(); it != this->Players.end(); )
+								{
+									if (it->second.HasLeft > 0)
+									{
+										it = this->Players.erase(it);
+									}
+									else
+									{
+										++it;
+									}
+								}
+							}
+							ImGui::PopID();
+						}
+						else
+						{
+							G::Textures[ETextures::BtnClose] = G::APIDefs->Textures.GetOrCreateFromResource("ICON_CLOSE", IDB_CLOSE, G::Module);
+							if (ImGui::SmallButton("X##RemoveAll"))
+							{
+								for (auto it = this->Players.begin(); it != this->Players.end(); )
+								{
+									if (it->second.HasLeft > 0)
+									{
+										it = this->Players.erase(it);
+									}
+									else
+									{
+										++it;
+									}
+								}
+							}
+						}
+
+						if (ImGui::IsItemHovered())
+						{
+							ImGui::BeginTooltip();
+							ImGui::Text("Remove all untracked players.");
+							ImGui::EndTooltip();
+						};
+					}
 				}
 
 				for (size_t sub = 0; sub <= 15; sub++)
@@ -158,6 +224,7 @@ void CSquadMgr::Render()
 						ImGui::Text(player.Member.CharacterName);
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
+						/* Render subgroup input if no RTAPI. */
 						if (!(hasRTAPI || hasUE))
 						{
 							ImGui::TableNextColumn();
@@ -214,7 +281,10 @@ void CSquadMgr::Render()
 
 						if (player.HasLeft && !player.Member.IsSelf)
 						{
-							ImGui::SameLine();
+							anyUntracked = true;
+
+							ImGui::TableNextColumn();
+
 							if (G::Textures[ETextures::BtnClose])
 							{
 								/* Push unique ID because image button uses texture as ID -> not unique. */
@@ -303,7 +373,7 @@ void CSquadMgr::Render()
 					{
 						ImGui::Text("Subgroup %d", sub);
 					}
-					ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 2 : 3);
+					ImGui::TableSetColumnIndex(dmgIdx);
 					ImGui::Text(
 						"%s%s%s",
 						dmgType_pwr ? String::Format("PWR: %d\n", dmgType_pwr).c_str() : "",
@@ -314,13 +384,15 @@ void CSquadMgr::Render()
 					ImU32 textCol = ImU32(ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]));
 
 					ImDrawList* dl = ImGui::GetWindowDrawList();
-					if (summary.Alacrity) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 3 : 4); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
-					if (summary.Quickness) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 4 : 5); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Alacrity) { ImGui::TableSetColumnIndex(alacIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Quickness) { ImGui::TableSetColumnIndex(quicIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
 
 					if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
-					if (playerCount > 5) { ImGui::TableSetColumnIndex(hasRTAPI || hasUE ? 5 : 6); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
+					if (playerCount > 5) { ImGui::TableSetColumnIndex(noteIdx); ImGui::TextColored(ImColor(warnCol), "Warning: More than 5 players!"); }
 				}
+
+				s_AnyUntracked = anyUntracked;
 
 				ImGui::EndTable();
 			}
