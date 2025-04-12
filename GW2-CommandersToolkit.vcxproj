@@ -149,6 +149,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\PullTimer\PullTimer.h" />
+    <ClInclude Include="src\RTAPI\RTAPI.hpp" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\Remote.h" />
     <ClInclude Include="src\RTAPI\RTAPI.h" />

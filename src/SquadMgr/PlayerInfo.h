@@ -12,7 +12,7 @@
 #include <string>
 #include <cstdint>
 
-#include "RTAPI/RTAPI.h"
+#include "RTAPI/RTAPI.hpp"
 
 #include "UtilityInfo.h"
 

@@ -13,7 +13,7 @@
 #include "imgui/imgui_internal.h"
 
 #include "nexus/Nexus.h"
-#include "RTAPI/RTAPI.h"
+#include "RTAPI/RTAPI.hpp"
 #include "resource.h"
 #include "Globals.h"
 #include "Util/src/Strings.h"

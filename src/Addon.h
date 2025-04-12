@@ -12,7 +12,7 @@
 #include <windows.h>
 
 #include "nexus/Nexus.h"
-#include "RTAPI/RTAPI.h"
+#include "RTAPI/RTAPI.hpp"
 #include "arcdps_ue/Definitions.h"
 
 #include "Globals.h"

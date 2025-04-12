@@ -11,7 +11,7 @@
 
 #include "nexus/Nexus.h"
 #include "mumble/Mumble.h"
-#include "RTAPI/RTAPI.h"
+#include "RTAPI/RTAPI.hpp"
 #include "arcdps_ue/Definitions.h"
 
 #define ADDON_NAME           "Commander's Toolkit"

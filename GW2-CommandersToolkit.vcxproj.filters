@@ -215,6 +215,9 @@
     <ClInclude Include="src\arcdps_ue\KeyBindHelper.h">
       <Filter>EXTERNAL\arcdps_ue</Filter>
     </ClInclude>
+    <ClInclude Include="src\RTAPI\RTAPI.hpp">
+      <Filter>EXTERNAL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="src/GW2-CommandersToolkit.rc">
