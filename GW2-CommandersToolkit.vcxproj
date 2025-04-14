@@ -216,6 +216,7 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <Image Include="src\Resources\professions\war_brs.png" />
     <Image Include="src\Resources\professions\war_bsw.png" />
     <Image Include="src\Resources\professions\war_spb.png" />
+    <Image Include="src\Resources\profile.png" />
     <Image Include="src\Resources\Tag_Commander.png" />
     <Image Include="src\Resources\Tag_Lieutenant.png" />
   </ItemGroup>

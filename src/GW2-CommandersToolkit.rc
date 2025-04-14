@@ -50,13 +50,14 @@ END
 // PNG
 //
 
-IDB_ALACRITY          PNG "Resources\\Alacrity.png"
-IDB_QUICKNESS         PNG "Resources\\Quickness.png"
-
 IDB_QUICKACCESS       PNG "Resources\\commander_toolkit.png"
 IDB_QUICKACCESS_HOVER PNG "Resources\\commander_toolkit_hover.png"
-IDB_CLOSE             PNG "Resources\\close.png"
 
+IDB_CLOSE             PNG "Resources\\close.png"
+IDB_PROFILE           PNG "Resources\\profile.png"
+
+IDB_ALACRITY          PNG "Resources\\Alacrity.png"
+IDB_QUICKNESS         PNG "Resources\\Quickness.png"
 IDB_TAG_COMMANDER     PNG "Resources\\tag_commander.png"
 IDB_TAG_LIEUTENANT    PNG "Resources\\tag_lieutenant.png"
 

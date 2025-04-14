@@ -357,5 +357,8 @@
     <Image Include="src\Resources\professions\unknown.png">
       <Filter>Resource Files\professions</Filter>
     </Image>
+    <Image Include="src\Resources\profile.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

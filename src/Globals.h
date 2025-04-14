@@ -23,6 +23,8 @@
 enum ETextures
 {
 	BtnClose,
+	BtnProfile,
+
 	BoonAlacrity,
 	BoonQuickness,
 	TagCommander,
