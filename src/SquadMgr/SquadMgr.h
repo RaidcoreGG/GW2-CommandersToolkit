@@ -14,6 +14,7 @@
 #include <string>
 
 #include "PlayerInfo.h"
+#include "KillproofInfo.h"
 #include "Globals.h"
 
 ///----------------------------------------------------------------------------------------------------
@@ -40,6 +41,8 @@ class CSquadMgr
 	///----------------------------------------------------------------------------------------------------
 	void ToggleVisible();
 
+	void GetKPData(PlayerInfo_t& aPlayer);
+
 	void OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember);
 	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember);
 	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember);
@@ -51,12 +54,17 @@ class CSquadMgr
 	private:
 	bool                                          Visible = false;
 
+	KPMEInfo_t                                    KPRequirement = {};
+
 	std::mutex                                    Mutex;
 	std::unordered_map<std::string, PlayerInfo_t> Players;
 
 	std::mutex                                    CacheMutex;
 	std::unordered_map<std::string, AgentUpdate>  CachedAgentsArc;
 	std::unordered_map<std::string, UserInfo>     CachedAgentsUE;
+
+	std::mutex                                    KPMutex;
+	std::unordered_map<std::string, KPMEInfo_t*>  KPData;
 };
 
 #endif

@@ -150,9 +150,9 @@ CALL $(SolutionDir)Scripts\version.bat</Command>
     <ClInclude Include="src\imgui\imstb_truetype.h" />
     <ClInclude Include="src\PullTimer\PullTimer.h" />
     <ClInclude Include="src\RTAPI\RTAPI.hpp" />
+    <ClInclude Include="src\SquadMgr\KillproofInfo.h" />
     <ClInclude Include="src\Util.h" />
     <ClInclude Include="src\Remote.h" />
-    <ClInclude Include="src\RTAPI\RTAPI.h" />
     <ClInclude Include="src\SquadMgr\PlayerInfo.h" />
     <ClInclude Include="src\SquadMgr\SquadMgr.h" />
     <ClInclude Include="src\SquadMgr\UtilityInfo.h" />

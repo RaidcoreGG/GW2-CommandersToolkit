@@ -16,6 +16,22 @@
 #include "nexus/Nexus.h"
 #include "Globals.h"
 
+
+inline void PlayerLeftTooltip(const bool& aActive, const long long& aSeconds)
+{
+	if (!aActive) { return; }
+
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::Text("Last seen %u %s ago.",
+					aSeconds < 60 ? aSeconds : aSeconds / 60,
+					aSeconds < 60 ? "seconds" : "minutes");
+		ImGui::EndTooltip();
+	};
+}
+
+
 inline void RenderIcon(float aSize, Texture** aTexture, std::string aIdentifer, std::string aAltText, uint32_t aResourceID)
 {
 	if (*aTexture)
@@ -33,6 +49,30 @@ inline void RenderIcon(float aSize, Texture** aTexture, std::string aIdentifer, 
 		*aTexture = G::APIDefs->Textures.GetOrCreateFromResource(aIdentifer.c_str(), aResourceID, G::Module);
 		ImGui::Text(aAltText.c_str());
 	}
+}
+
+inline bool RenderIconButton(float aSize, Texture** aTexture, std::string aIdentifer, std::string aAltText, uint32_t aResourceID, ImVec4 aTint = ImVec4(1, 1, 1, 1))
+{
+	bool pressed = false;
+	if (*aTexture)
+	{
+		ImGui::PushID(aAltText.c_str());
+		if (ImGui::ImageButton((*aTexture)->Resource, ImVec2(aSize, aSize), ImVec2(0, 0), ImVec2(1, 1), -1, ImVec4(0, 0, 0, 0), aTint))
+		{
+			pressed = true;
+		}
+		ImGui::PopID();
+	}
+	else
+	{
+		*aTexture = G::APIDefs->Textures.GetOrCreateFromResource(aIdentifer.c_str(), aResourceID, G::Module);
+		if (ImGui::Button(aAltText.c_str()))
+		{
+			pressed = true;
+		}
+	}
+
+	return pressed;
 }
 
 inline void RenderSpecIcon(float aSize, int aProfession, int aSpec)

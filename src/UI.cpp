@@ -10,7 +10,7 @@
 
 #include "imgui/imgui.h"
 
-namespace UI
+namespace GUI
 {
 	static CSquadMgr  s_SquadMgr;
 	static CPullTimer s_PullTimer;

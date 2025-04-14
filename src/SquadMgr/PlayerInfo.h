@@ -15,6 +15,7 @@
 #include "RTAPI/RTAPI.hpp"
 
 #include "UtilityInfo.h"
+#include "KillproofInfo.h"
 
 ///----------------------------------------------------------------------------------------------------
 /// EProfession Enumeration
@@ -40,9 +41,10 @@ enum class EProfession : int32_t
 struct PlayerInfo_t
 {
 	RTAPI::GroupMember Member;
+	KPMEInfo_t*        KPMEInfo;
 	UtilityInfo_t      UtilityInfo;
-	char               Note[250];
-	long long          HasLeft;     /* Timestamp (seconds) */
+	char               Note[500];
+	long long          HasLeft; /* Timestamp (seconds) */
 };
 
 #endif

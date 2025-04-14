@@ -76,9 +76,9 @@ namespace Addon
 		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT",       IDB_QUICKACCESS,       G::Module, nullptr);
 		G::APIDefs->Textures.LoadFromResource("ICON_COMMANDERSTOOLKIT_HOVER", IDB_QUICKACCESS_HOVER, G::Module, nullptr);
 
-		G::APIDefs->Renderer.Register(ERenderType_Render, UI::Render);
+		G::APIDefs->Renderer.Register(ERenderType_Render, GUI::Render);
 		G::APIDefs->QuickAccess.Add("QA_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT", "ICON_COMMANDERSTOOLKIT_HOVER", KB_COMMANDERSTOOLKIT, "Commander's Toolkit");
-		G::APIDefs->QuickAccess.AddContextMenu("QACTX_COMMANDERSTOOLKIT", "QA_COMMANDERSTOOLKIT", UI::RenderShortcutContextMenu);
+		G::APIDefs->QuickAccess.AddContextMenu("QACTX_COMMANDERSTOOLKIT", "QA_COMMANDERSTOOLKIT", GUI::RenderShortcutContextMenu);
 
 		G::APIDefs->Events.Subscribe("EV_ADDON_LOADED",                   (EVENT_CONSUME)OnAddonLoaded);
 		G::APIDefs->Events.Subscribe("EV_ADDON_UNLOADED",                 (EVENT_CONSUME)OnAddonUnloaded);
@@ -108,7 +108,7 @@ namespace Addon
 
 	void Unload()
 	{
-		G::APIDefs->Renderer.Deregister(UI::Render);
+		G::APIDefs->Renderer.Deregister(GUI::Render);
 		G::APIDefs->QuickAccess.Remove("QA_COMMANDERSTOOLKIT");
 		G::APIDefs->QuickAccess.RemoveContextMenu("QACTX_COMMANDERSTOOLKIT");
 
@@ -141,7 +141,7 @@ namespace Addon
 
 		if (bind == KB_COMMANDERSTOOLKIT)
 		{
-			UI::GetSquadMgr()->ToggleVisible();
+			GUI::GetSquadMgr()->ToggleVisible();
 			return;
 		}
 	}
@@ -167,27 +167,27 @@ namespace Addon
 
 	void OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember)
 	{
-		UI::GetSquadMgr()->OnGroupMemberJoin(aGroupMember);
+		GUI::GetSquadMgr()->OnGroupMemberJoin(aGroupMember);
 	}
 	void OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 	{
-		UI::GetSquadMgr()->OnGroupMemberLeave(aGroupMember);
+		GUI::GetSquadMgr()->OnGroupMemberLeave(aGroupMember);
 	}
 	void OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 	{
-		UI::GetSquadMgr()->OnGroupMemberUpdate(aGroupMember);
+		GUI::GetSquadMgr()->OnGroupMemberUpdate(aGroupMember);
 	}
 
 	void OnAgentJoin(AgentUpdate* aAgentUpdate)
 	{
-		UI::GetSquadMgr()->OnAgentJoin(aAgentUpdate);
+		GUI::GetSquadMgr()->OnAgentJoin(aAgentUpdate);
 	}
 	void OnAgentLeave(AgentUpdate* aAgentUpdate)
 	{
-		UI::GetSquadMgr()->OnAgentLeave(aAgentUpdate);
+		GUI::GetSquadMgr()->OnAgentLeave(aAgentUpdate);
 	}
 	void OnSquadUpdate(SquadUpdate* aSquadUpdate)
 	{
-		UI::GetSquadMgr()->OnSquadUpdate(aSquadUpdate);
+		GUI::GetSquadMgr()->OnSquadUpdate(aSquadUpdate);
 	}
 }
