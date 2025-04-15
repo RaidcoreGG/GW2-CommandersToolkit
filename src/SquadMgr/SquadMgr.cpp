@@ -308,6 +308,7 @@ void CSquadMgr::Render()
 	static ImU32 warnCol = IM_COL32(255, 148, 79, 255);
 	static ImU32 errCol = IM_COL32(172, 89, 89, 255);
 
+	ImGui::SetNextWindowSizeConstraints(ImVec2(-1, 100), ImVec2(-1, ImGui::GetIO().DisplaySize.y / 2));
 	if (ImGui::Begin("Squad Manager", &this->Visible, s_WndFlags))
 	{
 		const std::lock_guard<std::mutex> lock(this->Mutex);
@@ -527,6 +528,14 @@ void CSquadMgr::Render()
 							else
 							{
 								ImGui::Text("NO DATA");
+
+								/* Fetch the KP data. */
+								const std::lock_guard<std::mutex> kplock(this->KPMutex);
+								auto it = this->KPData.find(player.Member.AccountName);
+								if (it != this->KPData.end())
+								{
+									player.KPMEInfo = it->second;
+								}
 							}
 						}
 
@@ -705,7 +714,6 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 				else
 				{
 					kpmeInfo = new KPMEInfo_t();
-					this->Players[aAccountName].KPMEInfo = kpmeInfo;
 				}
 			}
 
@@ -979,10 +987,15 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 		{
 			this->Players.clear();
 		}
+		this->KPRequirement = {};
 	}
 	else
 	{
-		this->Players[aGroupMember->AccountName].HasLeft = Time::GetTimestamp();
+		auto it = this->Players.find(aGroupMember->AccountName);
+		if (it != this->Players.end())
+		{
+			this->Players[aGroupMember->AccountName].HasLeft = Time::GetTimestamp();
+		}
 	}
 }
 void CSquadMgr::OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
