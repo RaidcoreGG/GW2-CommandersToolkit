@@ -520,7 +520,7 @@ void CSquadMgr::Render()
 								}
 								else
 								{
-									ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), successCol, sz);
+									ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY()), successCol, sz);
 									ImGui::Dummy(ImVec2(sz, sz));
 								}
 							}
@@ -658,8 +658,8 @@ void CSquadMgr::Render()
 
 					ImU32 textCol = ImU32(ImColor(ImGui::GetStyle().Colors[ImGuiCol_Text]));
 
-					if (summary.Alacrity) { ImGui::TableSetColumnIndex(alacIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
-					if (summary.Quickness) { ImGui::TableSetColumnIndex(quicIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos(), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Alacrity) { ImGui::TableSetColumnIndex(alacIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY()), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
+					if (summary.Quickness) { ImGui::TableSetColumnIndex(quicIdx); ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY()), fullCoverage ? successCol : ImU32(ImColor(textCol)), sz); }
 
 					if (fullCoverage) { ImGui::PopStyleColor(); } // reset green text
 
