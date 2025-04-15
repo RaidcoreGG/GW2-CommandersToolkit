@@ -955,7 +955,7 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 
 				{
 					const std::lock_guard<std::mutex> lock(this->KPMutex);
-					this->KPData[aAccountName] = kpmeInfo;
+					this->KPData.emplace(aAccountName, kpmeInfo);
 				}
 			}
 			catch (json::parse_error& exc)
@@ -970,11 +970,22 @@ void CSquadMgr::OnGroupMemberJoin(RTAPI::GroupMember* aGroupMember)
 {
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	auto& player = this->Players[aGroupMember->AccountName];
-	player.Member = *aGroupMember;
-	player.HasLeft = 0; /* Reset in case the player rejoined without removal. */
+	auto plIt = this->Players.find(aGroupMember->AccountName);
 
-	GetKPData(player);
+	if (plIt != this->Players.end())
+	{
+		plIt->second.Member = *aGroupMember;
+		plIt->second.HasLeft = 0;
+
+		GetKPData(plIt->second);
+	}
+	else
+	{
+		auto [newIt, inserted] = this->Players.emplace(aGroupMember->AccountName, PlayerInfo_t{ *aGroupMember });
+		// HasLeft is null initialized.
+
+		GetKPData(newIt->second);
+	}
 }
 void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 {
@@ -994,20 +1005,31 @@ void CSquadMgr::OnGroupMemberLeave(RTAPI::GroupMember* aGroupMember)
 		auto it = this->Players.find(aGroupMember->AccountName);
 		if (it != this->Players.end())
 		{
-			this->Players[aGroupMember->AccountName].HasLeft = Time::GetTimestamp();
+			it->second.HasLeft = Time::GetTimestamp();
 		}
 	}
 }
 void CSquadMgr::OnGroupMemberUpdate(RTAPI::GroupMember* aGroupMember)
 {
+	/* Code is identical to Join. */
 	const std::lock_guard<std::mutex> lock(this->Mutex);
 
-	auto& player = this->Players[aGroupMember->AccountName];
+	auto plIt = this->Players.find(aGroupMember->AccountName);
 
-	player.Member = *aGroupMember;
-	player.HasLeft = 0; /* Reset in case the player rejoined without removal. */
+	if (plIt != this->Players.end())
+	{
+		plIt->second.Member = *aGroupMember;
+		plIt->second.HasLeft = 0;
 
-	GetKPData(player);
+		GetKPData(plIt->second);
+	}
+	else
+	{
+		auto [newIt, inserted] = this->Players.emplace(aGroupMember->AccountName, PlayerInfo_t{*aGroupMember});
+		// HasLeft is null initialized.
+
+		GetKPData(newIt->second);
+	}
 }
 
 void CSquadMgr::OnAgentJoin(AgentUpdate* aAgentUpdate)
