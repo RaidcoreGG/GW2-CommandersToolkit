@@ -60,8 +60,8 @@ class CSquadMgr
 	std::unordered_map<std::string, PlayerInfo_t> Players;
 
 	std::mutex                                    CacheMutex;
-	std::unordered_map<std::string, AgentUpdate>  CachedAgentsArc;
-	std::unordered_map<std::string, UserInfo>     CachedAgentsUE;
+	std::unordered_map<std::string, AgentUpdate>  CachedAgents; /* From Arc */
+	std::unordered_map<std::string, UserInfo>     CachedUsers;  /* From UE */
 
 	std::mutex                                    KPMutex;
 	std::unordered_map<std::string, KPMEInfo_t*>  KPData;
