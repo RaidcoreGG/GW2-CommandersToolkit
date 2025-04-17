@@ -23,4 +23,7 @@ With just ArcDPS subgroups have to be managed manually, or are updated on combat
 ## Installation
 Install via the [Nexus](https://raidcore.gg/Nexus) Addon Library or download the latest `commanderstoolkit.dll` from the [Releases](https://github.com/RaidcoreGG/GW2-CommandersToolkit/releases) and place in `<Guild Wars 2>/addons`
 
-![alt text](https://i.imgur.com/dqEmEae.png)
+![image](https://github.com/user-attachments/assets/5f89dcdb-ba0a-459b-a9b6-636243789d91)
+![image](https://github.com/user-attachments/assets/4f81b8cb-4015-4fc9-bf99-385f6e896f8f)
+![image](https://github.com/user-attachments/assets/719e6e9a-645f-4961-b19f-f603eb170ebd)
+![image](https://github.com/user-attachments/assets/62becd46-af26-4f99-b4be-dff972f41b94)
