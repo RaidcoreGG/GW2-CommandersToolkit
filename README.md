@@ -6,12 +6,14 @@
 ![](https://img.shields.io/github/downloads/RaidcoreGG/GW2-CommandersToolkit/total?style=for-the-badge&labelColor=%23131519&color=%230F79AA)
 
 # GW2-CommandersToolkit
-A simple addon that lets you keep track of who's responsible for which job.
-If someone leaves the group, you see at a glance what's missing.
+Commander's Toolkit provides a variety of tools for party and squad management.
 
-If everything in a subgroup is covered, the text will be in green. If you have more than 5 members in a sub, you will be shown a warning.
-
-When a user goes out of scope (leaves instance or squad), they will be shown in red and you can click to remove them. Once they go into scope again, they will no longer be marked.
+## Features
+- Keep track of players leaving the squad. (Automatically purged after 5 minutes.)
+- Keep track of Quickness, Alacrity and Damage Type (Power, Condition, Heal) of group members.
+- Set KP Requirements and automatically check, if group members fulfill it.
+- Displays a warning if more than 5 members per subgroup. (Boon/Heal distribution.)
+- Field for taking notes, for extra information.
 
 ## Requirements
 Requires [RealTime API](https://github.com/RaidcoreGG/GW2-RealTime-API-Releases) or [ArcDPS](https://github.com/RaidcoreGG/GW2-RealTime-API-Releases) with [Unofficial Extras](https://github.com/Krappa322/arcdps_unofficial_extras_releases) optionally.  
