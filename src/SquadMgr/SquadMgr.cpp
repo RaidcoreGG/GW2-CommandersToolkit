@@ -497,7 +497,7 @@ void CSquadMgr::Render()
 						RenderSpecIcon(sz, player.Member.Profession, player.Member.EliteSpecialization);
 						ImGui::SameLine();
 						float chnameWidth = ImGui::CalcTextSize(player.Member.CharacterName).x;
-						ImGui::PushItemWidth(max(ImGui::CalcTextSize("## Subgroup ##").x, chnameWidth));
+						ImGui::PushItemWidth(max(ImGui::CalcTextSize("xx Subgroup xx").x, chnameWidth));
 						ImGui::Text(player.Member.CharacterName);
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
