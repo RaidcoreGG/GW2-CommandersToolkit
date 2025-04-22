@@ -720,7 +720,7 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 			}
 
 			HINTERNET hInternet = InternetOpen(
-				"GW2/Raidcore/CommandersToolkit", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
+				"Raidcore/GW2/CommandersToolkit", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
 
 			std::string result;
 
