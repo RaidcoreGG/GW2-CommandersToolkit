@@ -496,6 +496,8 @@ void CSquadMgr::Render()
 						ImGui::TableNextColumn();
 						RenderSpecIcon(sz, player.Member.Profession, player.Member.EliteSpecialization);
 						ImGui::SameLine();
+						float chnameWidth = ImGui::CalcTextSize(player.Member.CharacterName).x;
+						ImGui::PushItemWidth(max(ImGui::CalcTextSize("## Subgroup ##").x, chnameWidth));
 						ImGui::Text(player.Member.CharacterName);
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
@@ -504,7 +506,7 @@ void CSquadMgr::Render()
 						{
 							ImGui::TableNextColumn();
 							ImGui::SetNextItemWidth(sz * 5);
-							ImGui::InputInt(("##Subgroup_" + std::string(player.Member.AccountName)).c_str(), &player.Member.Subgroup);
+							ImGui::InputInt(("##Subgroup_" + std::string(player.Member.AccountName)).c_str(), (int*)&player.Member.Subgroup);
 							player.Member.Subgroup = min(max(player.Member.Subgroup, 1), 15);
 						}
 
