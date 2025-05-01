@@ -16,6 +16,8 @@
 ///----------------------------------------------------------------------------------------------------
 struct KPMEInfo_t
 {
+	bool IsInvalid = false; // No account.
+
 	struct RaidKP_t
 	{
 		int  LI; // including LD
@@ -238,7 +240,7 @@ inline std::string CheckRequirements(const KPMEInfo_t& aValue, const KPMEInfo_t&
 	checkBool(aValue.Strikes.EOD_LegendaryConquerorOfCerus, aRequired.Strikes.EOD_LegendaryConquerorOfCerus, "Legendary Conqueror of Cerus");
 
 	// Fractals
-	checkInt(aValue.Fractals.UFE, aRequired.Fractals.UFE, "UFE Fractal clears");
+	checkInt(aValue.Fractals.UFE, aRequired.Fractals.UFE, "UFE");
 
 	checkBool(aValue.Fractals.TheUnclean, aRequired.Fractals.TheUnclean, "The Unclean");
 	checkBool(aValue.Fractals.LNHB, aRequired.Fractals.LNHB, "LNHB");

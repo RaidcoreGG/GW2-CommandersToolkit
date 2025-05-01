@@ -520,16 +520,29 @@ void CSquadMgr::Render()
 							ImGui::TableNextColumn();
 							if (player.KPMEInfo != nullptr)
 							{
-								std::string reqs = CheckRequirements(*player.KPMEInfo, this->KPRequirement).c_str();
-
-								if (!reqs.empty())
+								if (player.KPMEInfo->IsInvalid == true)
 								{
-									ImGui::TextColored(ImColor(warnCol), reqs.c_str());
+									ImGui::Text("-");
+									if (ImGui::IsItemHovered())
+									{
+										ImGui::BeginTooltip();
+										ImGui::Text("This player does not have a killproof.me account or does not share it.");
+										ImGui::EndTooltip();
+									}
 								}
 								else
 								{
-									ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY()), successCol, sz);
-									ImGui::Dummy(ImVec2(sz, sz));
+									std::string reqs = CheckRequirements(*player.KPMEInfo, this->KPRequirement).c_str();
+
+									if (!reqs.empty())
+									{
+										ImGui::TextColored(ImColor(warnCol), reqs.c_str());
+									}
+									else
+									{
+										ImGui::RenderCheckMark(dl, ImGui::GetCursorPos() + ImGui::GetWindowPos() - ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY()), successCol, sz);
+										ImGui::Dummy(ImVec2(sz, sz));
+									}
 								}
 							}
 							else
@@ -768,6 +781,11 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 			{
 				json response = json::parse(result);
 
+				if (!response.is_null() && !response["error"].is_null())
+				{
+					kpmeInfo->IsInvalid = response["error"].get<std::string>() == "Account not found";
+				}
+
 				if (!response.is_null() && !response["linked_totals"].is_null())
 				{
 					response = response["linked_totals"];
@@ -823,9 +841,9 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 						{
 							case 88485: kpmeInfo->Raids.LI += kp["amount"].get<int>(); break;
 							case 77302: kpmeInfo->Raids.LI += kp["amount"].get<int>(); break;
-							case 94020: kpmeInfo->Fractals.UFE = kp["amount"].get<int>(); break;
-							case 81743: kpmeInfo->Fractals.UFE = kp["amount"].get<int>(); break;
-							case 93781: kpmeInfo->Strikes.IBS_BoneskinnerVial = kp["amount"].get<int>(); break;
+							case 94020: kpmeInfo->Fractals.UFE += kp["amount"].get<int>(); break;
+							case 81743: kpmeInfo->Fractals.UFE += kp["amount"].get<int>() * 5; break;
+							case 93781: kpmeInfo->Strikes.IBS_BoneskinnerVial += kp["amount"].get<int>(); break;
 						}
 					}
 				}
