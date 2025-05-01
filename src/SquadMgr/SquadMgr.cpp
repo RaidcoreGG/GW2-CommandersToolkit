@@ -332,7 +332,6 @@ void CSquadMgr::Render()
 				ImGui::TextColored(ImColor(warnCol), "RealTime API not installed.");
 			}
 
-
 			KPRequirementEditor(this->KPRequirement);
 			if (hasKPReq)
 			{

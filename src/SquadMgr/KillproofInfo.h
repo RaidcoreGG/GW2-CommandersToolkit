@@ -16,7 +16,7 @@
 ///----------------------------------------------------------------------------------------------------
 struct KPMEInfo_t
 {
-	bool IsInvalid = false; // No account.
+	bool IsInvalid; // No account.
 
 	struct RaidKP_t
 	{
