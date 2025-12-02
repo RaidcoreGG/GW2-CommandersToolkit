@@ -489,9 +489,16 @@ void CSquadMgr::Render()
 							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_TAG_LIEUTENANT);
 							ImGui::SameLine();
 						}
-						if (ImGui::Button(player.Member.AccountName))
+						if (player.KPMEInfo->ProofURL.empty())
 						{
-							ShellExecute(NULL, "open", player.KPMEInfo->ProofURL.c_str(), 0, 0, 0);
+							ImGui::Text(player.Member.AccountName);
+						}
+						else
+						{
+							if (ImGui::Button(player.Member.AccountName))
+							{
+								ShellExecute(NULL, "open", player.KPMEInfo->ProofURL.c_str(), 0, 0, 0);
+							}
 						}
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
