@@ -489,7 +489,10 @@ void CSquadMgr::Render()
 							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_TAG_LIEUTENANT);
 							ImGui::SameLine();
 						}
-						ImGui::Text(player.Member.AccountName);
+						if (ImGui::Button(player.Member.AccountName))
+						{
+							ShellExecute(NULL, "open", player.KPMEInfo->ProofURL.c_str(), 0, 0, 0);
+						}
 						PlayerLeftTooltip(player.HasLeft, secondsSinceLeft);
 
 						ImGui::TableNextColumn();
@@ -783,6 +786,11 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 				if (!response.is_null() && !response["error"].is_null())
 				{
 					kpmeInfo->IsInvalid = response["error"].get<std::string>() == "Account not found";
+				}
+
+				if (!response.is_null() && !response["proof_url"].is_null())
+				{
+					kpmeInfo->ProofURL = response["proof_url"].get<std::string>();
 				}
 
 				if (!response.is_null() && !response["linked_totals"].is_null())

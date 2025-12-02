@@ -18,6 +18,8 @@ struct KPMEInfo_t
 {
 	bool IsInvalid; // No account.
 
+	std::string ProofURL;
+
 	struct RaidKP_t
 	{
 		int  LI; // including LD
