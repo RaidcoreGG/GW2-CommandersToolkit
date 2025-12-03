@@ -489,7 +489,7 @@ void CSquadMgr::Render()
 							RenderIcon(sz, &G::Textures[ETextures::TagLieutenant], "TEX_TAG_LIEUTENANT", "Lieutenant", IDB_TAG_LIEUTENANT);
 							ImGui::SameLine();
 						}
-						if (player.KPMEInfo->ProofURL.empty())
+						if (player.KPMEInfo == nullptr || player.KPMEInfo->ProofURL.empty())
 						{
 							ImGui::Text(player.Member.AccountName);
 						}

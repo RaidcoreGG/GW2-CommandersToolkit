@@ -18,7 +18,7 @@ struct KPMEInfo_t
 {
 	bool IsInvalid; // No account.
 
-	std::string ProofURL;
+	std::string ProofURL{};
 
 	struct RaidKP_t
 	{
