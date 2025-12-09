@@ -34,46 +34,55 @@ enum ETextures
 	SpecEleCat,
 	SpecEleTmp,
 	SpecEleWvr,
+	SpecEleEvk,
 
 	SpecEng,
 	SpecEngHls,
 	SpecEngMch,
 	SpecEngScr,
+	SpecEngAma,
 
 	SpecGrd,
 	SpecGrdDgh,
 	SpecGrdFbd,
 	SpecGrdWbd,
+	SpecGrdLum,
 
 	SpecMes,
 	SpecMesChr,
 	SpecMesMir,
 	SpecMesVrt,
+	SpecMesTbd,
 
 	SpecNec,
 	SpecNecHrb,
 	SpecNecRpr,
 	SpecNecScg,
+	SpecNecRit,
 
 	SpecRev,
 	SpecRevHer,
 	SpecRevRen,
 	SpecRevVin,
+	SpecRevCnd,
 
 	SpecRgr,
 	SpecRgrDrd,
 	SpecRgrSlb,
 	SpecRgrUtd,
+	SpecRgrGal,
 
 	SpecThf,
 	SpecThfDde,
 	SpecThfDdl,
 	SpecThfSpc,
+	SpecThfAtq,
 
 	SpecWar,
 	SpecWarBrs,
 	SpecWarBsw,
 	SpecWarSpb,
+	SpecWarPar,
 
 	SpecUnknown,
 
