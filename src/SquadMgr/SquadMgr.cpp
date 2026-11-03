@@ -965,6 +965,9 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 							case 104047: kpmeInfo->Raids.W8_Greer += token["amount"].get<int>(); break;
 							case 103754: kpmeInfo->Raids.W8_Decima += token["amount"].get<int>(); break;
 							case 103996: kpmeInfo->Raids.W8_Ura += token["amount"].get<int>(); break;
+							case 104399: case 107171: kpmeInfo->Raids.W8_GreerCM += token["amount"].get<int>(); break;
+							case 104246: case 106934: kpmeInfo->Raids.W8_DecimaCM += token["amount"].get<int>(); break;
+							case 104355: case 106938: kpmeInfo->Raids.W8_UraCM += token["amount"].get<int>(); break;
 						
 							// AH
 							case 95638: case 107067: kpmeInfo->Strikes.EOD_AH += token["amount"].get<int>(); break;
@@ -1049,11 +1052,8 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 
 							// Wing 8
 							case 103783: case 104306: kpmeInfo->Raids.W8_Greer += coffer["amount"].get<int>(); break;
-							case 104399: case 107171: kpmeInfo->Raids.W8_GreerCM += coffer["amount"].get<int>(); break;
 							case 103926: case 104410: kpmeInfo->Raids.W8_Decima += coffer["amount"].get<int>(); break;
-							case 104246: case 106934: kpmeInfo->Raids.W8_DecimaCM += coffer["amount"].get<int>(); break;
 							case 103946: case 104439: kpmeInfo->Raids.W8_Ura += coffer["amount"].get<int>(); break;
-							case 104355: case 106938: kpmeInfo->Raids.W8_UraCM += coffer["amount"].get<int>(); break;
 						}
 					}
 				}
