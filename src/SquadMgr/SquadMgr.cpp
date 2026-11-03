@@ -294,6 +294,14 @@ void KPRequirementEditor(KPMEInfo_t& aKP)
 
 				ImGui::Checkbox("Crustacean Corraller", &aKP.Strikes.VOE_CrustaceanCorraler);
 
+				ImGui::SetNextItemWidth(sz * 10);
+				ImGui::InputInt("Vloxx", &aKP.Strikes.VOE_Vloxx, 1, 50);
+
+				ImGui::SetNextItemWidth(sz * 10);
+				ImGui::InputInt("Vloxx (CM)", &aKP.Strikes.VOE_VloxxCM, 1, 50);
+
+				ImGui::Checkbox("Legendary Conqueror of Vloxx", &aKP.Strikes.VOE_LegendaryConquerorOfVloxx);
+
 				ImGui::TreePop();
 			}
 
@@ -882,6 +890,7 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 							case 418: kpmeInfo->Strikes.EOD_EmbodimentOfSin = true; break;
 							case 456: kpmeInfo->Strikes.EOD_LegendaryConquerorOfCerus = true; break;
 							case 624: kpmeInfo->Strikes.VOE_CrustaceanCorraler = true; break;
+							case 649: kpmeInfo->Strikes.VOE_LegendaryConquerorOfVloxx = true; break;
 
 							case 250: kpmeInfo->Fractals.TheUnclean = true; break;
 							case 277: kpmeInfo->Fractals.LNHB = true; break;
@@ -988,6 +997,10 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 							// Kela
 							case 106994: kpmeInfo->Strikes.VOE_Kela += token["amount"].get<int>(); break;
 							case 107608: kpmeInfo->Strikes.VOE_KelaCM += token["amount"].get<int>(); break;
+
+							// Vloxx
+							case 110231: kpmeInfo->Strikes.VOE_Vloxx += token["amount"].get<int>(); break;
+							case 110245: kpmeInfo->Strikes.VOE_VloxxCM += token["amount"].get<int>(); break;
 						}
 					}
 				}

@@ -125,6 +125,11 @@ struct KPMEInfo_t
 		int  VOE_Kela;
 		int  VOE_KelaCM;
 		bool VOE_CrustaceanCorraler;
+
+		int VOE_Vloxx;
+		int VOE_VloxxCM;
+		// Only LCM title. no normal CM or other achievement gives a title
+		bool VOE_LegendaryConquerorOfVloxx;
 	} Strikes;
 
 	struct FractalKP_t
@@ -283,6 +288,10 @@ inline std::string CheckRequirements(const KPMEInfo_t& aValue, const KPMEInfo_t&
 	checkInt(aValue.Strikes.VOE_Kela, aRequired.Strikes.VOE_Kela, "Kela clears");
 	checkInt(aValue.Strikes.VOE_KelaCM, aRequired.Strikes.VOE_KelaCM, "Kela CM clears");
 	checkBool(aValue.Strikes.VOE_CrustaceanCorraler, aRequired.Strikes.VOE_CrustaceanCorraler, "Crustacean Corraler");
+
+	checkInt(aValue.Strikes.VOE_Vloxx, aRequired.Strikes.VOE_Vloxx, "Vloxx clears");
+	checkInt(aValue.Strikes.VOE_VloxxCM, aRequired.Strikes.VOE_VloxxCM, "Vloxx CM clears");
+	checkBool(aValue.Strikes.VOE_LegendaryConquerorOfVloxx, aRequired.Strikes.VOE_LegendaryConquerorOfVloxx, "Legendary Conqueror of Vloxx");
 
 	// Fractals
 	checkInt(aValue.Fractals.UFE, aRequired.Fractals.UFE, "UFE");
