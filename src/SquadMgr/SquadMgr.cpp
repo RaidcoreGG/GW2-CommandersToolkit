@@ -996,6 +996,8 @@ void CSquadMgr::GetKPData(PlayerInfo_t& aPlayer)
 
 							// Kela
 							case 106994: kpmeInfo->Strikes.VOE_Kela += token["amount"].get<int>(); break;
+							// Sandcastles, divide by 3 because everything else counts in chests and you get 3 tokens per chest
+							case 107033: kpmeInfo->Strikes.VOE_Kela += token["amount"].get<int>() / 3; break;
 							case 107608: kpmeInfo->Strikes.VOE_KelaCM += token["amount"].get<int>(); break;
 
 							// Vloxx
